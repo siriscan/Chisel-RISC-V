@@ -17,8 +17,9 @@ module ALU(
   wire [63:0]       _io_C_T_19 = _GEN_0 * {{32{B[31]}}, B};
   wire [63:0]       _io_C_T_23 = _GEN_0 * _GEN;
   wire [63:0]       _io_C_T_27 = {32'h0, io_A} * _GEN;
+  wire [32:0]       _io_C_T_31 = $signed($signed({io_A[31], io_A}) / $signed({B[31], B}));
   wire [15:0][31:0] _GEN_1 =
-    {{32'h0},
+    {{_io_C_T_31[31:0]},
      {_io_C_T_27[63:32]},
      {_io_C_T_23[63:32]},
      {_io_C_T_19[63:32]},

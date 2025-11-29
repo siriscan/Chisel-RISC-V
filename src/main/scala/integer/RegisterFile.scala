@@ -1,4 +1,7 @@
+package integer
+
 import chisel3._
+import circt.stage.ChiselStage
 
 class RegisterFile(width: Int) extends Module { // width will be used for future expansion; 32 bits for now
 
@@ -27,3 +30,9 @@ class RegisterFile(width: Int) extends Module { // width will be used for future
   
 }
 
+object RegisterFile extends App {
+  ChiselStage.emitSystemVerilogFile(
+    new integer.RegisterFile(width = 32), // 32-bit ALU
+    firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info", "-default-layer-specialization=enable")
+  )
+}
