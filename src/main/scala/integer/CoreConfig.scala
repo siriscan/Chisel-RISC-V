@@ -4,19 +4,23 @@ import chisel3._
 import chisel3.util._
 
 // Configuration for the Core stuff (Integer)
+// Control Signals Bundle (Passed from Decode -> Execute)
+
 final case class CoreConfig(
   xlen: Int = 32,
-  pcReset: Long = 0,
+  startPC: BigInt = 0,
   imemFile: String = "" // Instruction Memory Initialization File Path
 )
 
-// Control Signals Bundle (Passed from Decode -> Execute)
+
+// Control Signals that flow through the pipeline
 class ControlSignals extends Bundle {
-  val aluOp    = UInt(4.W)
-  val regWrite = Bool()
-  val memRead  = Bool()
-  val memWrite = Bool()
-  val branch   = Bool()
-  val memToReg = Bool()
-  val op2Sel   = Bool() // 0: rs2, 1: immediate
+  val regWrite = Bool() // 0: No Write, 1: Write to Register
+  val memRead  = Bool() // 0: No Read, 1: Read from Memory
+  val memWrite = Bool() // 0: No Write, 1: Write to Memory
+  val memToReg = Bool() // 0: ALU result, 1: Memory data
+  val imm_flag   = Bool() // 0: Reg, 1: Immediate
+  val branch   = Bool() // 0: No branch, 1: Branch
+  val jump     = Bool() // 0: No jump, 1: Jump
+  val aluOp    = UInt(4.W) // Simplified ALU Opcode
 }

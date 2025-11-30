@@ -19,6 +19,9 @@ class RegisterFile(width: Int) extends Module { // width will be used for future
 
   val regFile = RegInit(VecInit(Seq.fill(32)(0.U(width.W)))) // 32 registers of 32 bits each
 
+  //Register 0 is always zero
+  regFile(0) := 0.U // Forces x0 = 0
+
   // Read ports
   io.A := Mux(io.readAddressA === 0.U, 0.U, regFile(io.readAddressA))
   io.B := Mux(io.readAddressB === 0.U, 0.U, regFile(io.readAddressB))
@@ -30,9 +33,12 @@ class RegisterFile(width: Int) extends Module { // width will be used for future
   
 }
 
+//Delete comments for testing Register File independently 
+/* 
 object RegisterFile extends App {
   ChiselStage.emitSystemVerilogFile(
     new integer.RegisterFile(width = 32), // 32-bit ALU
     firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info", "-default-layer-specialization=enable")
   )
 }
+ */

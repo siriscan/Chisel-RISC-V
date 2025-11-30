@@ -45,16 +45,12 @@ class ALU(width : Int) extends Module {
     val A = Input(UInt(width.W))
     val B = Input(UInt(width.W))
     val opcode = Input(UInt(4.W))
-    val imm_flag = Input(Bool()) // true for I-type, false for R-type
-    val imm = Input(UInt(width.W)) // Immediate value for I-type instructions
     val C = Output(UInt(width.W))
   })
     io.C := 0.U // Default output
     val B = WireDefault(io.B)
 
-when(io.imm_flag){ 
-    B := io.imm // Sets B to immediate for I-type instructions
-}
+
 
 switch(io.opcode) {
     is(ALUConsts_Interger.add) {
