@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.experimental.loadMemoryFromFile // Essential for file loading
 
-class InstructionMem(depth: Int = 16384, initFile: String = "") extends Module {
+class InstructionMem(depth: Int, initFile: String = "") extends Module { // 16KB by default
   val io = IO(new Bundle {
     val address = Input(UInt(32.W))    // Program Counter (Byte Address)
     val instruction = Output(UInt(32.W))   // 32-bit Instruction

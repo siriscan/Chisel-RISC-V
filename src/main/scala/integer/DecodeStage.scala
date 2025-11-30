@@ -106,78 +106,93 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.regWrite := true.B // Write to register
         io.immediate := imm_j_sext // Sign-extended immediate
       }
-      is("b0110011".U) { // R-type ALU Instructions
-        io.controlSignals.imm_flag := false.B // Use register
-        io.controlSignals.regWrite := true.B // Write to register
+      is("b0110011".U) { // R-type Instructions (ALU + M-Ext)
+        io.controlSignals.imm_flag := false.B
+        io.controlSignals.regWrite := true.B
+        
         switch(funct3) {
+          // funct3 = 000: ADD, SUB, MUL
           is("b000".U) {
-            when(funct7 === "b0000000".U) {
-              io.controlSignals.aluOp := 1.U // ADD
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 11.U // MUL
             } .elsewhen(funct7 === "b0100000".U) {
-              io.controlSignals.aluOp := 2.U // SUB
+              io.controlSignals.aluOp := 2.U  // SUB
+            } .otherwise {
+              io.controlSignals.aluOp := 1.U  // ADD
             }
           }
-      is("b111".U) { io.controlSignals.aluOp := 3.U } // AND
-      is("b110".U) { io.controlSignals.aluOp := 4.U } // OR
-      is("b100".U) { io.controlSignals.aluOp := 5.U } // XOR
-      is("b001".U) { io.controlSignals.aluOp := 6.U } // SLL
-      is("b101".U) {
-        when(funct7 === "b0000000".U) {
-          io.controlSignals.aluOp := 7.U // SRL
-        } .elsewhen(funct7 === "b0100000".U) {
-          io.controlSignals.aluOp := 8.U // SRA
+          
+          // funct3 = 001: SLL, MULH
+          is("b001".U) {
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 12.U // MULH
+            } .otherwise {
+              io.controlSignals.aluOp := 6.U  // SLL
+            }
+          }
+          
+          // funct3 = 010: SLT, MULHSU
+          is("b010".U) {
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 13.U // MULHSU
+            } .otherwise {
+              io.controlSignals.aluOp := 9.U  // SLT
+            }
+          }
+          
+          // funct3 = 011: SLTU, MULHU
+          is("b011".U) {
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 14.U // MULHU
+            } .otherwise {
+              io.controlSignals.aluOp := 10.U // SLTU
+            }
+          }
+          
+          // funct3 = 100: XOR, DIV
+          is("b100".U) {
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 15.U // DIV
+            } .otherwise {
+              io.controlSignals.aluOp := 5.U  // XOR
+            }
+          }
+          
+          // funct3 = 101: SRL, SRA, DIVU
+          is("b101".U) {
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 16.U // DIVU
+            } .elsewhen(funct7 === "b0100000".U) {
+              io.controlSignals.aluOp := 8.U  // SRA
+            } .otherwise {
+              io.controlSignals.aluOp := 7.U  // SRL
+            }
+          }
+          
+          // funct3 = 110: OR, REM
+          is("b110".U) {
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 17.U // REM
+            } .otherwise {
+              io.controlSignals.aluOp := 4.U  // OR
+            }
+          }
+          
+          // funct3 = 111: AND, REMU
+          is("b111".U) {
+            when(funct7 === "b0000001".U) {
+              io.controlSignals.aluOp := 18.U // REMU
+            } .otherwise {
+              io.controlSignals.aluOp := 3.U  // AND
+            }
+          }
         }
       }
-      is("b010".U) { io.controlSignals.aluOp := 9.U } // SLT
-      is("b011".U) { io.controlSignals.aluOp := 10.U } // SLTU
 
-      //Multiply and Divide instructions
-      is("b000".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 11.U // MUL
-        }
-      }
-      is("b001".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 12.U // MULH
-        }
-      }
-      is("b010".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 13.U // MULHSU
-        }
-      }
-      is("b011".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 14.U // MULHU
-        }
-      }
-      is("b100".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 15.U // DIV
-        }
-      }
-      is("b101".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 16.U // DIVU
-        }
-      }
-      is("b110".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 17.U // REM
-        }
-      }
-      is("b111".U) {
-        when(funct7 === "b0000001".U) {
-          io.controlSignals.aluOp := 18.U // REMU
-        }
-      }
-      // Add more instruction decodings as needed
 
-
-        }
+      
       }
-    }
+    
 
     
 

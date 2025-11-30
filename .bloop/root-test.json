@@ -146,6 +146,11 @@
                     "names": [
                         "hedgehog.sbt.Framework"
                     ]
+                },
+                {
+                    "names": [
+                        "org.scalatest.tools.Framework"
+                    ]
                 }
             ],
             "options": {

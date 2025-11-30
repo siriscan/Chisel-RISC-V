@@ -15,14 +15,22 @@ class ExecuteStage(config : CoreConfig) extends Module {
     val pcIn = Input(UInt(config.xlen.W)) // PC from Decode Stage
     val controlSignals = Input(new ControlSignals)
 
+    // Outputs to Fetch Stage
+    val branchTaken = Output(Bool()) // True: branch taken, False: not taken
+    val branchTarget = Output(UInt(config.xlen.W)) // Target PC if branch taken
+
+
     // Outputs to Memory Stage
-    val aluResult = Output(UInt(32.W))
-    val zeroFlag = Output(Bool()) // For branch decisions
+    val aluResult = Output(UInt(32.W)) // ALU Result
     val pcOut = Output(UInt(config.xlen.W)) // Pass PC to Memory Stage
+    val controlSignalsOut = Output(new ControlSignals) // Pass control signals to Memory Stage
+    val memWriteData = Output(UInt(32.W)) // Data (rs2) to write to memory for store instructions
+
+    
   })
 
     // ALU Module
-    val alu = Module(new ALU(32)) // 32-bit ALU
+    val alu = Module(new ALU(config.xlen)) // 32-bit ALU
 
     val imm_flag = io.controlSignals.imm_flag
 
@@ -42,9 +50,17 @@ class ExecuteStage(config : CoreConfig) extends Module {
     io.aluResult := alu.io.C
 
     // Zero flag for branch decisions
-    io.zeroFlag := (alu.io.C === 0.U)
+    val zeroFlag = (alu.io.C === 0.U)
+    
+    // Branch Decision Logic
+    val currentBranch = io.controlSignals.branch
+    io.branchTaken := (currentBranch && zeroFlag) || io.controlSignals.jump // Branch taken if branch signal is high and zero flag is set, or if it's a jump
+    io.branchTarget := io.pcIn + io.immediate // Target PC = PC + immediate offset
 
-    // Pass PC to Memory Stage
+
+    // Pass to Memory Stage
     io.pcOut := io.pcIn
+    io.controlSignalsOut := io.controlSignals
+    io.memWriteData := io.B
   
 }

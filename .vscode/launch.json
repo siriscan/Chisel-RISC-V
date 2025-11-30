@@ -20,6 +20,26 @@
       "args": [],
       "jvmOptions": [],
       "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "Main",
+      "mainClass": "integer.Main",
+      "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "RISCV",
+      "mainClass": "integer.RISCV",
+      "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }

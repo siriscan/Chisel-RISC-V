@@ -11,8 +11,8 @@ import _root_.circt.stage.ChiselStage
     * - R-type: ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, MUL
   */
 
-//Constants operation codes
-object ALUConsts_Interger { //Integer ALU operation codes + Multiply
+// Constants operation codes
+object ALUConsts_Interger { // Integer ALU operation codes + Multiply
     val nop = 0.U
     val add = 1.U
     val sub = 2.U
@@ -25,13 +25,13 @@ object ALUConsts_Interger { //Integer ALU operation codes + Multiply
     val slt = 9.U
     val sltu= 10.U
 
-    //Multiply operations
+    // Multiply operations
     val mul  = 11.U
     val mulh = 12.U
     val mulhsu = 13.U
     val mulhu = 14.U
 
-    //Divide operations
+    // Divide operations
     val div  = 15.U
     val divu = 16.U
     val rem  = 17.U
@@ -96,7 +96,7 @@ switch(io.opcode) {
       }
     }
 
-    //Multiply and Divide operations
+    // Multiply and Divide operations
     is(ALUConsts_Interger.mul) {
       io.C := (io.A * B)(31,0)
     }
@@ -127,10 +127,11 @@ switch(io.opcode) {
 
 /**
  * Generate Verilog sources and save it in file ALU.sv
- */
-object ALU extends App {
+ * 
+ * object ALU extends App {
   ChiselStage.emitSystemVerilogFile(
     new ALU(width = 32), // 32-bit ALU
     firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info", "-default-layer-specialization=enable")
   )
 }
+ */

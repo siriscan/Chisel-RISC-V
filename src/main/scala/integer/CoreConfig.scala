@@ -7,9 +7,9 @@ import chisel3.util._
 // Control Signals Bundle (Passed from Decode -> Execute)
 
 final case class CoreConfig(
-  xlen: Int = 32,
-  startPC: BigInt = 0,
-  imemFile: String = "" // Instruction Memory Initialization File Path
+  xlen: Int,
+  startPC: BigInt,
+  imemFile: String = "src/main/resources/pmem.hex" // Instruction Memory Initialization File Path (Must be ASCII Hex)
 )
 
 

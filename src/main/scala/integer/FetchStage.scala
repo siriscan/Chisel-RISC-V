@@ -10,8 +10,10 @@ class FetchStage(conf: CoreConfig) extends Module {
     // Inputs from Execute Stage (Branching)
     val branchTarget = Input(UInt(conf.xlen.W)) // Branch PC if branch taken
     val takeBranch = Input(Bool()) // True: branch taken, False: PC + 4
+
+    // Inputs from Control Unit (Hazards)
     val stall = Input(Bool()) // True: hold PC, False: update PC
-    
+
     // Outputs to Decode Stage
     val pc   = Output(UInt(conf.xlen.W))
     val instruction = Output(UInt(32.W)) // RISC-V instructions are always 32-bit
@@ -21,7 +23,7 @@ class FetchStage(conf: CoreConfig) extends Module {
   val pcReg  = RegInit(conf.startPC.U(conf.xlen.W))
   val nextPc = Wire(UInt(conf.xlen.W))
 
-  val Pmem = Module(new InstructionMem(16384, conf.imemFile))
+  val Pmem = Module(new InstructionMem(16384, conf.imemFile)) // 16KB Instruction Memory from imemFile (pmem.hex)
 
   nextPc := Mux(io.takeBranch, io.branchTarget, pcReg + 4.U) // Default is PC + 4, unless branching
 
