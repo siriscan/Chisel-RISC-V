@@ -4,6 +4,18 @@
     {
       "type": "scala",
       "request": "launch",
+      "name": "Untitled",
+      "testClass": "file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/test/scala/integer/RiscVPipelineTest.scala",
+      "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
+    },
+
+
+    {
+      "type": "scala",
+      "request": "launch",
       "name": "ALU",
       "mainClass": "integer.ALU",
       "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",

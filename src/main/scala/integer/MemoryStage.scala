@@ -18,12 +18,12 @@ class MemoryStage(conf: CoreConfig) extends Module {
   })
 
   // Instantiate Data Memory (from previous steps)
-  val dmem = Module(new DataMem(16384)) // 16KB
+  val dmem = Module(new DataMem(16384)) // 16KB Data Memory
   dmem.io.addr     := io.aluResult
   dmem.io.wrData   := io.rs2Data
   dmem.io.memRead  := io.ctrl.memRead
   dmem.io.memWrite := io.ctrl.memWrite
-  dmem.io.mask     := VecInit(Seq.fill(4)(true.B)) // Default word access
+  dmem.io.mask     := VecInit(Seq.fill(4)(true.B)) // Default word access (4 bytes) 
 
   // Connect Outputs to Writeback Stage
   io.memData := dmem.io.rdData  // Data read from memory

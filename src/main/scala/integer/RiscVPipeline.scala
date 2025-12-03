@@ -4,25 +4,25 @@ import chisel3.util._
 
 class RiscVPipeline extends Module {
   val io = IO(new Bundle {
-    val result = Output(UInt(32.W)) // Debug output
+    val result = Output(UInt(32.W)) // Debug output (Not really useful)
+    // Need a ScalaTest to see internal signals
   })
 
-  val conf = CoreConfig(xlen = 32, startPC = 0x00000000) // 32-bit, start at address 0x00000000
+  val conf = CoreConfig(xlen = 32, startPC = 0, imemSize = 32, imemFile = "src/main/resources/pmem.hex") 
+  // 32-bit, start at address 0x00000000, instruction memory file path (pmem.hex)
 
-  // --- Instantiate Stages ---
+  // Instantiate Pipeline Stages
   val fetch    = Module(new FetchStage(conf))
   val decode   = Module(new DecodeStage(conf))
   val execute  = Module(new ExecuteStage(conf))
   val memory   = Module(new MemoryStage(conf))
   val writeback= Module(new WritebackStage(conf))
 
-  // --- Instantiate Control Units ---
+  // Instantiate Hazard and Forwarding Units
   val forwarding = Module(new ForwardUnit(conf.xlen))
   val hazard     = Module(new HazardUnit)
 
-  // ==================================================================
-  // PIPELINE REGISTERS (The barriers between stages)
-  // ==================================================================
+  // Pipeline Registers
 
   // 1. IF/ID Register
   // We use a Register of a Bundle to hold the data crossing the boundary
@@ -65,11 +65,9 @@ class RiscVPipeline extends Module {
   val mem_wb = RegInit(0.U.asTypeOf(new MEM_WB_Bundle))
 
 
-  // ==================================================================
-  // WIRING THE STAGES
-  // ==================================================================
+  // Connections Between Stages
 
-  // --- FETCH STAGE ---
+  // Fetch Stage Connections 
   fetch.io.takeBranch := execute.io.branchTaken // Branch decision comes from Execute
   fetch.io.branchTarget := execute.io.branchTarget
   fetch.io.stall    := hazard.io.stall
@@ -86,7 +84,7 @@ class RiscVPipeline extends Module {
   // If stalled, keep current value (implicit in registers)
 
 
-  // --- DECODE STAGE ---
+  // Decode Stage Connections
   decode.io.instruction := if_id.inst
   decode.io.pc       := if_id.pc
   decode.io.writeAddress := writeback.io.wbAddr
@@ -106,10 +104,10 @@ class RiscVPipeline extends Module {
   when(hazard.io.stall || execute.io.branchTaken) {
     id_ex.ctrl := 0.U.asTypeOf(new ControlSignals)
   } .otherwise {
-    id_ex.ctrl     := decode.io.controlSignals
+    id_ex.ctrl     := decode.io.controlSignals 
     id_ex.pc       := decode.io.pcOut
-    id_ex.rs1      := decode.io.A
-    id_ex.rs2      := decode.io.B
+    id_ex.rs1      := decode.io.A // Source Register 1 Data (A from Reg File)
+    id_ex.rs2      := decode.io.B // Source Register 2 Data (B from Reg File)
     id_ex.imm      := decode.io.immediate
     id_ex.rd       := if_id.inst(11, 7)
     id_ex.rs1_addr := if_id.inst(19, 15)
@@ -117,13 +115,14 @@ class RiscVPipeline extends Module {
   }
 
 
-  // --- EXECUTE STAGE ---
+  // Execute Stage Connections
   execute.io.controlSignals := id_ex.ctrl
   execute.io.pcIn    := id_ex.pc
   execute.io.immediate := id_ex.imm
   
-  // *** FORWARDING MUXES ***
+  // Forwarding Connections (Muxing the inputs A and B)
   // Instead of connecting rs1 directly, we use the forwarding decision
+
   // forwardA: 00->Reg, 01->WB, 10->MEM
   execute.io.A := MuxLookup(forwarding.io.forwardA, id_ex.rs1)(Seq(
     "b00".U -> id_ex.rs1,
@@ -131,11 +130,12 @@ class RiscVPipeline extends Module {
     "b10".U -> ex_mem.aluResult // Forwarding from MEM stage (ALU result)
   ))
 
+  // forwardB: 00->Reg, 01->WB, 10->MEM
   execute.io.B := MuxLookup(forwarding.io.forwardB, id_ex.rs2)(Seq(
     "b00".U -> id_ex.rs2,
     "b01".U -> writeback.io.wbData,
     "b10".U -> ex_mem.aluResult
-  ))
+  )) 
 
   // Forwarding Unit Connections
   forwarding.io.rs1_ex       := id_ex.rs1_addr
@@ -152,7 +152,7 @@ class RiscVPipeline extends Module {
   ex_mem.rd        := id_ex.rd
 
 
-  // --- MEMORY STAGE ---
+  // Memory Stage Connections
   memory.io.ctrl      := ex_mem.ctrl
   memory.io.aluResult := ex_mem.aluResult
   memory.io.rs2Data   := ex_mem.rs2Data
@@ -160,14 +160,14 @@ class RiscVPipeline extends Module {
 
   // MEM/WB Pipeline Update
   mem_wb.ctrl      := memory.io.ctrlOut
-  mem_wb.memData   := memory.io.memData
+  mem_wb.memData   := DontCare // Redundant, as SyncReadMem has its own output register
   mem_wb.aluResult := memory.io.aluOut
   mem_wb.rd        := memory.io.rdOut
 
 
-  // --- WRITEBACK STAGE ---
+  // Writeback Stage Connections
   writeback.io.ctrl      := mem_wb.ctrl
-  writeback.io.memData   := mem_wb.memData
+  writeback.io.memData   := memory.io.memData // SyncReadMem has its own output register
   writeback.io.aluResult := mem_wb.aluResult
   writeback.io.rdIn      := mem_wb.rd
 
@@ -175,8 +175,23 @@ class RiscVPipeline extends Module {
   io.result := writeback.io.wbData
 }
 
+// Generate the Verilog
 
 object RISCV extends App {
-  println("Generating the Risc-V pipeline hardware")
+  println("Generating the Risc-V pipeline Verilog code...")
   emitVerilog(new RiscVPipeline(), Array("--target-dir", "generated"))
 }
+// Note: Need to make a seperate App object to generate Verilog entirely
+
+// So far, we have implemented a basic 5-stage RISC-V pipeline with hazard detection and forwarding.
+// It supports basic integer instructions including arithmetic, load/store, and branches.
+// It has multiply/divide support in the Execute stage.
+
+/* Todo: Add atomic instructions and pipeline support
+ - Add single-precision floating point support
+ - Add half-precision floating point support
+ - Add CSR instructions and pipeline support
+ - Add vector instructions and pipeline support
+
+
+ */

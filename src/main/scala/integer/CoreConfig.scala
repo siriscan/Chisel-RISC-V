@@ -3,13 +3,36 @@ package integer
 import chisel3._
 import chisel3.util._
 
-// Configuration for the Core stuff (Integer)
+// Configuration for the Core stuff (Integer/Multiply/Atomic)
 // Control Signals Bundle (Passed from Decode -> Execute)
 
 final case class CoreConfig(
-  xlen: Int,
-  startPC: BigInt,
-  imemFile: String = "src/main/resources/pmem.hex" // Instruction Memory Initialization File Path (Must be ASCII Hex)
+  xlen: Int, // Register and Data Width (Default: 32)
+  startPC: BigInt, // Starting Program Counter Value
+  imemSize: Int, // Instruction Memory Size in Bytes
+  imemFile: String // Instruction Memory Initialization File Path (Must be ASCII Hex)
+)
+
+// Add later
+final case class MemConfig(
+  dmemSize: Int, // Data Memory Size in Bytes
+  dmemFile: String // Data Memory Initialization File Path (Must be ASCII Hex)
+)
+
+// Configuration for Floating Point Unit (Single-Precision/Half-Precision)
+final case class FloatingPointConfig(
+  flen: Int, // Floating Point Register Length in Bits
+  numRegs: Int, // Number of Floating Point Registers
+  isBF16: Boolean // Support for bfloat16 (true/false)
+
+)
+
+// Configuration for Vector Extension
+final case class VectorRegConfig(
+  vlen: Int, // Vector Register Length in Bits
+  elen: Int, // Maximum Element Length in Bits
+  sew: Int,  // Standard Element Width in Bits
+  numRegs: Int // Number of Vector Registers
 )
 
 
