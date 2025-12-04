@@ -25,6 +25,19 @@ class MemoryStage(conf: CoreConfig) extends Module {
   dmem.io.memWrite := io.ctrl.memWrite
   dmem.io.mask     := VecInit(Seq.fill(4)(true.B)) // Default word access
 
+  //Access sizes
+  when (io.ctrl.memRead || io.ctrl.memWrite) {
+    switch (io.aluResult(1,0)) {
+      is ("b00".U) { dmem.io.mask := VecInit(Seq(true.B, false.B, false.B, false.B)) } // Byte
+      is ("b01".U) { dmem.io.mask := VecInit(Seq(true.B, true.B, false.B, false.B)) }  // Half-word
+      is ("b10".U) { dmem.io.mask := VecInit(Seq(true.B, true.B, true.B, true.B)) }    // Word
+      is ("b11".U) { dmem.io.mask := VecInit(Seq(true.B, true.B, true.B, true.B)) }    // Word (unaligned)
+    }
+  }
+
+
+
+
   // Connect Outputs to Writeback Stage
   io.memData := dmem.io.rdData  // Data read from memory
   io.aluOut  := io.aluResult // Pass-through ALU result

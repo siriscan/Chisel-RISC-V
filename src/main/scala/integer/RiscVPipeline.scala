@@ -4,10 +4,19 @@ import chisel3.util._
 
 class RiscVPipeline extends Module {
   val io = IO(new Bundle {
-    val result = Output(UInt(32.W)) // Debug output
+    val result = Output(UInt(32.W)) // Debug output from Writeback Stage
+    val memAddress = Output(UInt(32.W)) // Debug: Address sent to Data Memory
+    val memDataIn = Output(UInt(32.W)) // Debug: Data written to Data Memory
+    val currentInst = Output(UInt(32.W)) // Debug: Current instruction in IF/ID
+    val decodeOpcode = Output(UInt(7.W)) // Debug: Opcode in Decode Stage
+    val nextInst = Output(UInt(32.W)) // Debug: Next instruction to be fetched
+    val fetchStall = Output(Bool()) // Debug: Stall signal from Hazard Unit
+    val fetchPC = Output(UInt(32.W)) // Debug: Current PC in Fetch Stage
+    val fetchNextPC = Output(UInt(32.W)) // Debug: Next PC in Fetch Stage
   })
 
-  val conf = CoreConfig(xlen = 32, startPC = 0x00000000) // 32-bit, start at address 0x00000000
+  val conf = CoreConfig(xlen = 32, startPC = 0, imemFile  = "src/main/resources/pmem.hex", imemSize = 16384) 
+  // 32-bit, start at address 0x00000000, instruction memory initialized from pmem.hex, 16KB IMEM
 
   // --- Instantiate Stages ---
   val fetch    = Module(new FetchStage(conf))
@@ -84,7 +93,6 @@ class RiscVPipeline extends Module {
     if_id.pc   := fetch.io.pc
   }
   // If stalled, keep current value (implicit in registers)
-
 
   // --- DECODE STAGE ---
   decode.io.instruction := if_id.inst
@@ -173,10 +181,27 @@ class RiscVPipeline extends Module {
 
   // Debug Output
   io.result := writeback.io.wbData
+  io.memAddress := memory.io.aluResult
+  io.memDataIn  := memory.io.rs2Data
+  io.currentInst := if_id.inst
+  io.decodeOpcode := decode.io.instruction(6,0)
+  io.nextInst := fetch.io.instruction
+  io.fetchStall := fetch.io.stall
+  io.fetchPC    := fetch.io.pc
+  io.fetchNextPC := Mux(fetch.io.takeBranch, fetch.io.branchTarget, fetch.io.pc + 4.U)
+  
 }
 
 
 object RISCV extends App {
-  println("Generating the Risc-V pipeline hardware")
+  println("Generating the Risc-V pipeline verilog")
   emitVerilog(new RiscVPipeline(), Array("--target-dir", "generated"))
 }
+
+/* Making hex file:
+  - First line is the starting address (e.g., 00000000), 
+  which should match the startPC in CoreConfig.
+  - Since FetchStage starts at nextPc = startPC, the first line should be
+  NOP (0x00000013).
+
+ */

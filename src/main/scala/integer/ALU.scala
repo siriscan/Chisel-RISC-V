@@ -37,6 +37,10 @@ object ALUConsts_Interger { // Integer ALU operation codes + Multiply
     val rem  = 17.U
     val remu = 18.U
 
+
+    // Add more operations as needed
+
+
 }
 
 

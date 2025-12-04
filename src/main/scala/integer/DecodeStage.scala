@@ -31,15 +31,27 @@ class DecodeStage(conf: CoreConfig) extends Module {
     io.controlSignals.imm_flag := false.B
     io.pcOut := io.pc
     io.controlSignals.aluOp := 0.U // NOP
+    io.controlSignals.branch := false.B // Default no branch
+    io.controlSignals.jump := false.B // Default no jump
+    io.controlSignals.memRead := false.B // Default no memory read
+    io.controlSignals.memWrite := false.B  // Default no memory write
+    io.controlSignals.memToReg := false.B  // Default ALU to Reg
+    io.controlSignals.regWrite := false.B  // Default no register write
+    io.controlSignals.lui := 0.U // Default no LUI/AUIPC
 
 
     val imm = io.instruction(31, 20) // I-type immediate
+
+    val imm_u = io.instruction(31, 12) // U-type immediate
+    val imm_upper = Cat(imm_u, Fill(12, 0.U)) // Shift left by 12
 
     val imm_sext = Cat(Fill(20, imm(11)), imm) // sign-extend immediate
 
     val opcode = io.instruction(6, 0)
     val funct3 = io.instruction(14, 12)
     val funct7 = io.instruction(31, 25)
+
+
 
     val regFile = Module(new RegisterFile(conf.xlen)) // 32-bit register file
 
@@ -73,16 +85,31 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.regWrite := true.B // Write to register
         io.controlSignals.aluOp := 1.U // ADD for address calculation
         io.immediate := imm_sext // Sign-extended immediate
+
+        switch(funct3) { // Not used in Decode, but decoded here for completeness
+          is("b000".U) { /* LB */ }
+          is("b001".U) { /* LH */ }
+          is("b010".U) { /* LW */ }
+          is("b100".U) { /* LBU */ }
+          is("b101".U) { /* LHU */ }
+        }
       }
       is("b0100011".U) { // Store Instructions (e.g., SW)
+        io.controlSignals.imm_flag := true.B // Use immediate
+        io.controlSignals.memWrite := true.B // Memory Write
+        io.controlSignals.aluOp := 1.U // ADD for address calculation
         val imm11_5 = io.instruction(31, 25)
         val imm4_0 = io.instruction(11, 7)
         val imm_s = Cat(imm11_5, imm4_0)
         val imm_s_sext = Cat(Fill(20, imm_s(11)), imm_s)
-        io.controlSignals.imm_flag  := true.B // Use immediate
-        io.controlSignals.memWrite := true.B // Memory Write
-        io.controlSignals.aluOp := 1.U // ADD for address calculation
         io.immediate := imm_s_sext // Sign-extended immediate
+
+        switch(funct3) { // Not used in Decode, but decoded here for completeness
+          is("b000".U) { /* SB */ }
+          is("b001".U) { /* SH */ }
+          is("b010".U) { /* SW */ }
+        }
+
       }
       is("b1100011".U) { // Branch Instructions (e.g., BEQ)
         val imm12 = io.instruction(31)
@@ -106,10 +133,16 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.regWrite := true.B // Write to register
         io.immediate := imm_j_sext // Sign-extended immediate
       }
+      is("b1100111".U) { // JALR
+        io.controlSignals.jump := true.B
+        io.controlSignals.regWrite := true.B // Write to register
+        io.controlSignals.imm_flag := true.B // Use immediate
+        io.controlSignals.aluOp := 1.U // ADD for address calculation
+        io.immediate := imm_sext // Sign-extended immediate
+      }
       is("b0110011".U) { // R-type Instructions (ALU + M-Ext)
-        io.controlSignals.imm_flag := false.B
-        io.controlSignals.regWrite := true.B
-        
+        io.controlSignals.imm_flag := false.B // Use register
+        io.controlSignals.regWrite := true.B // Write to register        
         switch(funct3) {
           // funct3 = 000: ADD, SUB, MUL
           is("b000".U) {
@@ -188,10 +221,24 @@ class DecodeStage(conf: CoreConfig) extends Module {
           }
         }
       }
+      is("b0110111".U) { // LUI
+        io.controlSignals.regWrite := true.B // Write to register
+        io.immediate := imm_upper // Upper immediate
+        io.controlSignals.aluOp := 1.U // ADD (0 + immediate)
+        io.controlSignals.imm_flag := true.B
+        io.controlSignals.lui := 1.U
+      }
+      is("b0010111".U) { // AUIPC
+        io.controlSignals.regWrite := true.B // Write to register
+        io.immediate := imm_upper // Upper immediate
+        io.controlSignals.imm_flag := true.B
+        io.controlSignals.aluOp := 1.U // ADD (pc + immediate)
+        io.controlSignals.lui := 2.U
+      }
 
 
       
-      }
+    }
     
 
     

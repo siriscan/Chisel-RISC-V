@@ -14,10 +14,11 @@ class InstructionMem(depth: Int, initFile: String = "") extends Module { // 16KB
   // 32-bit wide memory (standard for RISC-V instructions)
   val mem = SyncReadMem(depth, UInt(32.W))
 
-  // 2. Address Processing
-  // The PC is a byte address (e.g., 0, 4, 8...), but the memory is 
-  // indexed by word (0, 1, 2...). We shift right by 2 to convert.
-  val wordAddr = io.address >> 2
+  // 2. Address Calculation
+  // Convert byte address to word address by dropping the 2 LSBs
+  val wordAddr = io.address(31, 2)
+  
+
 
   // 3. Read Logic
   // Provide the instruction corresponding to the address.

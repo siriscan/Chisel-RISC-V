@@ -9,7 +9,8 @@ import chisel3.util._
 final case class CoreConfig(
   xlen: Int,
   startPC: BigInt,
-  imemFile: String = "src/main/resources/pmem.hex" // Instruction Memory Initialization File Path (Must be ASCII Hex)
+  imemFile: String, // Instruction Memory Initialization File Path (Must be ASCII Hex)
+  imemSize: Int = 16384 // Default 16KB Instruction Memory
 )
 
 
@@ -22,5 +23,14 @@ class ControlSignals extends Bundle {
   val imm_flag   = Bool() // 0: Reg, 1: Immediate
   val branch   = Bool() // 0: No branch, 1: Branch
   val jump     = Bool() // 0: No jump, 1: Jump
-  val aluOp    = UInt(4.W) // Simplified ALU Opcode
+  val aluOp    = UInt(8.W) // Simplified ALU Opcodes
+  val lui      = UInt(2.W) // LUI and AUIPC flag, 0: No LUI/AUIPC, 1: LUI, 2: AUIPC
+  
+
+  // CSR Signals
+  val csrRead  = Bool() // CSR Read Enable
+  val csrWrite = Bool() // CSR Write Enable
+  val csrToReg = Bool() // 0: ALU result, 1: CSR data
+  val csrOp    = UInt(2.W) // CSR Operation
+
 }

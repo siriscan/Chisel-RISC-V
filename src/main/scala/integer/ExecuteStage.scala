@@ -32,10 +32,21 @@ class ExecuteStage(config : CoreConfig) extends Module {
     // ALU Module
     val alu = Module(new ALU(config.xlen)) // 32-bit ALU
 
-    val imm_flag = io.controlSignals.imm_flag
+    val imm_flag = io.controlSignals.imm_flag // Immediate flag 
+    val lui_flag = io.controlSignals.lui // LUI/AUIPC flag   
 
     // Connect ALU inputs
-    alu.io.A := io.A
+
+    // Select A input based on LUI/AUIPC control signal
+    when (lui_flag === 1.U) { // LUI
+      alu.io.A := 0.U
+      alu.io.B := io.immediate
+    } .elsewhen (lui_flag === 2.U) { // AUIPC
+      alu.io.A := io.pcIn
+      alu.io.B := io.immediate
+    } .otherwise {
+      alu.io.A := io.A
+    }
 
     // Select B input based on aluSrc control signal
     when(imm_flag) {
