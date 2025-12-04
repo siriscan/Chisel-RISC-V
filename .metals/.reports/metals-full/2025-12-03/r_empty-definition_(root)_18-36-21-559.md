@@ -1,3 +1,13 @@
+error id: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RegisterFile.scala:otherwise
+file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RegisterFile.scala
+empty definition using pc, found symbol in pc: 
+semanticdb not found
+
+found definition using fallback; symbol otherwise
+offset: 1304
+uri: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RegisterFile.scala
+text:
+```scala
 package integer
 
 import chisel3._
@@ -28,17 +38,17 @@ class RegisterFile(width: Int) extends Module { // width will be used for future
   // Read ports
   when(io.readAddressA === 0.U) { // Register x0 is always zero
     io.A := 0.U
-  //} elsewhen((io.readAddressA === io.writeAddress) && writeEnable) { // Forwarding logic to handle read-after-write hazard
-    //io.A := io.C
+  } elsewhen((io.readAddressA === io.writeAddress) && writeEnable) { // Forwarding logic to handle read-after-write hazard
+    io.A := io.C
   }.otherwise {
     io.A := regFile(io.readAddressA) // Read data from register file
   }
 
   when(io.readAddressB === 0.U) { // Register x0 is always zero
     io.B := 0.U
-  //} elsewhen((io.readAddressB === io.writeAddress) && writeEnable) { // Forwarding logic to handle read-after-write hazard
-    //io.B := io.C
-  }.otherwise {
+  } elsewhen((io.readAddressB === io.writeAddress) && writeEnable) { // Forwarding logic to handle read-after-write hazard
+    io.B := io.C
+  }.otherwise@@ {
     io.B := regFile(io.readAddressB) // Read data from register file
   }
 
@@ -58,3 +68,9 @@ object RegisterFile extends App {
   )
 }
  */
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 
