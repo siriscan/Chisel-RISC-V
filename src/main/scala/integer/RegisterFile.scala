@@ -18,13 +18,29 @@ class RegisterFile(width: Int) extends Module { // width will be used for future
   })
 
   val regFile = RegInit(VecInit(Seq.fill(32)(0.U(width.W)))) // 32 registers of 32 bits each
+  val writeEnable = io.writeEnable
+
+  
 
   //Register 0 is always zero
   regFile(0) := 0.U // Forces x0 = 0
 
   // Read ports
-  io.A := Mux(io.readAddressA === 0.U, 0.U, regFile(io.readAddressA))
-  io.B := Mux(io.readAddressB === 0.U, 0.U, regFile(io.readAddressB))
+  when(io.readAddressA === 0.U) { // Register x0 is always zero
+    io.A := 0.U
+  }.elsewhen(io.writeEnable && (io.readAddressA === io.writeAddress)) { // Forwarding logic to handle read-after-write hazard
+    io.A := io.C
+  }.otherwise {
+    io.A := regFile(io.readAddressA) // Read data from register file
+  }
+
+  when(io.readAddressB === 0.U) { // Register x0 is always zero
+    io.B := 0.U
+  }.elsewhen((io.readAddressB === io.writeAddress) && io.writeEnable) { // Forwarding logic to handle read-after-write hazard
+    io.B := io.C
+  }.otherwise {
+    io.B := regFile(io.readAddressB) // Read data from register file
+  }
 
   // Write port
   when(io.writeEnable && (io.writeAddress =/= 0.U)) {

@@ -8,11 +8,13 @@ class HazardUnit extends Module {
     val rs2_id = Input(UInt(5.W)) // Source Register 2 in Decode Stage
     val rd_ex  = Input(UInt(5.W)) // Destination Register in Execute Stage
     val memRead_ex = Input(Bool())  // True if instruction in Execute Stage is a Load
-
     val stall = Output(Bool()) // 1 = Stall
   })
 
   // Stall if the instruction in Execute is a Load, and its destination
   // matches either source register in the Decode stage.
-  io.stall := io.memRead_ex && (io.rd_ex === io.rs1_id || io.rd_ex === io.rs2_id)
+  io.stall := io.memRead_ex && (io.rd_ex === io.rs1_id || io.rd_ex === io.rs2_id) && (io.rd_ex =/= 0.U)
+  
+  
+  // rd_ex =/= 0.U to avoid false stall when rd is x0
 }

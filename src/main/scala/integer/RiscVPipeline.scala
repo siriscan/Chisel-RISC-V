@@ -4,12 +4,28 @@ import chisel3.util._
 
 class RiscVPipeline extends Module {
   val io = IO(new Bundle {
+<<<<<<< HEAD
     val result = Output(UInt(32.W)) // Debug output (Not really useful)
     // Need a ScalaTest to see internal signals
   })
 
   val conf = CoreConfig(xlen = 32, startPC = 0, imemSize = 32, imemFile = "src/main/resources/pmem.hex") 
   // 32-bit, start at address 0x00000000, instruction memory file path (pmem.hex)
+=======
+    val result = Output(UInt(32.W)) // Debug output from Writeback Stage
+    val memAddress = Output(UInt(32.W)) // Debug: Address sent to Data Memory
+    val memDataIn = Output(UInt(32.W)) // Debug: Data written to Data Memory
+    val currentInst = Output(UInt(32.W)) // Debug: Current instruction in IF/ID
+    val decodeOpcode = Output(UInt(7.W)) // Debug: Opcode in Decode Stage
+    val nextInst = Output(UInt(32.W)) // Debug: Next instruction to be fetched
+    val fetchStall = Output(Bool()) // Debug: Stall signal from Hazard Unit
+    val fetchPC = Output(UInt(32.W)) // Debug: Current PC in Fetch Stage
+    val fetchNextPC = Output(UInt(32.W)) // Debug: Next PC in Fetch Stage
+  })
+
+  val conf = CoreConfig(xlen = 32, startPC = 0, imemFile  = "src/main/resources/pmem.hex", imemSize = 16384) 
+  // 32-bit, start at address 0x00000000, instruction memory initialized from pmem.hex, 16KB IMEM
+>>>>>>> Version-1
 
   // Instantiate Pipeline Stages
   val fetch    = Module(new FetchStage(conf))
@@ -31,7 +47,14 @@ class RiscVPipeline extends Module {
     val inst = UInt(32.W)
   }
   // Initialize to NOP (0x13 is ADDI x0, x0, 0)
-  val if_id = RegInit(0.U.asTypeOf(new IF_ID_Bundle))
+  // Create a default Wire with the correct reset values
+
+  val init_if_id = Wire(new IF_ID_Bundle)
+  init_if_id.pc   := 0.U
+  init_if_id.inst := "h00000013".U(32.W)
+
+  // Use this wire for the register initialization
+  val if_id = RegInit(init_if_id)
 
   // 2. ID/EX Register
   class ID_EX_Bundle extends Bundle {
@@ -83,8 +106,12 @@ class RiscVPipeline extends Module {
   }
   // If stalled, keep current value (implicit in registers)
 
+<<<<<<< HEAD
 
   // Decode Stage Connections
+=======
+  // --- DECODE STAGE ---
+>>>>>>> Version-1
   decode.io.instruction := if_id.inst
   decode.io.pc       := if_id.pc
   decode.io.writeAddress := writeback.io.wbAddr
@@ -173,10 +200,20 @@ class RiscVPipeline extends Module {
 
   // Debug Output
   io.result := writeback.io.wbData
+  io.memAddress := memory.io.aluResult
+  io.memDataIn  := memory.io.rs2Data
+  io.currentInst := if_id.inst
+  io.decodeOpcode := decode.io.instruction(6,0)
+  io.nextInst := fetch.io.instruction
+  io.fetchStall := fetch.io.stall
+  io.fetchPC    := fetch.io.pc
+  io.fetchNextPC := Mux(fetch.io.takeBranch, fetch.io.branchTarget, fetch.io.pc + 4.U)
+  
 }
 
 // Generate the Verilog
 
+<<<<<<< HEAD
 object RISCV extends App {
   println("Generating the Risc-V pipeline Verilog code...")
   emitVerilog(new RiscVPipeline(), Array("--target-dir", "generated"))
@@ -195,3 +232,5 @@ object RISCV extends App {
 
 
  */
+=======
+>>>>>>> Version-1

@@ -11,7 +11,13 @@ import _root_.circt.stage.ChiselStage
     * - R-type: ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, MUL
   */
 
-// Constants operation codes
+/*
+    Note to self:
+      Remove unsigned constants
+      Use isSigned Control Signal for signed/unsigned operations instead of separate opcodes
+
+  */
+// Constants operation codes 
 object ALUConsts_Interger { // Integer ALU operation codes + Multiply
     val nop = 0.U
     val add = 1.U
@@ -22,20 +28,20 @@ object ALUConsts_Interger { // Integer ALU operation codes + Multiply
     val sll = 6.U
     val srl = 7.U
     val sra = 8.U
-    val slt = 9.U
-    val sltu= 10.U
+    val slt = 9.U // Set Less Than and Set Less Than Unsigned
 
     // Multiply operations
-    val mul  = 11.U
-    val mulh = 12.U
-    val mulhsu = 13.U
-    val mulhu = 14.U
+    val mul  = 10.U 
+    val mulh = 11.U // Signed multiply high and unsigned multiply high
+    val mulhsu = 12.U
 
     // Divide operations
-    val div  = 15.U
-    val divu = 16.U
-    val rem  = 17.U
-    val remu = 18.U
+    val div  = 13.U // Signed divide and unsigned divide
+    val rem  = 14.U // Signed remainder and unsigned remainder
+
+
+    // Add more operations as needed
+
 
 }
 
@@ -43,12 +49,14 @@ object ALUConsts_Interger { // Integer ALU operation codes + Multiply
 class ALU(width : Int) extends Module {
   val io = IO(new Bundle {
     val A = Input(UInt(width.W))
-    val B = Input(UInt(width.W))
-    val opcode = Input(UInt(4.W))
+    val B = Input(UInt(width.W)) 
+    val opcode = Input(UInt(4.W)) // ALU operation code
+    val isSigned = Input(Bool()) // True for signed operations, False for unsigned
+
     val C = Output(UInt(width.W))
   })
     io.C := 0.U // Default output
-    val B = WireDefault(io.B)
+    val B = WireDefault(io.B) // Default B input
 
 
 
@@ -81,18 +89,18 @@ switch(io.opcode) {
 
 
     is(ALUConsts_Interger.slt) {
-      when(io.A.asSInt < B.asSInt) {
-        io.C := 1.U
+      when(io.isSigned) {
+        when(io.A.asSInt < B.asSInt) {
+          io.C := 1.U
+        } .otherwise {
+          io.C := 0.U
+        }
       } .otherwise {
-        io.C := 0.U
-      }
-    }
-
-    is(ALUConsts_Interger.sltu) {
-      when(io.A < B) {
-        io.C := 1.U
-      } .otherwise {
-        io.C := 0.U
+        when(io.A < B) {
+          io.C := 1.U
+        } .otherwise {
+          io.C := 0.U
+        }
       }
     }
 
@@ -101,25 +109,28 @@ switch(io.opcode) {
       io.C := (io.A * B)(31,0)
     }
     is(ALUConsts_Interger.mulh) {
-      io.C := (io.A.asSInt * B.asSInt)(63,32).asUInt
+      when(io.isSigned) {
+        io.C := (io.A.asSInt * B.asSInt)(63,32).asUInt // mulh for signed * signed
+      } .otherwise {
+        io.C := (io.A.asUInt * B.asUInt)(63,32).asUInt // mulhu for unsigned * unsigned
+      }
     }
     is(ALUConsts_Interger.mulhsu) {
       io.C := (io.A.asSInt * B.asUInt)(63,32).asUInt
     }
-    is(ALUConsts_Interger.mulhu) {
-      io.C := (io.A.asUInt * B.asUInt)(63,32).asUInt
-    }
     is(ALUConsts_Interger.div) {
-      io.C := (io.A.asSInt / B.asSInt).asUInt
-    }
-    is(ALUConsts_Interger.divu) {
-      io.C := io.A / B
+      when(io.isSigned) {
+        io.C := (io.A.asSInt / B.asSInt).asUInt // div for signed
+      } .otherwise {
+        io.C := io.A / B // divu for unsigned
+      }
     }
     is(ALUConsts_Interger.rem) {
-      io.C := (io.A.asSInt % B.asSInt).asUInt
-    }
-    is(ALUConsts_Interger.remu) {
-      io.C := io.A % B
+      when(io.isSigned) {
+        io.C := (io.A.asSInt % B.asSInt).asUInt // rem for signed
+      } .otherwise {
+        io.C := io.A % B // remu for unsigned
+      }
     }
 }
 
