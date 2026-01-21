@@ -40,7 +40,14 @@ class RiscVPipeline extends Module {
     val inst = UInt(32.W)
   }
   // Initialize to NOP (0x13 is ADDI x0, x0, 0)
-  val if_id = RegInit(0.U.asTypeOf(new IF_ID_Bundle))
+  // Create a default Wire with the correct reset values
+
+  val init_if_id = Wire(new IF_ID_Bundle)
+  init_if_id.pc   := 0.U
+  init_if_id.inst := "h00000013".U(32.W)
+
+  // Use this wire for the register initialization
+  val if_id = RegInit(init_if_id)
 
   // 2. ID/EX Register
   class ID_EX_Bundle extends Bundle {
@@ -193,15 +200,3 @@ class RiscVPipeline extends Module {
 }
 
 
-object RISCV extends App {
-  println("Generating the Risc-V pipeline verilog")
-  emitVerilog(new RiscVPipeline(), Array("--target-dir", "generated"))
-}
-
-/* Making hex file:
-  - First line is the starting address (e.g., 00000000), 
-  which should match the startPC in CoreConfig.
-  - Since FetchStage starts at nextPc = startPC, the first line should be
-  NOP (0x00000013).
-
- */

@@ -38,6 +38,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
     io.controlSignals.memToReg := false.B  // Default ALU to Reg
     io.controlSignals.regWrite := false.B  // Default no register write
     io.controlSignals.lui := 0.U // Default no LUI/AUIPC
+    io.controlSignals.isSigned := false.B // Default unsigned operations
 
 
     val imm = io.instruction(31, 20) // I-type immediate
@@ -74,12 +75,15 @@ class DecodeStage(conf: CoreConfig) extends Module {
               io.controlSignals.aluOp := 8.U // SRAI
             }
           }
-          is("b010".U) { io.controlSignals.aluOp := 9.U } // SLTI
-          is("b011".U) { io.controlSignals.aluOp := 10.U } // SLTIU
+          is("b010".U) {
+            io.controlSignals.isSigned := true.B // Signed comparison
+            io.controlSignals.aluOp := 9.U // SLTI
+          } 
+          is("b011".U) { io.controlSignals.aluOp := 9.U } // SLTIU
         }
       }
       is("b0000011".U) { // Load Instructions (e.g., LW)
-        io.controlSignals.imm_flag  := true.B // Use immediate
+        io.controlSignals.imm_flag := true.B // Use immediate
         io.controlSignals.memRead := true.B // Memory Read
         io.controlSignals.memToReg := true.B // Write memory data to register
         io.controlSignals.regWrite := true.B // Write to register
@@ -147,7 +151,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
           // funct3 = 000: ADD, SUB, MUL
           is("b000".U) {
             when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 11.U // MUL
+              io.controlSignals.aluOp := 10.U // MUL
             } .elsewhen(funct7 === "b0100000".U) {
               io.controlSignals.aluOp := 2.U  // SUB
             } .otherwise {
@@ -158,7 +162,8 @@ class DecodeStage(conf: CoreConfig) extends Module {
           // funct3 = 001: SLL, MULH
           is("b001".U) {
             when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 12.U // MULH
+              io.controlSignals.isSigned := true.B // Signed multiply high
+              io.controlSignals.aluOp := 11.U // MULH
             } .otherwise {
               io.controlSignals.aluOp := 6.U  // SLL
             }
@@ -166,9 +171,10 @@ class DecodeStage(conf: CoreConfig) extends Module {
           
           // funct3 = 010: SLT, MULHSU
           is("b010".U) {
-            when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 13.U // MULHSU
+            when(funct7 === "b0000001".U) {  
+              io.controlSignals.aluOp := 12.U // MULHSU
             } .otherwise {
+              io.controlSignals.isSigned := true.B // Signed comparison
               io.controlSignals.aluOp := 9.U  // SLT
             }
           }
@@ -176,16 +182,18 @@ class DecodeStage(conf: CoreConfig) extends Module {
           // funct3 = 011: SLTU, MULHU
           is("b011".U) {
             when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 14.U // MULHU
+              io.controlSignals.aluOp := 11.U // MULHU
             } .otherwise {
-              io.controlSignals.aluOp := 10.U // SLTU
+              
+              io.controlSignals.aluOp := 9.U // SLTU
             }
           }
           
           // funct3 = 100: XOR, DIV
           is("b100".U) {
             when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 15.U // DIV
+              io.controlSignals.isSigned := true.B // Signed division
+              io.controlSignals.aluOp := 13.U // DIV
             } .otherwise {
               io.controlSignals.aluOp := 5.U  // XOR
             }
@@ -194,7 +202,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
           // funct3 = 101: SRL, SRA, DIVU
           is("b101".U) {
             when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 16.U // DIVU
+              io.controlSignals.aluOp := 13.U // DIVU
             } .elsewhen(funct7 === "b0100000".U) {
               io.controlSignals.aluOp := 8.U  // SRA
             } .otherwise {
@@ -205,7 +213,8 @@ class DecodeStage(conf: CoreConfig) extends Module {
           // funct3 = 110: OR, REM
           is("b110".U) {
             when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 17.U // REM
+              io.controlSignals.isSigned := true.B // Signed remainder
+              io.controlSignals.aluOp := 14.U // REM
             } .otherwise {
               io.controlSignals.aluOp := 4.U  // OR
             }
@@ -214,7 +223,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
           // funct3 = 111: AND, REMU
           is("b111".U) {
             when(funct7 === "b0000001".U) {
-              io.controlSignals.aluOp := 18.U // REMU
+              io.controlSignals.aluOp := 14.U // REMU
             } .otherwise {
               io.controlSignals.aluOp := 3.U  // AND
             }

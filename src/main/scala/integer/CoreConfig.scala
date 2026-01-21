@@ -13,7 +13,6 @@ final case class CoreConfig(
   imemSize: Int = 16384 // Default 16KB Instruction Memory
 )
 
-
 // Control Signals that flow through the pipeline
 class ControlSignals extends Bundle {
   val regWrite = Bool() // 0: No Write, 1: Write to Register
@@ -25,9 +24,10 @@ class ControlSignals extends Bundle {
   val jump     = Bool() // 0: No jump, 1: Jump
   val aluOp    = UInt(8.W) // Simplified ALU Opcodes
   val lui      = UInt(2.W) // LUI and AUIPC flag, 0: No LUI/AUIPC, 1: LUI, 2: AUIPC
-  
+  val isSigned = Bool() // 0: Unsigned operation, 1: Signed operation 
 
-  // CSR Signals
+  // CSR Signals (NOT USED YET)
+  val csrFlag  = Bool() // True if instruction is CSR type
   val csrRead  = Bool() // CSR Read Enable
   val csrWrite = Bool() // CSR Write Enable
   val csrToReg = Bool() // 0: ALU result, 1: CSR data

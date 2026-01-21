@@ -27,7 +27,7 @@ class MemoryStage(conf: CoreConfig) extends Module {
 
   //Access sizes
   when (io.ctrl.memRead || io.ctrl.memWrite) {
-    switch (io.aluResult(1,0)) {
+    switch (io.aluResult(1,0)) { // Access size based on address bits [1:0]
       is ("b00".U) { dmem.io.mask := VecInit(Seq(true.B, false.B, false.B, false.B)) } // Byte
       is ("b01".U) { dmem.io.mask := VecInit(Seq(true.B, true.B, false.B, false.B)) }  // Half-word
       is ("b10".U) { dmem.io.mask := VecInit(Seq(true.B, true.B, true.B, true.B)) }    // Word

@@ -37,6 +37,10 @@ class ExecuteStage(config : CoreConfig) extends Module {
 
     // Connect ALU inputs
 
+    // Connect isSigned signal
+    alu.io.isSigned := io.controlSignals.isSigned
+
+
     // Select A input based on LUI/AUIPC control signal
     when (lui_flag === 1.U) { // LUI
       alu.io.A := 0.U
@@ -55,17 +59,18 @@ class ExecuteStage(config : CoreConfig) extends Module {
     alu.io.B := io.B // Use register B
     }
 
+    // Connect ALU opcode
     alu.io.opcode := io.controlSignals.aluOp
 
     // Connect ALU output
     io.aluResult := alu.io.C
 
     // Zero flag for branch decisions
-    val zeroFlag = (alu.io.C === 0.U)
+    val isZero = (alu.io.C === 0.U)
     
     // Branch Decision Logic
     val currentBranch = io.controlSignals.branch
-    io.branchTaken := (currentBranch && zeroFlag) || io.controlSignals.jump // Branch taken if branch signal is high and zero flag is set, or if it's a jump
+    io.branchTaken := (currentBranch && isZero) || io.controlSignals.jump // Branch taken if branch signal is high and zero flag is set, or if it's a jump
     io.branchTarget := io.pcIn + io.immediate // Target PC = PC + immediate offset
 
 

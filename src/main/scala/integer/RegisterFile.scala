@@ -28,16 +28,16 @@ class RegisterFile(width: Int) extends Module { // width will be used for future
   // Read ports
   when(io.readAddressA === 0.U) { // Register x0 is always zero
     io.A := 0.U
-  //} elsewhen((io.readAddressA === io.writeAddress) && writeEnable) { // Forwarding logic to handle read-after-write hazard
-    //io.A := io.C
+  }.elsewhen(io.writeEnable && (io.readAddressA === io.writeAddress)) { // Forwarding logic to handle read-after-write hazard
+    io.A := io.C
   }.otherwise {
     io.A := regFile(io.readAddressA) // Read data from register file
   }
 
   when(io.readAddressB === 0.U) { // Register x0 is always zero
     io.B := 0.U
-  //} elsewhen((io.readAddressB === io.writeAddress) && writeEnable) { // Forwarding logic to handle read-after-write hazard
-    //io.B := io.C
+  }.elsewhen((io.readAddressB === io.writeAddress) && io.writeEnable) { // Forwarding logic to handle read-after-write hazard
+    io.B := io.C
   }.otherwise {
     io.B := regFile(io.readAddressB) // Read data from register file
   }
