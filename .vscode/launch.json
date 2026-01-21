@@ -11,8 +11,6 @@
       "jvmOptions": [],
       "env": {}
     },
-
-
     {
       "type": "scala",
       "request": "launch",
@@ -48,6 +46,16 @@
       "request": "launch",
       "name": "RISCV",
       "mainClass": "integer.RISCV",
+      "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "RISCVPipelineGenerator",
+      "mainClass": "integer.RISCVPipelineGenerator",
       "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",
       "args": [],
       "jvmOptions": [],

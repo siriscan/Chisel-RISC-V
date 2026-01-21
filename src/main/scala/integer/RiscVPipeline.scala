@@ -4,14 +4,6 @@ import chisel3.util._
 
 class RiscVPipeline extends Module {
   val io = IO(new Bundle {
-<<<<<<< HEAD
-    val result = Output(UInt(32.W)) // Debug output (Not really useful)
-    // Need a ScalaTest to see internal signals
-  })
-
-  val conf = CoreConfig(xlen = 32, startPC = 0, imemSize = 32, imemFile = "src/main/resources/pmem.hex") 
-  // 32-bit, start at address 0x00000000, instruction memory file path (pmem.hex)
-=======
     val result = Output(UInt(32.W)) // Debug output from Writeback Stage
     val memAddress = Output(UInt(32.W)) // Debug: Address sent to Data Memory
     val memDataIn = Output(UInt(32.W)) // Debug: Data written to Data Memory
@@ -25,7 +17,6 @@ class RiscVPipeline extends Module {
 
   val conf = CoreConfig(xlen = 32, startPC = 0, imemFile  = "src/main/resources/pmem.hex", imemSize = 16384) 
   // 32-bit, start at address 0x00000000, instruction memory initialized from pmem.hex, 16KB IMEM
->>>>>>> Version-1
 
   // Instantiate Pipeline Stages
   val fetch    = Module(new FetchStage(conf))
@@ -106,12 +97,7 @@ class RiscVPipeline extends Module {
   }
   // If stalled, keep current value (implicit in registers)
 
-<<<<<<< HEAD
-
-  // Decode Stage Connections
-=======
   // --- DECODE STAGE ---
->>>>>>> Version-1
   decode.io.instruction := if_id.inst
   decode.io.pc       := if_id.pc
   decode.io.writeAddress := writeback.io.wbAddr
@@ -168,13 +154,13 @@ class RiscVPipeline extends Module {
   forwarding.io.rs1_ex       := id_ex.rs1_addr
   forwarding.io.rs2_ex       := id_ex.rs2_addr
   forwarding.io.rd_mem       := ex_mem.rd
-  forwarding.io.regWrite_mem := ex_mem.ctrl.regWrite
+  forwarding.io.regWrite_mem := ex_mem.ctrl.regWrite && !ex_mem.ctrl.memToReg // Only forward ALU result from MEM stage
   forwarding.io.rd_wb        := mem_wb.rd
   forwarding.io.regWrite_wb  := mem_wb.ctrl.regWrite
 
   // EX/MEM Pipeline Update
   ex_mem.ctrl      := execute.io.controlSignalsOut
-  ex_mem.aluResult := execute.io.aluResult
+  ex_mem.aluResult := execute.io.C // Connect ALU result to EX/MEM register
   ex_mem.rs2Data   := execute.io.memWriteData // Passed through Execute for Store
   ex_mem.rd        := id_ex.rd
 
@@ -187,18 +173,18 @@ class RiscVPipeline extends Module {
 
   // MEM/WB Pipeline Update
   mem_wb.ctrl      := memory.io.ctrlOut
-  mem_wb.memData   := DontCare // Redundant, as SyncReadMem has its own output register
+  mem_wb.memData   := DontCare // 1 clock cycle delay due to SyncReadMem
   mem_wb.aluResult := memory.io.aluOut
   mem_wb.rd        := memory.io.rdOut
 
 
   // Writeback Stage Connections
   writeback.io.ctrl      := mem_wb.ctrl
-  writeback.io.memData   := memory.io.memData // SyncReadMem has its own output register
-  writeback.io.aluResult := mem_wb.aluResult
-  writeback.io.rdIn      := mem_wb.rd
+  writeback.io.memData   := memory.io.memData // Data loaded from memory (if any)
+  writeback.io.aluResult := mem_wb.aluResult // ALU result from MEM stage 
+  writeback.io.rdIn      := mem_wb.rd // Destination Register
 
-  // Debug Output
+  // Debug Output (For Verilog Monitoring)
   io.result := writeback.io.wbData
   io.memAddress := memory.io.aluResult
   io.memDataIn  := memory.io.rs2Data
@@ -213,8 +199,7 @@ class RiscVPipeline extends Module {
 
 // Generate the Verilog
 
-<<<<<<< HEAD
-object RISCV extends App {
+object RISCVPipelineGenerator extends App {
   println("Generating the Risc-V pipeline Verilog code...")
   emitVerilog(new RiscVPipeline(), Array("--target-dir", "generated"))
 }
@@ -227,10 +212,8 @@ object RISCV extends App {
 /* Todo: Add atomic instructions and pipeline support
  - Add single-precision floating point support
  - Add half-precision floating point support
- - Add CSR instructions and pipeline support
+ - Add CSR instructions and pipeline support (Not needed for this project)
  - Add vector instructions and pipeline support
 
 
  */
-=======
->>>>>>> Version-1

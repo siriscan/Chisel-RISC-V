@@ -32,6 +32,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
     io.pcOut := io.pc
     io.controlSignals.aluOp := 0.U // NOP
     io.controlSignals.branch := false.B // Default no branch
+    io.controlSignals.memF3 := 0.U // Default funct3 for memory operations
     io.controlSignals.jump := false.B // Default no jump
     io.controlSignals.memRead := false.B // Default no memory read
     io.controlSignals.memWrite := false.B  // Default no memory write
@@ -50,6 +51,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
 
     val opcode = io.instruction(6, 0)
     val funct3 = io.instruction(14, 12)
+    
     val funct7 = io.instruction(31, 25)
 
 
@@ -89,8 +91,9 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.regWrite := true.B // Write to register
         io.controlSignals.aluOp := 1.U // ADD for address calculation
         io.immediate := imm_sext // Sign-extended immediate
+        io.controlSignals.memF3 := funct3 // Pass funct3 for memory operations
 
-        switch(funct3) { // Not used in Decode, but decoded here for completeness
+        switch(funct3) { // Not used in Decode, but decoded here for completeness. Only used in Writeback Stage for load size
           is("b000".U) { /* LB */ }
           is("b001".U) { /* LH */ }
           is("b010".U) { /* LW */ }
@@ -107,8 +110,9 @@ class DecodeStage(conf: CoreConfig) extends Module {
         val imm_s = Cat(imm11_5, imm4_0)
         val imm_s_sext = Cat(Fill(20, imm_s(11)), imm_s)
         io.immediate := imm_s_sext // Sign-extended immediate
+        io.controlSignals.memF3 := funct3 // Pass funct3 for memory operations
 
-        switch(funct3) { // Not used in Decode, but decoded here for completeness
+        switch(funct3) { // Not used in Decode, but decoded here for completeness. Only used in Memory Stage for store size
           is("b000".U) { /* SB */ }
           is("b001".U) { /* SH */ }
           is("b010".U) { /* SW */ }
@@ -122,6 +126,16 @@ class DecodeStage(conf: CoreConfig) extends Module {
         val imm11 = io.instruction(7)
         val imm_b = Cat(imm12, imm11, imm10_5, imm4_1, 0.U(1.W))
         val imm_b_sext = Cat(Fill(19, imm_b(12)), imm_b)
+
+        switch(funct3) { // Not used in Decode, but decoded here for completeness. Only used in Execute Stage for branch comparison
+          is("b000".U) { /* BEQ */ }
+          is("b001".U) { /* BNE */ }
+          is("b100".U) { /* BLT */ io.controlSignals.isSigned := true.B }
+          is("b101".U) { /* BGE */ io.controlSignals.isSigned := true.B }
+          is("b110".U) { /* BLTU */ }
+          is("b111".U) { /* BGEU */ }
+        }
+
         io.controlSignals.branch := true.B
         io.controlSignals.aluOp := 2.U // SUB for comparison
         io.immediate := imm_b_sext // Sign-extended immediate
@@ -144,7 +158,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.aluOp := 1.U // ADD for address calculation
         io.immediate := imm_sext // Sign-extended immediate
       }
-      is("b0110011".U) { // R-type Instructions (ALU + M-Ext)
+      is("b0110011".U) { // R-type Instructions (ALU + Multiply and Divide)
         io.controlSignals.imm_flag := false.B // Use register
         io.controlSignals.regWrite := true.B // Write to register        
         switch(funct3) {

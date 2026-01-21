@@ -21,7 +21,7 @@ class ExecuteStage(config : CoreConfig) extends Module {
 
 
     // Outputs to Memory Stage
-    val aluResult = Output(UInt(32.W)) // ALU Result
+    val C = Output(UInt(32.W)) // ALU Result
     val pcOut = Output(UInt(config.xlen.W)) // Pass PC to Memory Stage
     val controlSignalsOut = Output(new ControlSignals) // Pass control signals to Memory Stage
     val memWriteData = Output(UInt(32.W)) // Data (rs2) to write to memory for store instructions
@@ -63,10 +63,10 @@ class ExecuteStage(config : CoreConfig) extends Module {
     alu.io.opcode := io.controlSignals.aluOp
 
     // Connect ALU output
-    io.aluResult := alu.io.C
+    io.C := alu.io.C
 
     // Zero flag for branch decisions
-    val isZero = (alu.io.C === 0.U)
+    val isZero = (alu.io.C === 0.U) // used for BEQ and BNE
     
     // Branch Decision Logic
     val currentBranch = io.controlSignals.branch

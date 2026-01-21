@@ -2,49 +2,44 @@ package integer
 
 import chisel3._
 import chisel3.util._
-import chisel3.util.experimental.loadMemoryFromFile // For loading hex files
+import chisel3.util.experimental.loadMemoryFromFile
 
-class DataMem(depth: Int) extends Module { // 16KB by default
+class DataMem(depthBytes: Int) extends Module {
+  require(depthBytes % 4 == 0, "DataMem depth must be a multiple of 4 bytes (word-aligned).") // 32-bit words 
+  private val depthWords = depthBytes / 4
+
   val io = IO(new Bundle {
-    // Pipeline Signals
-    val addr    = Input(UInt(32.W))   // Memory Address
-    val wrData  = Input(UInt(32.W))   // Data to Write
-    val memRead = Input(Bool())       // Read Enable
-    val memWrite= Input(Bool())       // Write Enable
-    val mask    = Input(Vec(4, Bool())) // Byte Write Mask (e.g., 1111 for sw, 0001 for sb)
-    
-    // Output
-    val rdData  = Output(UInt(32.W))
+    val addr     = Input(UInt(32.W))        // Byte address
+    val wrData   = Input(UInt(32.W))        // 32-bit write data (already lane-aligned by MemoryStage for SB/SH)
+    val memRead  = Input(Bool())
+    val memWrite = Input(Bool())
+    val mask     = Input(Vec(4, Bool()))    // byte enables [0..3]
+    val rdData   = Output(UInt(32.W))       // 32-bit read data (1-cycle latency)
   })
 
-  // 1. Create SyncReadMem
-  // Defined as a vector of 4 bytes to allow masked writes
-  val mem = SyncReadMem(depth, Vec(4, UInt(8.W)))
+  // Word-addressed memory: each entry is 4 bytes
+  val mem = SyncReadMem(depthWords, Vec(4, UInt(8.W)))
 
-  // 2. Address Processing
-  // SyncReadMem is word-indexed, so we divide the byte address by 4.
-  // (Assuming aligned accesses for simplicity)
-  val wordAddr = io.addr >> 2
+  // Convert byte address to word address
+  val wordAddr = io.addr(31, 2)
 
-  // 3. Read Logic
-  // Reads are synchronous: data appears 1 cycle after address is applied.
-  // We read the vector of 4 bytes and concatenate them back into 32 bits.
+  // Read: synchronous (data valid next cycle)
   val rdVec = mem.read(wordAddr, io.memRead)
-  io.rdData := rdVec.asUInt // Concatenates (3) ## (2) ## (1) ## (0) automatically
+  val rdEn_d = RegNext(io.memRead, init = false.B)
 
-  // 4. Write Logic
-  // We split the 32-bit input data into 4 bytes for the vector
+  // Return 0 when not doing a read (avoids X propagation into WB/debug)
+  io.rdData := Mux(rdEn_d, rdVec.asUInt, 0.U(32.W))
+
+  // Write: masked per-byte write
   val wrVec = Wire(Vec(4, UInt(8.W)))
   for (i <- 0 until 4) {
-    wrVec(i) := io.wrData(i * 8 + 7, i * 8)
+    wrVec(i) := io.wrData((i * 8) + 7, i * 8)
   }
 
-  // Perform the masked write
   when(io.memWrite) {
     mem.write(wordAddr, wrVec, io.mask)
   }
 
-  // 5. Initialization (Optional for simulation/FPGA init)
-  // Useful for loading a test program or data
-  // loadMemoryFromFile(mem, "mem_init.hex") 
+  // Optional init if you want it later:
+  // loadMemoryFromFile(mem, "mem_init.hex")
 }

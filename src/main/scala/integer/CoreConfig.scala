@@ -7,7 +7,6 @@ import chisel3.util._
 // Control Signals Bundle (Passed from Decode -> Execute)
 
 final case class CoreConfig(
-<<<<<<< HEAD
   xlen: Int, // Register and Data Width (Default: 32)
   startPC: BigInt, // Starting Program Counter Value
   imemSize: Int, // Instruction Memory Size in Bytes
@@ -34,21 +33,16 @@ final case class VectorRegConfig(
   elen: Int, // Maximum Element Length in Bits
   sew: Int,  // Standard Element Width in Bits
   numRegs: Int // Number of Vector Registers
-=======
-  xlen: Int,
-  startPC: BigInt,
-  imemFile: String, // Instruction Memory Initialization File Path (Must be ASCII Hex)
-  imemSize: Int = 16384 // Default 16KB Instruction Memory
->>>>>>> Version-1
 )
 
 // Control Signals that flow through the pipeline
 class ControlSignals extends Bundle {
   val regWrite = Bool() // 0: No Write, 1: Write to Register
+  val memF3    = UInt(3.W) // Funct3 for memory operations
   val memRead  = Bool() // 0: No Read, 1: Read from Memory
   val memWrite = Bool() // 0: No Write, 1: Write to Memory
   val memToReg = Bool() // 0: ALU result, 1: Memory data
-  val imm_flag   = Bool() // 0: Reg, 1: Immediate
+  val imm_flag = Bool() // 0: Reg, 1: Immediate
   val branch   = Bool() // 0: No branch, 1: Branch
   val jump     = Bool() // 0: No jump, 1: Jump
   val aluOp    = UInt(8.W) // Simplified ALU Opcodes

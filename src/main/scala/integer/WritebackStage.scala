@@ -5,47 +5,52 @@ import chisel3.util._
 
 class WritebackStage(conf: CoreConfig) extends Module {
   val io = IO(new Bundle {
-    // Inputs from Memory Stage
+    // Inputs from Memory Stage / MEM-WB
     val ctrl      = Input(new ControlSignals)
-    val memData   = Input(UInt(conf.xlen.W))
-    val aluResult = Input(UInt(conf.xlen.W))
-    val rdIn      = Input(UInt(5.W))
+    val memData   = Input(UInt(conf.xlen.W))  // Data loaded from memory
+    val aluResult = Input(UInt(conf.xlen.W)) 
+    val rdIn      = Input(UInt(5.W))        // Destination Register
 
     // Outputs to Decode Stage (Register File)
-    val wbData    = Output(UInt(conf.xlen.W)) // Data to Write Back
-    val wbAddr    = Output(UInt(5.W))
-    val wbEnable  = Output(Bool())
+    val wbData    = Output(UInt(conf.xlen.W)) // Data to write back
+    val wbAddr    = Output(UInt(5.W)) // Destination Register Address
+    val wbEnable  = Output(Bool())      // Write Enable
   })
 
+  val addrLSB = io.aluResult(1, 0)  // byte offset
+  val byteShift = addrLSB << 3      // 0, 8, 16, 24
+  val halfShift = addrLSB(1) << 4   // 0 or 16
 
+  val byte = (io.memData >> byteShift)(7, 0)
+  val half = (io.memData >> halfShift)(15, 0)
+  val word = io.memData
 
-  // 1. Calculate the bit offset (0, 8, 16, 24)
-  val offset = io.aluResult(1, 0) << 3 
-  
-  // 2. Shift and Mask to get the raw 8-bit byte
-  // We shift the full 32-bit word right and take the bottom 8 bits
-  val rawByte = (io.memData >> offset)(7, 0) 
+  val loadData = Wire(UInt(conf.xlen.W))
+  loadData := word // default 
 
-  // 3. Sign Extension Logic
-  // If bit 7 is 1, fill the upper 24 bits with 1s. Otherwise 0s.
-  val extendedByte = Wire(UInt(32.W))
-  
-  // Assuming you have a signal 'isUnsigned' (e.g. from control logic for 'lbu')
-  // If you don't have 'lbu' support yet, just use the 'else' case.
-  /* if (io.ctrl.isUnsigned) {
-    extendedByte := rawByte.asUInt
-  } else { 
-  */
-    // Sign Extension: Cat 24 copies of the sign bit with the byte
-    extendedByte := Cat(Fill(24, rawByte(7)), rawByte)
-  /* } */
+  // Decode load type using funct3 (memF3)
+  // Loads: 000 LB, 001 LH, 010 LW, 100 LBU, 101 LHU
+  switch(io.ctrl.memF3) {
+    is("b000".U) { // LB (sign-extend)
+      loadData := Cat(Fill(conf.xlen - 8, byte(7)), byte)
+    }
+    is("b001".U) { // LH (sign-extend)
+      loadData := Cat(Fill(conf.xlen - 16, half(15)), half)
+    }
+    is("b010".U) { // LW
+      loadData := word
+    }
+    is("b100".U) { // LBU (zero-extend)
+      loadData := Cat(0.U((conf.xlen - 8).W), byte)
+    }
+    is("b101".U) { // LHU (zero-extend)
+      loadData := Cat(0.U((conf.xlen - 16).W), half)
+    }
+  }
 
-  // 4. Select Result
-  io.wbData := Mux(io.ctrl.memToReg, extendedByte, io.aluResult)
+  // Select writeback source
+  io.wbData := Mux(io.ctrl.memToReg, loadData, io.aluResult)
 
-
-  // Select Result: Memory Data (Load) vs ALU Result (Arithmetic)
-  
   io.wbAddr   := io.rdIn
   io.wbEnable := io.ctrl.regWrite
 }
