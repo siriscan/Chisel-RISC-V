@@ -1,3 +1,25 @@
+error id: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/WritebackStage.scala:
+file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/WritebackStage.scala
+empty definition using pc, found symbol in pc: 
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/io/ctrl/memOp.
+	 -chisel3/io/ctrl/memOp#
+	 -chisel3/io/ctrl/memOp().
+	 -chisel3/util/io/ctrl/memOp.
+	 -chisel3/util/io/ctrl/memOp#
+	 -chisel3/util/io/ctrl/memOp().
+	 -io/ctrl/memOp.
+	 -io/ctrl/memOp#
+	 -io/ctrl/memOp().
+	 -scala/Predef.io.ctrl.memOp.
+	 -scala/Predef.io.ctrl.memOp#
+	 -scala/Predef.io.ctrl.memOp().
+offset: 1151
+uri: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/WritebackStage.scala
+text:
+```scala
 package integer
 
 import chisel3._
@@ -10,9 +32,6 @@ class WritebackStage(conf: CoreConfig) extends Module {
     val memData   = Input(UInt(conf.xlen.W))  // Data loaded from memory
     val aluResult = Input(UInt(conf.xlen.W)) 
     val rdIn      = Input(UInt(5.W))        // Destination Register
-
-    // Inputs from Execute Stage / EX-MEM
-    val pcIn = Input(UInt(conf.xlen.W)) // PC for JAL/JALR
 
     // Outputs to Decode Stage (Register File)
     val wbData    = Output(UInt(conf.xlen.W)) // Data to write back
@@ -28,13 +47,12 @@ class WritebackStage(conf: CoreConfig) extends Module {
   val half = (io.memData >> halfShift)(15, 0)
   val word = io.memData
 
-  val loadData = Wire(UInt(conf.xlen.W)) // Data after load type decoding
-  val outputData = Wire(UInt(conf.xlen.W)) // Data to write back (after memToReg mux)
+  val loadData = Wire(UInt(conf.xlen.W))
   loadData := word // default 
 
-  // Decode load type using funct3 (memOp)
+  // Decode load type using funct3 (memF3)
   // Loads: 000 LB, 001 LH, 010 LW, 100 LBU, 101 LHU
-  switch(io.ctrl.memOp) {
+  switch(io.ctrl.memO@@p) {
     is("b000".U) { // LB (sign-extend)
       loadData := Cat(Fill(conf.xlen - 8, byte(7)), byte)
     }
@@ -52,19 +70,16 @@ class WritebackStage(conf: CoreConfig) extends Module {
     }
   }
 
-  // Select between ALU result and Memory load data
-  outputData := Mux(io.ctrl.memToReg, loadData, io.aluResult)
-
-  // Jump and Link Handling
-  val linkData = Wire(UInt(conf.xlen.W))
-  when (io.ctrl.jump =/= 0.U) { // JAL or JALR
-    linkData := io.pcIn + 4.U // Return address is PC + 4
-  } .otherwise {
-    linkData := io.pcIn // Default
-  }
-
   // Select writeback source
-  io.wbData := Mux(io.ctrl.jump =/= 0.U, linkData, outputData)
+  io.wbData := Mux(io.ctrl.memToReg, loadData, io.aluResult)
+
   io.wbAddr   := io.rdIn
   io.wbEnable := io.ctrl.regWrite
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 

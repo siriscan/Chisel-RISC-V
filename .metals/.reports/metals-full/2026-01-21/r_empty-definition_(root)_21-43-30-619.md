@@ -1,3 +1,25 @@
+error id: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RiscVPipeline.scala:memData
+file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RiscVPipeline.scala
+empty definition using pc, found symbol in pc: memData
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/memory/io/memData.
+	 -chisel3/memory/io/memData#
+	 -chisel3/memory/io/memData().
+	 -chisel3/util/memory/io/memData.
+	 -chisel3/util/memory/io/memData#
+	 -chisel3/util/memory/io/memData().
+	 -memory/io/memData.
+	 -memory/io/memData#
+	 -memory/io/memData().
+	 -scala/Predef.memory.io.memData.
+	 -scala/Predef.memory.io.memData#
+	 -scala/Predef.memory.io.memData().
+offset: 8694
+uri: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RiscVPipeline.scala
+text:
+```scala
 package integer
 import chisel3._
 import chisel3.util._
@@ -220,7 +242,7 @@ class RiscVPipeline extends Module {
   io.result := writeback.io.wbData
   io.memAddress := memory.io.aluResult
   io.memDataIn  := memory.io.rs2Data
-  io.memReadData := memory.io.memData
+  io.memReadData := memory.io.memD@@ata
   io.memRead := memory.io.ctrl.memRead
   io.memWrite := memory.io.ctrl.memWrite
 
@@ -264,3 +286,10 @@ object RISCVPipelineGenerator extends App {
 
 
  */
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: memData

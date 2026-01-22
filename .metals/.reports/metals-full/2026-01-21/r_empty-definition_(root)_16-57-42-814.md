@@ -1,3 +1,25 @@
+error id: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RiscVPipeline.scala:stall
+file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RiscVPipeline.scala
+empty definition using pc, found symbol in pc: stall
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/hazard/io/stall.
+	 -chisel3/hazard/io/stall#
+	 -chisel3/hazard/io/stall().
+	 -chisel3/util/hazard/io/stall.
+	 -chisel3/util/hazard/io/stall#
+	 -chisel3/util/hazard/io/stall().
+	 -hazard/io/stall.
+	 -hazard/io/stall#
+	 -hazard/io/stall().
+	 -scala/Predef.hazard.io.stall.
+	 -scala/Predef.hazard.io.stall#
+	 -scala/Predef.hazard.io.stall().
+offset: 3417
+uri: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/RiscVPipeline.scala
+text:
+```scala
 package integer
 import chisel3._
 import chisel3.util._
@@ -7,29 +29,12 @@ class RiscVPipeline extends Module {
     val result = Output(UInt(32.W)) // Debug output from Writeback Stage
     val memAddress = Output(UInt(32.W)) // Debug: Address sent to Data Memory
     val memDataIn = Output(UInt(32.W)) // Debug: Data written to Data Memory
-
-    val memRead = Output(Bool()) // Debug: Memory Read signal
-    val memWrite = Output(Bool()) // Debug: Memory Write signal
-    val memReadData = Output(UInt(32.W)) // Debug: Data read from Data Memory
-
+    val currentInst = Output(UInt(32.W)) // Debug: Current instruction in IF/ID
+    val decodeOpcode = Output(UInt(7.W)) // Debug: Opcode in Decode Stage
     val nextInst = Output(UInt(32.W)) // Debug: Next instruction to be fetched
-    
-    val exBranchTaken = Output(Bool()) // Debug: Branch taken signal from Execute Stage
-    val exBranchTarget = Output(UInt(32.W)) // Debug: Branch target from Execute Stage
-    val ifTakeBranch = Output(Bool()) // Debug: Branch taken signal in Fetch Stage
-    val ifBranchTarget = Output(UInt(32.W)) // Debug: Branch target in Fetch Stage
-
-    val currentInst = Output(UInt(32.W)) // Debug: Current instruction in Writeback Stage
-    val wbEnable = Output(Bool()) // Debug: Writeback Enable signal
-    val wbAddr = Output(UInt(5.W)) // Debug: Writeback Address
-    val wbOpcode = Output(UInt(7.W)) // Debug: Opcode of instruction in Writeback Stage
-    val wbFunct3 = Output(UInt(3.W)) // Debug: funct3 of instruction in Writeback Stage
-    val wbRd   = Output(UInt(5.W)) // Debug: rd of instruction in Writeback Stage
-
-    val wbPC    = Output(UInt(32.W))  // Debug: PC of instruction in Writeback Stage
-    val fetchPC = Output(UInt(32.W))  // Debug: PC in Fetch Stage
-
-
+    val fetchStall = Output(Bool()) // Debug: Stall signal from Hazard Unit
+    val fetchPC = Output(UInt(32.W)) // Debug: Current PC in Fetch Stage
+    val fetchNextPC = Output(UInt(32.W)) // Debug: Next PC in Fetch Stage
   })
 
   val conf = CoreConfig(xlen = 32, startPC = 0, imemFile  = "src/main/resources/pmem.hex", imemSize = 16384) 
@@ -52,7 +57,7 @@ class RiscVPipeline extends Module {
   // We use a Register of a Bundle to hold the data crossing the boundary
   class IF_ID_Bundle extends Bundle {
     val pc   = UInt(conf.xlen.W)
-    val inst = UInt(32.W) // Fetched instruction
+    val inst = UInt(32.W)
   }
   // Initialize to NOP (0x13 is ADDI x0, x0, 0)
   // Create a default Wire with the correct reset values
@@ -74,8 +79,6 @@ class RiscVPipeline extends Module {
     val rd   = UInt(5.W)
     val rs1_addr = UInt(5.W) // Needed for Forwarding
     val rs2_addr = UInt(5.W) // Needed for Forwarding
-
-    val inst = UInt(32.W) // For debugging (Can see instruction in Execute Stage)
   }
   val id_ex = RegInit(0.U.asTypeOf(new ID_EX_Bundle))
 
@@ -85,9 +88,6 @@ class RiscVPipeline extends Module {
     val aluResult = UInt(conf.xlen.W)
     val rs2Data   = UInt(conf.xlen.W) // For Store
     val rd        = UInt(5.W)
-    val pc        = UInt(conf.xlen.W)
-
-    val inst = UInt(32.W) // For debugging (Can see instruction in Memory Stage)
   }
   val ex_mem = RegInit(0.U.asTypeOf(new EX_MEM_Bundle))
 
@@ -97,27 +97,27 @@ class RiscVPipeline extends Module {
     val memData   = UInt(conf.xlen.W)
     val aluResult = UInt(conf.xlen.W)
     val rd        = UInt(5.W)
-    val pc        = UInt(conf.xlen.W)
-
-    val inst = UInt(32.W) // For debugging (Can see instruction in Writeback Stage)
   }
-
   val mem_wb = RegInit(0.U.asTypeOf(new MEM_WB_Bundle))
 
-  //Branch Handling
-  val takeBranchDelayed = RegNext(execute.io.branchTaken, false.B) // Delay branch taken signal by 1 cycle
-  val branchTargetDelayed = RegNext(execute.io.branchTarget, 0.U) // Delay branch target by 1 cycle
-  // Note: Might add branch predictors later. For now, simple 1-cycle delay.
 
   // Connections Between Stages
+
   // Fetch Stage Connections 
-  fetch.io.takeBranch := takeBranchDelayed
-  fetch.io.branchTarget := branchTargetDelayed
-  fetch.io.stall    := hazard.io.stall
+
+  val takeBranchDelayed = RegNext(execute.io.branchTaken, false.B) // Delay branch taken signal by 1 cycle
+  val branchTargetDelayed = RegNext(execute.io.branchTarget, 0.U) // Delay branch target by 1 cycle
+
+  fetch.io.takeBranch := execute.io.branchTaken 
+  fetch.io.branchTarget := execute.io.branchTarget
+  fetch.io.stall    := hazard.io.stal@@l
 
   // IF/ID Pipeline Update
-  // Only update if not stalled. 
-  when(!hazard.io.stall) {
+  // Only update if not stalled. If branching (pcsr), flush the instruction (set to 0).
+  when(execute.io.branchTaken) {
+    if_id.inst := 0.U // Flush
+    if_id.pc   := 0.U
+  } .elsewhen(!hazard.io.stall) {
     if_id.inst := fetch.io.instruction
     if_id.pc   := fetch.io.pc
   }
@@ -139,10 +139,9 @@ class RiscVPipeline extends Module {
   hazard.io.memRead_ex := id_ex.ctrl.memRead
 
   // ID/EX Pipeline Update
-  // If stalled or branching, inject a bubble
-  when(hazard.io.stall) {
-    id_ex.ctrl := 0.U.asTypeOf(new ControlSignals) // Bubble (All control signals zero)
-    id_ex.inst := 0.U // Can see bubble
+  // If stalled or branching, inject a bubble (zero out control signals)
+  when(hazard.io.stall || execute.io.branchTaken) {
+    id_ex.ctrl := 0.U.asTypeOf(new ControlSignals)
   } .otherwise {
     id_ex.ctrl     := decode.io.controlSignals 
     id_ex.pc       := decode.io.pcOut
@@ -152,7 +151,6 @@ class RiscVPipeline extends Module {
     id_ex.rd       := if_id.inst(11, 7)
     id_ex.rs1_addr := if_id.inst(19, 15)
     id_ex.rs2_addr := if_id.inst(24, 20)
-    id_ex.inst     := if_id.inst // For debugging
   }
 
 
@@ -191,8 +189,7 @@ class RiscVPipeline extends Module {
   ex_mem.aluResult := execute.io.C // Connect ALU result to EX/MEM register
   ex_mem.rs2Data   := execute.io.memWriteData // Passed through Execute for Store
   ex_mem.rd        := id_ex.rd
-  ex_mem.pc        := id_ex.pc
-  ex_mem.inst      := id_ex.inst // For debugging
+
 
   // Memory Stage Connections
   memory.io.ctrl      := ex_mem.ctrl
@@ -205,8 +202,6 @@ class RiscVPipeline extends Module {
   mem_wb.memData   := DontCare // 1 clock cycle delay due to SyncReadMem
   mem_wb.aluResult := memory.io.aluOut
   mem_wb.rd        := memory.io.rdOut
-  mem_wb.pc        := ex_mem.pc
-  mem_wb.inst      := ex_mem.inst // For debugging
 
 
   // Writeback Stage Connections
@@ -214,34 +209,18 @@ class RiscVPipeline extends Module {
   writeback.io.memData   := memory.io.memData // Data loaded from memory (if any)
   writeback.io.aluResult := mem_wb.aluResult // ALU result from MEM stage 
   writeback.io.rdIn      := mem_wb.rd // Destination Register
-  writeback.io.pcIn      := mem_wb.pc // PC for JAL/JALR
 
   // Debug Output (For Verilog Monitoring)
   io.result := writeback.io.wbData
   io.memAddress := memory.io.aluResult
   io.memDataIn  := memory.io.rs2Data
-  io.memReadData := memory.io.memData
-  io.memRead := memory.io.ctrl.memRead
-  io.memWrite := memory.io.ctrl.memWrite
-
-  io.currentInst := mem_wb.inst
-
+  io.currentInst := if_id.inst
+  io.decodeOpcode := decode.io.instruction(6,0)
   io.nextInst := fetch.io.instruction
-
-  io.wbEnable := writeback.io.wbEnable
-  io.wbAddr   := writeback.io.wbAddr  
-
-  io.wbOpcode := mem_wb.inst(6,0)
-  io.wbFunct3 := mem_wb.inst(14,12)
-  io.wbRd     := mem_wb.inst(11,7)
-
-  io.exBranchTaken  := execute.io.branchTaken
-  io.exBranchTarget := execute.io.branchTarget
-  io.ifTakeBranch   := fetch.io.takeBranch
-  io.ifBranchTarget := fetch.io.branchTarget
-
-  io.wbPC    := mem_wb.pc
-  io.fetchPC := fetch.io.pc
+  io.fetchStall := fetch.io.stall
+  io.fetchPC    := fetch.io.pc
+  io.fetchNextPC := Mux(fetch.io.takeBranch, fetch.io.branchTarget, fetch.io.pc + 4.U)
+  
 }
 
 // Generate the Verilog
@@ -264,3 +243,10 @@ object RISCVPipelineGenerator extends App {
 
 
  */
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: stall

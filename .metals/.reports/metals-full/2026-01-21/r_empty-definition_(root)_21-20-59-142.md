@@ -1,3 +1,25 @@
+error id: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/DecodeStage.scala:
+file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/DecodeStage.scala
+empty definition using pc, found symbol in pc: 
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/imm_b/asSInt/resize.
+	 -chisel3/imm_b/asSInt/resize#
+	 -chisel3/imm_b/asSInt/resize().
+	 -chisel3/util/imm_b/asSInt/resize.
+	 -chisel3/util/imm_b/asSInt/resize#
+	 -chisel3/util/imm_b/asSInt/resize().
+	 -imm_b/asSInt/resize.
+	 -imm_b/asSInt/resize#
+	 -imm_b/asSInt/resize().
+	 -scala/Predef.imm_b.asSInt.resize.
+	 -scala/Predef.imm_b.asSInt.resize#
+	 -scala/Predef.imm_b.asSInt.resize().
+offset: 5485
+uri: file:///C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/src/main/scala/integer/DecodeStage.scala
+text:
+```scala
 package integer
 
 import chisel3._
@@ -126,7 +148,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
         val imm4_1 = io.instruction(11, 8)
         val imm11 = io.instruction(7)
         val imm_b = Cat(imm12, imm11, imm10_5, imm4_1, 0.U(1.W))
-        val imm_b_sext = Cat(Fill(19, imm_b(12)), imm_b) // Sign-extended immediate
+        val imm_b_sext = imm_b.asSInt.@@resize(32)
 
         // Decode branch comparison function
         switch(funct3) { // Not used in Decode, but decoded here for completeness. Only used in Execute Stage for branch comparison
@@ -280,3 +302,10 @@ class DecodeStage(conf: CoreConfig) extends Module {
     io.B := regFile.io.B // rs2 data
 
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 

@@ -39,7 +39,7 @@ class MemoryStage(conf: CoreConfig) extends Module {
 
   // Only relevant on stores
   when(io.ctrl.memWrite) {
-    switch(io.ctrl.memF3) {
+    switch(io.ctrl.memOp) { // Use funct3 to determine store size
       is("b000".U) { // SB
         // Enable exactly one byte lane based on addr[1:0]
         mask := VecInit(Seq(

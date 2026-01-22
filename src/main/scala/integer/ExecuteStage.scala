@@ -49,15 +49,11 @@ class ExecuteStage(config : CoreConfig) extends Module {
       alu.io.A := io.pcIn
       alu.io.B := io.immediate
     } .otherwise {
-      alu.io.A := io.A
+      alu.io.A := io.A // Default A input
     }
 
     // Select B input based on aluSrc control signal
-    when(imm_flag) {
-    alu.io.B := io.immediate // Use immediate
-    } .otherwise {
-    alu.io.B := io.B // Use register B
-    }
+    alu.io.B := Mux(imm_flag, io.immediate, io.B) // 1: immediate, 0: value from register
 
     // Connect ALU opcode
     alu.io.opcode := io.controlSignals.aluOp
@@ -65,18 +61,63 @@ class ExecuteStage(config : CoreConfig) extends Module {
     // Connect ALU output
     io.C := alu.io.C
 
-    // Zero flag for branch decisions
-    val isZero = (alu.io.C === 0.U) // used for BEQ and BNE
-    
-    // Branch Decision Logic
-    val currentBranch = io.controlSignals.branch
-    io.branchTaken := (currentBranch && isZero) || io.controlSignals.jump // Branch taken if branch signal is high and zero flag is set, or if it's a jump
-    io.branchTarget := io.pcIn + io.immediate // Target PC = PC + immediate offset
+    // Branches
+    val isBranch = io.controlSignals.branch // True if branch instruction
+    val branchOp = io.controlSignals.branchOp
 
+    val a = alu.io.A
+    val b = alu.io.B
+    val isEqual = (a === b) // Equality comparison
+    val isLessThan = Mux(io.controlSignals.isSigned, (a.asSInt < b.asSInt), (a < b)) // Signed or unsigned comparison
+    val isGreaterThan = Mux(io.controlSignals.isSigned, (a.asSInt > b.asSInt), (a > b)) // Signed or unsigned comparison
+    val isBGE = isGreaterThan || isEqual  // Greater than or equal (Both signed and unsigned)
+
+    val isBranchTaken = WireDefault(false.B) // Default not taken
+
+    // Branch Decision Logic
+    when (isBranch) {
+      when(branchOp === "b000".U) { // BEQ
+        isBranchTaken := isEqual
+      } .elsewhen(branchOp === "b001".U) { // BNE
+        isBranchTaken := !isEqual
+      } .elsewhen(branchOp === "b100".U) { // BLT
+        isBranchTaken := isLessThan
+      } .elsewhen(branchOp === "b101".U) { // BGE
+        isBranchTaken := isBGE
+      } .elsewhen(branchOp === "b110".U) { // BLTU
+        isBranchTaken := isLessThan
+      } .elsewhen(branchOp === "b111".U) { // BGEU
+        isBranchTaken := isBGE
+      }
+    }.otherwise {
+      isBranchTaken := false.B // Not a branch instruction
+    }   
+
+    // Jumps
+    val jumpType = io.controlSignals.jump // 0: No jump, 1: JAL, 2: JALR
+
+    // Calculate Branch Target
+    val pcPlusImm = io.pcIn + io.immediate // PC + immediate for branches and JAL
+    val jalrTarget = (a + io.immediate) & (~1.U(32.W)) // JALR target address (rs1 + imm) with LSB zeroed
+
+    when (jumpType === 1.U) { // JAL
+      io.branchTarget := pcPlusImm
+    } .elsewhen (jumpType === 2.U) { // JALR
+      io.branchTarget := jalrTarget
+    } .elsewhen (isBranch) { // Branch instructions
+      io.branchTarget := pcPlusImm
+    } .otherwise {
+      io.branchTarget := 0.U // Default value (not used if not branching)
+    }
+
+    // Final Branch Taken Signal
+    io.branchTaken := (isBranch && isBranchTaken) || (jumpType =/= 0.U) // Taken if branch condition met or if jump instruction
 
     // Pass to Memory Stage
     io.pcOut := io.pcIn
     io.controlSignalsOut := io.controlSignals
+
+    // Data forwarding to Memory Stage for store instructions
     io.memWriteData := io.B
   
 }
