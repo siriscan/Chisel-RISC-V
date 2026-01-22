@@ -29,11 +29,10 @@ class FetchStage(conf: CoreConfig) extends Module {
 
   pcReg := Mux(io.stall, pcReg, nextPc) // Hold PC if stall is true ; else update PC to nextPc
 
-  // SyncReadMem has 1 cycle latency. We send nextPc NOW...
+  // SyncReadMem has 1 cycle latency. We send nextPc. NOW...
   Pmem.io.address := nextPc
-  
-  // ...and the instruction for nextPc arrives in the NEXT cycle,
-  // matching the value of pcReg in that cycle.
+
+  // ...and the instruction for nextPc arrives in the NEXT cycle, matching the value of pcReg in that cycle.
   io.pc   := pcReg
   io.instruction := Pmem.io.instruction
 }

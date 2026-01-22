@@ -57,41 +57,41 @@
   `endif // RANDOMIZE
 `endif // not def INIT_RANDOM_PROLOG_
 // VCS coverage exclude_file
-module mem_16384x32(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+module mem_16384x32(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
   input  [13:0] R0_addr,
   input         R0_en,
                 R0_clk,
   output [31:0] R0_data
 );
 
-  reg [31:0] Memory[0:16383];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-  reg        _R0_en_d0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-  reg [13:0] _R0_addr_d0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-  always @(posedge R0_clk) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-    _R0_en_d0 <= R0_en;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-    _R0_addr_d0 <= R0_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+  reg [31:0] Memory[0:16383];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+  reg        _R0_en_d0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+  reg [13:0] _R0_addr_d0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+  always @(posedge R0_clk) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+    _R0_en_d0 <= R0_en;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+    _R0_addr_d0 <= R0_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_MEM_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-    `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-      reg [31:0] _RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+  `ifdef ENABLE_INITIAL_MEM_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+    `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+      reg [31:0] _RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
     `endif // RANDOMIZE_REG_INIT
-    reg [31:0] _RANDOM_MEM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-      `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-      `ifdef RANDOMIZE_MEM_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+    reg [31:0] _RANDOM_MEM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+      `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+      `ifdef RANDOMIZE_MEM_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
         for (logic [14:0] i = 15'h0; i < 15'h4000; i += 15'h1) begin
-          _RANDOM_MEM = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-          Memory[i[13:0]] = _RANDOM_MEM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+          _RANDOM_MEM = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+          Memory[i[13:0]] = _RANDOM_MEM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
         end
       `endif // RANDOMIZE_MEM_INIT
-      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-        _RANDOM = {`RANDOM};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-        _R0_en_d0 = _RANDOM[0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-        _R0_addr_d0 = _RANDOM[14:1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+        _RANDOM = {`RANDOM};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+        _R0_en_d0 = _RANDOM[0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+        _R0_addr_d0 = _RANDOM[14:1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
       `endif // RANDOMIZE_REG_INIT
     end // initial
   `endif // ENABLE_INITIAL_MEM_
-  assign R0_data = _R0_en_d0 ? Memory[_R0_addr_d0] : 32'bx;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+  assign R0_data = _R0_en_d0 ? Memory[_R0_addr_d0] : 32'bx;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
 endmodule
 
 module InstructionMem(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:7:7
@@ -100,12 +100,12 @@ module InstructionMem(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\sr
   output [31:0] io_instruction	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:8:14
 );
 
-  mem_16384x32 mem_ext (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-    .R0_addr (io_address[15:2]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:19:28, :26:29
+  mem_16384x32 mem_ext (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+    .R0_addr (io_address[15:2]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:16:28, :20:29
     .R0_en   (1'h1),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:7:7
     .R0_clk  (clock),
     .R0_data (io_instruction)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
 endmodule
 
 module FetchStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
@@ -1289,9 +1289,9 @@ endmodule
 // ----- 8< ----- FILE "mem_16384x32_init.sv" ----- 8< -----
 
 // Generated by CIRCT firtool-1.128.0
-module mem_16384x32_init();	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-  initial	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
-    $readmemh("src/main/resources/pmem.hex", mem_16384x32.Memory);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:15:24
+module mem_16384x32_init();	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+  initial	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
+    $readmemh("src/main/resources/pmem.hex", mem_16384x32.Memory);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
 endmodule
 
 bind mem_16384x32 mem_16384x32_init mem_16384x32_init ();
