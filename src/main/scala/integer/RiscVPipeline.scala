@@ -1,6 +1,7 @@
 package integer
 import chisel3._
 import chisel3.util._
+import core._
 
 class RiscVPipeline extends Module {
   val io = IO(new Bundle {
@@ -105,9 +106,11 @@ class RiscVPipeline extends Module {
   val mem_wb = RegInit(0.U.asTypeOf(new MEM_WB_Bundle))
 
   //Branch Handling
-  val takeBranchDelayed = RegNext(execute.io.branchTaken, false.B) // Delay branch taken signal by 1 cycle
-  val branchTargetDelayed = RegNext(execute.io.branchTarget, 0.U) // Delay branch target by 1 cycle
-  // Note: Might add branch predictors later. For now, simple 1-cycle delay.
+  val takeBranchDelayed = RegNext(RegNext(execute.io.branchTaken, false.B), false.B) // Delay branch taken signal by 2 cycles
+  val branchTargetDelayed = RegNext(RegNext(execute.io.branchTarget, 0.U), 0.U) // Delay branch target by 2 cycles  
+  
+  // Note: Might add branch predictors later. For now, simple 2-cycle delay.
+
 
   // Connections Between Stages
   // Fetch Stage Connections 

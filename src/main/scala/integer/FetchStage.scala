@@ -3,6 +3,7 @@ import chisel3._
 import chisel3.Input
 import chisel3.Output
 import chisel3.util._
+import core._
 
 class FetchStage(conf: CoreConfig) extends Module {
   val io = IO(new Bundle {
@@ -35,4 +36,6 @@ class FetchStage(conf: CoreConfig) extends Module {
   // ...and the instruction for nextPc arrives in the NEXT cycle, matching the value of pcReg in that cycle.
   io.pc   := pcReg
   io.instruction := Pmem.io.instruction
+
+  // Early Jumping Support
 }

@@ -60,6 +60,16 @@
       "args": [],
       "jvmOptions": [],
       "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "SVGen",
+      "mainClass": "integer.SVGen",
+      "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }

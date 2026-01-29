@@ -13,8 +13,11 @@ class HazardUnit extends Module {
 
   // Stall if the instruction in Execute is a Load, and its destination
   // matches either source register in the Decode stage.
-  io.stall := io.memRead_ex && (io.rd_ex === io.rs1_id || io.rd_ex === io.rs2_id) && (io.rd_ex =/= 0.U)
-  
+  when(io.memRead_ex && ( (io.rd_ex === io.rs1_id) || (io.rd_ex === io.rs2_id) && io.rd_ex =/= 0.U)) {
+    io.stall := true.B
+  } .otherwise {
+    io.stall := false.B
+  }
   
   // rd_ex =/= 0.U to avoid false stall when rd is x0
 }

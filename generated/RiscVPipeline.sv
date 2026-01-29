@@ -108,50 +108,50 @@ module InstructionMem(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\sr
   );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\InstructionMem.scala:14:24
 endmodule
 
-module FetchStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-  input  [31:0] io_branchTarget,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:14
-  input         io_takeBranch,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:14
-                io_stall,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:14
-  output [31:0] io_pc,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:14
-                io_instruction	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:14
+module FetchStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+  input  [31:0] io_branchTarget,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+  input         io_takeBranch,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+                io_stall,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+  output [31:0] io_pc,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+                io_instruction	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
 );
 
-  reg  [31:0] pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:23:23
-  wire [31:0] nextPc = io_takeBranch ? io_branchTarget : pcReg + 32'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:23:23, :28:{16,55}
-  always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-    if (reset)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-      pcReg <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:23:23
-    else if (io_stall) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:14
+  reg  [31:0] pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23
+  wire [31:0] nextPc = io_takeBranch ? io_branchTarget : pcReg + 32'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23, :29:{16,55}
+  always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+    if (reset)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+      pcReg <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23
+    else if (io_stall) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
     end
-    else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:14
-      pcReg <= nextPc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:23:23, :28:16
+    else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+      pcReg <= nextPc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23, :29:16
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-    `ifdef FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-      `FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
+  `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+      `FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
     `endif // FIRRTL_BEFORE_INITIAL
-    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-      automatic logic [31:0] _RANDOM[0:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-      `ifdef INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-        `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
+    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+      automatic logic [31:0] _RANDOM[0:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+      `ifdef INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+        `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-        _RANDOM[/*Zero width*/ 1'b0] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-        pcReg = _RANDOM[/*Zero width*/ 1'b0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7, :23:23
+      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+        _RANDOM[/*Zero width*/ 1'b0] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+        pcReg = _RANDOM[/*Zero width*/ 1'b0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7, :24:23
       `endif // RANDOMIZE_REG_INIT
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
-      `FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7
+    `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
+      `FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  InstructionMem Pmem (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:26:20
+  InstructionMem Pmem (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:27:20
     .clock          (clock),
-    .io_address     (nextPc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:28:16
+    .io_address     (nextPc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:29:16
     .io_instruction (io_instruction)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:26:20
-  assign io_pc = pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:7:7, :23:23
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:27:20
+  assign io_pc = pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7, :24:23
 endmodule
 
 module RegisterFile(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RegisterFile.scala:6:7
@@ -453,7 +453,7 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
   wire            _GEN_15 = io_instruction[6:0] == 7'h67;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
   wire            _GEN_16 = _GEN_9 | _GEN_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:37:28, :63:20
   wire            _GEN_17 = io_instruction[6:0] == 7'h33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_18 = io_instruction[31:25] == 7'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:56:32, :169:25
+  wire            _GEN_18 = io_instruction[31:25] == 7'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:56:32, :172:25
   wire [7:0][7:0] _GEN_19 =
     {{_GEN_18 ? 8'hE : 8'h3},
      {_GEN_18 ? 8'hE : 8'h4},
@@ -462,17 +462,17 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
      {{6'h2, _GEN_18, 1'h1}},
      {_GEN_18 ? 8'hC : 8'h9},
      {_GEN_18 ? 8'hB : 8'h6},
-     {_GEN_18 ? 8'hA : _GEN_5 ? 8'h2 : 8'h1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:33:29, :68:24, :77:32, :166:24, :169:{25,43}, :170:39, :171:50, :172:39, :174:39, :180:43, :182:39, :184:39, :190:43, :191:39, :194:39, :200:43, :201:39, :204:39, :210:43, :212:39, :214:39, :220:43, :221:39, :222:50, :223:39, :225:39, :231:43, :233:39, :235:39, :241:43, :242:39, :244:39
+     {_GEN_18 ? 8'hA : _GEN_5 ? 8'h2 : 8'h1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:33:29, :68:24, :77:32, :169:24, :172:{25,43}, :173:39, :174:50, :175:39, :177:39, :183:43, :185:39, :187:39, :193:43, :194:39, :197:39, :203:43, :204:39, :207:39, :213:43, :215:39, :217:39, :223:43, :224:39, :225:50, :226:39, :228:39, :234:43, :236:39, :238:39, :244:43, :245:39, :247:39
   wire            _GEN_20 = io_instruction[6:0] == 7'h37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
   wire            _GEN_21 = io_instruction[6:0] == 7'h17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_22 = _GEN_20 | _GEN_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:30:18, :63:20, :251:22, :258:22
+  wire            _GEN_22 = _GEN_20 | _GEN_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:30:18, :63:20, :254:22, :261:22
   wire            _GEN_23 = _GEN_12 | _GEN_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:31:32, :63:20
   RegisterFile regFile (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:25
     .clock           (clock),
     .reset           (reset),
     .io_C            (io_C),
-    .io_readAddressA (io_instruction[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:275:46
-    .io_readAddressB (io_instruction[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:276:46
+    .io_readAddressA (io_instruction[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:278:46
+    .io_readAddressB (io_instruction[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:279:46
     .io_writeEnable  (io_writeEnable),
     .io_writeAddress (io_writeAddress),
     .io_A            (io_A),
@@ -497,20 +497,20 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
                      1'h0}
                   : _GEN_15
                       ? imm_sext
-                      : _GEN_17 | ~_GEN_22 ? 32'h0 : {io_instruction[31:12], 12'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :30:18, :39:32, :48:31, :49:24, :51:23, :56:32, :63:20, :67:22, :94:22, :110:36, :112:{29,34,44}, :113:22, :124:35, :125:37, :126:36, :127:35, :129:29, :142:22, :145:35, :146:37, :147:35, :148:38, :150:29, :153:22, :160:22, :251:22, :258:22
+                      : _GEN_17 | ~_GEN_22 ? 32'h0 : {io_instruction[31:12], 12'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :30:18, :39:32, :48:31, :49:24, :51:23, :56:32, :63:20, :67:22, :94:22, :110:36, :112:{29,34,44}, :113:22, :124:35, :125:37, :126:36, :127:35, :129:29, :142:22, :145:35, :146:37, :147:35, :148:38, :150:29, :153:22, :163:22, :254:22, :261:22
   assign io_pcOut = io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7
   assign io_controlSignals_regWrite =
-    _GEN_10 | ~_GEN_16 & (_GEN_14 | _GEN_15 | _GEN_17 | _GEN_20 | _GEN_21);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :37:28, :39:32, :41:32, :63:20, :66:36, :92:36, :152:36, :157:36, :165:36, :250:36
+    _GEN_10 | ~_GEN_16 & (_GEN_14 | _GEN_15 | _GEN_17 | _GEN_20 | _GEN_21);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :37:28, :39:32, :41:32, :63:20, :66:36, :92:36, :152:36, :160:36, :168:36, :253:36
   assign io_controlSignals_memOp = _GEN | ~_GEN_11 ? 3'h0 : io_instruction[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :36:29, :54:32, :63:20, :95:33, :114:33
   assign io_controlSignals_memRead = io_controlSignals_memRead_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :38:31, :63:20
   assign io_controlSignals_memWrite = ~_GEN_10 & _GEN_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :39:32, :63:20
   assign io_controlSignals_memToReg = io_controlSignals_memRead_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :38:31, :63:20
   assign io_controlSignals_imm_flag =
-    _GEN_13 | ~_GEN_23 & (_GEN_15 | ~_GEN_17 & (_GEN_20 | _GEN_21));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :31:32, :35:32, :63:20, :65:36, :89:36, :106:36, :158:36, :164:36, :253:36
+    _GEN_13 | ~_GEN_23 & (_GEN_15 | ~_GEN_17 & (_GEN_20 | _GEN_21));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :31:32, :35:32, :63:20, :65:36, :89:36, :106:36, :161:36, :167:36, :256:36
   assign io_controlSignals_branch = ~_GEN_13 & _GEN_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :34:30, :35:32, :63:20
   assign io_controlSignals_branchOp = _GEN_13 | ~_GEN_12 ? 3'h0 : io_instruction[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :35:32, :54:32, :63:20
   assign io_controlSignals_jump =
-    _GEN | _GEN_8 | _GEN_16 ? 2'h0 : _GEN_14 ? 2'h1 : {_GEN_15, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :37:28, :63:20, :151:32, :156:32
+    _GEN | _GEN_8 | _GEN_16 ? 2'h0 : _GEN_14 ? 2'h1 : {_GEN_15, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :37:28, :63:20, :151:32, :159:32
   assign io_controlSignals_aluOp =
     _GEN
       ? _GEN_7[io_instruction[14:12]]
@@ -520,11 +520,11 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
               ? 8'h0
               : _GEN_15
                   ? 8'h1
-                  : _GEN_17 ? _GEN_19[io_instruction[14:12]] : {7'h0, _GEN_22};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :30:18, :31:32, :33:29, :36:29, :54:32, :63:20, :68:24, :69:50, :70:50, :71:50, :72:50, :73:50, :75:43, :83:37, :85:50, :93:33, :95:33, :108:33, :114:33, :159:33, :166:24, :169:43, :180:43, :190:43, :200:43, :210:43, :220:43, :231:43, :241:43, :251:22, :252:33, :258:22, :260:33
+                  : _GEN_17 ? _GEN_19[io_instruction[14:12]] : {7'h0, _GEN_22};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :30:18, :31:32, :33:29, :36:29, :54:32, :63:20, :68:24, :69:50, :70:50, :71:50, :72:50, :73:50, :75:43, :83:37, :85:50, :93:33, :95:33, :108:33, :114:33, :162:33, :169:24, :172:43, :183:43, :193:43, :203:43, :213:43, :223:43, :234:43, :244:43, :254:22, :255:33, :261:22, :263:33
   assign io_controlSignals_lui =
     _GEN | _GEN_8 | _GEN_9 | _GEN_12 | _GEN_14 | _GEN_15 | _GEN_17
       ? 2'h0
-      : _GEN_20 ? 2'h1 : {_GEN_21, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :42:27, :63:20, :254:31, :261:31
+      : _GEN_20 ? 2'h1 : {_GEN_21, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :42:27, :63:20, :257:31, :264:31
   assign io_controlSignals_isSigned =
     _GEN
       ? ~(_GEN_0 | (&(io_instruction[14:12])) | _GEN_1 | _GEN_2 | _GEN_3 | _GEN_4)
@@ -538,7 +538,7 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
                     : _GEN_6
                         ? io_instruction[31:25] != 7'h1
                         : io_instruction[14:12] != 3'h3 & (_GEN_2 | ~_GEN_4 & _GEN_1)
-                          & _GEN_18));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :36:29, :43:32, :54:32, :56:32, :63:20, :68:24, :95:33, :114:33, :132:24, :135:63, :166:24, :169:25, :180:43, :190:{25,43}, :193:42, :210:43, :231:43
+                          & _GEN_18));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :36:29, :43:32, :54:32, :56:32, :63:20, :68:24, :95:33, :114:33, :132:24, :135:63, :169:24, :172:25, :183:43, :193:{25,43}, :196:42, :213:43, :234:43
 endmodule
 
 module ALU(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ALU.scala:49:7
@@ -763,75 +763,75 @@ module DataMem(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main
   assign io_rdData = rdEn_d ? _mem_ext_R0_data : 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DataMem.scala:7:7, :21:24, :28:23, :31:19
 endmodule
 
-module MemoryStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-                io_ctrl_regWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  input  [2:0]  io_ctrl_memOp,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  input         io_ctrl_memRead,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-                io_ctrl_memWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-                io_ctrl_memToReg,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  input  [1:0]  io_ctrl_jump,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  input  [31:0] io_aluResult,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-                io_rs2Data,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  input  [4:0]  io_rdIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  output [31:0] io_memData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-                io_aluOut,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  output [4:0]  io_rdOut,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  output        io_ctrlOut_regWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  output [2:0]  io_ctrlOut_memOp,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  output        io_ctrlOut_memToReg,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
-  output [1:0]  io_ctrlOut_jump	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:14
+module MemoryStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+                io_ctrl_regWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  input  [2:0]  io_ctrl_memOp,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  input         io_ctrl_memRead,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+                io_ctrl_memWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+                io_ctrl_memToReg,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  input  [1:0]  io_ctrl_jump,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  input  [31:0] io_aluResult,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+                io_rs2Data,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  input  [4:0]  io_rdIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  output [31:0] io_memData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+                io_aluOut,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  output [4:0]  io_rdOut,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  output        io_ctrlOut_regWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  output [2:0]  io_ctrlOut_memOp,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  output        io_ctrlOut_memToReg,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
+  output [1:0]  io_ctrlOut_jump	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:8:14
 );
 
-  wire        _GEN = io_ctrl_memOp == 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:27, :42:27
-  wire [62:0] _GEN_0 = {31'h0, io_rs2Data};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:52:33
-  wire [62:0] _storeData_T = _GEN_0 << {58'h0, io_aluResult[1:0], 3'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :25:27, :52:33
-  wire        _GEN_1 = io_ctrl_memOp == 3'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:42:27
-  wire [62:0] _storeData_T_3 = _GEN_0 << {58'h0, io_aluResult[1], 4'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :52:33, :58:18, :64:{33,48}
-  wire        _GEN_2 = io_ctrl_memOp == 3'h2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:42:27
-  wire        _GEN_3 = _GEN_1 ? ~(io_aluResult[1]) : _GEN_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :42:27, :57:14, :58:{18,22}
-  wire        _GEN_4 = _GEN_1 ? io_aluResult[1] : _GEN_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :42:27, :57:14, :58:18
-  DataMem dmem (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:22:20
+  wire        _GEN = io_ctrl_memOp == 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:26:27, :43:27
+  wire [62:0] _GEN_0 = {31'h0, io_rs2Data};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:53:33
+  wire [62:0] _storeData_T = _GEN_0 << {58'h0, io_aluResult[1:0], 3'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :26:27, :53:33
+  wire        _GEN_1 = io_ctrl_memOp == 3'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:43:27
+  wire [62:0] _storeData_T_3 = _GEN_0 << {58'h0, io_aluResult[1], 4'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :53:33, :59:18, :65:{33,48}
+  wire        _GEN_2 = io_ctrl_memOp == 3'h2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:43:27
+  wire        _GEN_3 = _GEN_1 ? ~(io_aluResult[1]) : _GEN_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :43:27, :58:14, :59:{18,22}
+  wire        _GEN_4 = _GEN_1 ? io_aluResult[1] : _GEN_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :43:27, :58:14, :59:18
+  DataMem dmem (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:23:20
     .clock       (clock),
     .reset       (reset),
     .io_addr     (io_aluResult),
     .io_wrData
       (io_ctrl_memWrite
          ? (_GEN ? _storeData_T[31:0] : _GEN_1 ? _storeData_T_3[31:0] : io_rs2Data)
-         : io_rs2Data),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:38:13, :41:26, :42:27, :52:{19,33}, :64:{19,33}
+         : io_rs2Data),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:39:13, :42:26, :43:27, :53:{19,33}, :65:{19,33}
     .io_memRead  (io_ctrl_memRead),
     .io_memWrite (io_ctrl_memWrite),
-    .io_mask_0   (io_ctrl_memWrite & (_GEN ? io_aluResult[1:0] == 2'h0 : _GEN_3)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :34:8, :41:26, :42:27, :45:14, :46:19, :57:14
-    .io_mask_1   (io_ctrl_memWrite & (_GEN ? io_aluResult[1:0] == 2'h1 : _GEN_3)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :34:8, :41:26, :42:27, :45:14, :47:19, :57:14
-    .io_mask_2   (io_ctrl_memWrite & (_GEN ? io_aluResult[1:0] == 2'h2 : _GEN_4)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :34:8, :41:26, :42:27, :45:14, :48:19, :57:14
-    .io_mask_3   (io_ctrl_memWrite & (_GEN ? (&(io_aluResult[1:0])) : _GEN_4)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:24:29, :34:8, :41:26, :42:27, :45:14, :49:19, :57:14
+    .io_mask_0   (io_ctrl_memWrite & (_GEN ? io_aluResult[1:0] == 2'h0 : _GEN_3)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :35:8, :42:26, :43:27, :46:14, :47:19, :58:14
+    .io_mask_1   (io_ctrl_memWrite & (_GEN ? io_aluResult[1:0] == 2'h1 : _GEN_3)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :35:8, :42:26, :43:27, :46:14, :48:19, :58:14
+    .io_mask_2   (io_ctrl_memWrite & (_GEN ? io_aluResult[1:0] == 2'h2 : _GEN_4)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :35:8, :42:26, :43:27, :46:14, :49:19, :58:14
+    .io_mask_3   (io_ctrl_memWrite & (_GEN ? (&(io_aluResult[1:0])) : _GEN_4)),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:25:29, :35:8, :42:26, :43:27, :46:14, :50:19, :58:14
     .io_rdData   (io_memData)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:22:20
-  assign io_aluOut = io_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-  assign io_rdOut = io_rdIn;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-  assign io_ctrlOut_regWrite = io_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-  assign io_ctrlOut_memOp = io_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-  assign io_ctrlOut_memToReg = io_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
-  assign io_ctrlOut_jump = io_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:6:7
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:23:20
+  assign io_aluOut = io_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+  assign io_rdOut = io_rdIn;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+  assign io_ctrlOut_regWrite = io_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+  assign io_ctrlOut_memOp = io_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+  assign io_ctrlOut_memToReg = io_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
+  assign io_ctrlOut_jump = io_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\MemoryStage.scala:7:7
 endmodule
 
-module WritebackStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:6:7
-  input         io_ctrl_regWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  input  [2:0]  io_ctrl_memOp,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  input         io_ctrl_memToReg,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  input  [1:0]  io_ctrl_jump,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  input  [31:0] io_memData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-                io_aluResult,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  input  [4:0]  io_rdIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  input  [31:0] io_pcIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  output [31:0] io_wbData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  output [4:0]  io_wbAddr,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
-  output        io_wbEnable	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:14
+module WritebackStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:7
+  input         io_ctrl_regWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  input  [2:0]  io_ctrl_memOp,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  input         io_ctrl_memToReg,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  input  [1:0]  io_ctrl_jump,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  input  [31:0] io_memData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+                io_aluResult,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  input  [4:0]  io_rdIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  input  [31:0] io_pcIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  output [31:0] io_wbData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  output [4:0]  io_wbAddr,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
+  output        io_wbEnable	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:8:14
 );
 
-  wire [31:0]      _byte_T = io_memData >> {27'h0, io_aluResult[1:0], 3'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:23:29, :24:27, :27:26
-  wire [31:0]      _half_T = io_memData >> {27'h0, io_aluResult[1], 4'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:23:29, :25:{26,30}, :27:26, :28:26
+  wire [31:0]      _byte_T = io_memData >> {27'h0, io_aluResult[1:0], 3'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:24:29, :25:27, :28:26
+  wire [31:0]      _half_T = io_memData >> {27'h0, io_aluResult[1], 4'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:24:29, :26:{26,30}, :28:26, :29:26
   wire [7:0][31:0] _GEN =
     {{io_memData},
      {io_memData},
@@ -840,13 +840,13 @@ module WritebackStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\sr
      {io_memData},
      {io_memData},
      {{{16{_half_T[15]}}, _half_T[15:0]}},
-     {{{24{_byte_T[7]}}, _byte_T[7:0]}}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:27:{26,39}, :28:{26,39}, :33:12, :37:25, :39:{16,22,27,47}, :42:{16,22,27,48}, :45:16, :48:{16,22}, :51:{16,22}
+     {{{24{_byte_T[7]}}, _byte_T[7:0]}}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:28:{26,39}, :29:{26,39}, :34:12, :38:25, :40:{16,22,27,47}, :43:{16,22,27,48}, :46:16, :49:{16,22}, :52:{16,22}
   assign io_wbData =
     (|io_ctrl_jump)
       ? io_pcIn + 32'h4
-      : io_ctrl_memToReg ? _GEN[io_ctrl_memOp] : io_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:6:7, :33:12, :37:25, :39:16, :42:16, :45:16, :48:16, :51:16, :56:20, :60:22, :61:25, :67:19
-  assign io_wbAddr = io_rdIn;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:6:7
-  assign io_wbEnable = io_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:6:7
+      : io_ctrl_memToReg ? _GEN[io_ctrl_memOp] : io_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:7, :34:12, :38:25, :40:16, :43:16, :46:16, :49:16, :52:16, :57:20, :61:22, :62:25, :68:19
+  assign io_wbAddr = io_rdIn;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:7
+  assign io_wbEnable = io_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\WritebackStage.scala:7:7
 endmodule
 
 module ForwardUnit(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ForwardUnit.scala:6:7
@@ -877,292 +877,300 @@ module HazardUnit(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\m
 );
 
   assign io_stall =
-    io_memRead_ex & (io_rd_ex == io_rs1_id | io_rd_ex == io_rs2_id) & (|io_rd_ex);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\HazardUnit.scala:5:7, :16:{29,42,56,68,83,96}
+    io_memRead_ex & (io_rd_ex == io_rs1_id | io_rd_ex == io_rs2_id & (|io_rd_ex));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\HazardUnit.scala:5:7, :16:{22,37,52,65,80,92}
 endmodule
 
-module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-  output [31:0] io_result,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-                io_memAddress,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-                io_memDataIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output        io_memRead,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-                io_memWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [31:0] io_memReadData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-                io_nextInst,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output        io_exBranchTaken,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [31:0] io_exBranchTarget,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output        io_ifTakeBranch,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [31:0] io_ifBranchTarget,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-                io_currentInst,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output        io_wbEnable,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [4:0]  io_wbAddr,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [6:0]  io_wbOpcode,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [2:0]  io_wbFunct3,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [4:0]  io_wbRd,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-  output [31:0] io_wbPC,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
-                io_fetchPC	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:14
+module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+  output [31:0] io_result,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+                io_memAddress,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+                io_memDataIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output        io_memRead,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+                io_memWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [31:0] io_memReadData,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+                io_nextInst,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output        io_exBranchTaken,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [31:0] io_exBranchTarget,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output        io_ifTakeBranch,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [31:0] io_ifBranchTarget,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+                io_currentInst,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output        io_wbEnable,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [4:0]  io_wbAddr,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [6:0]  io_wbOpcode,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [2:0]  io_wbFunct3,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [4:0]  io_wbRd,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+  output [31:0] io_wbPC,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
+                io_fetchPC	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
 );
 
-  wire        _hazard_io_stall;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-  wire [1:0]  _forwarding_io_forwardA;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:26
-  wire [1:0]  _forwarding_io_forwardB;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:26
-  wire [31:0] _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire [4:0]  _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire        _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire [31:0] _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [31:0] _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [4:0]  _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire        _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [2:0]  _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire        _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [1:0]  _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire        _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [2:0]  _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [1:0]  _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [31:0] _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [31:0] _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [31:0] _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire        _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [2:0]  _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire        _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire        _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire        _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire        _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire        _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [2:0]  _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [1:0]  _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [7:0]  _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [1:0]  _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire        _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [31:0] _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:39:24
-  wire [31:0] _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:39:24
-  reg  [31:0] if_id_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22
-  reg  [31:0] if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22
-  reg         id_ex_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [2:0]  id_ex_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg         id_ex_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg         id_ex_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg         id_ex_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg         id_ex_ctrl_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg         id_ex_ctrl_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [2:0]  id_ex_ctrl_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [1:0]  id_ex_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [7:0]  id_ex_ctrl_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [1:0]  id_ex_ctrl_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg         id_ex_ctrl_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [31:0] id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [31:0] id_ex_rs1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [31:0] id_ex_rs2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [31:0] id_ex_imm;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [4:0]  id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [4:0]  id_ex_rs1_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [4:0]  id_ex_rs2_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg  [31:0] id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-  reg         ex_mem_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg  [2:0]  ex_mem_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg         ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg         ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg         ex_mem_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg  [1:0]  ex_mem_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg  [31:0] ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg  [31:0] ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg  [4:0]  ex_mem_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg  [31:0] ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg  [31:0] ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-  reg         mem_wb_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg  [2:0]  mem_wb_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg         mem_wb_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg  [1:0]  mem_wb_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg  [31:0] mem_wb_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg  [4:0]  mem_wb_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg  [31:0] mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg  [31:0] mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-  reg         takeBranchDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:108:34
-  reg  [31:0] branchTargetDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:36
-  always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-    if (reset) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-      if_id_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22, :109:36
-      if_id_inst <= 32'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22
-      id_ex_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_imm_flag <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_branch <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_branchOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_aluOp <= 8'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_lui <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_ctrl_isSigned <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-      id_ex_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :109:36
-      id_ex_rs1 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :109:36
-      id_ex_rs2 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :109:36
-      id_ex_imm <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :109:36
-      id_ex_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-      id_ex_rs1_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-      id_ex_rs2_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-      id_ex_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :109:36
-      ex_mem_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-      ex_mem_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-      ex_mem_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-      ex_mem_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-      ex_mem_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-      ex_mem_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-      ex_mem_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23, :109:36
-      ex_mem_rs2Data <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23, :109:36
-      ex_mem_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-      ex_mem_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23, :109:36
-      ex_mem_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23, :109:36
-      mem_wb_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-      mem_wb_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-      mem_wb_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-      mem_wb_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-      mem_wb_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23, :109:36
-      mem_wb_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23
-      mem_wb_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23, :109:36
-      mem_wb_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23, :109:36
-      takeBranchDelayed <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:108:34
-      branchTargetDelayed <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:36
+  wire        _hazard_io_stall;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
+  wire [1:0]  _forwarding_io_forwardA;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
+  wire [1:0]  _forwarding_io_forwardB;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
+  wire [31:0] _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [4:0]  _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire        _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [31:0] _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [31:0] _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [4:0]  _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [2:0]  _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [1:0]  _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire [31:0] _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire [31:0] _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire        _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire [2:0]  _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire        _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire        _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire        _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire [1:0]  _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire [31:0] _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire [31:0] _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [31:0] _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [31:0] _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [31:0] _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire        _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [2:0]  _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire        _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire        _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire        _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire        _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire        _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [2:0]  _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [1:0]  _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [7:0]  _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [1:0]  _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire        _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  wire [31:0] _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
+  wire [31:0] _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
+  reg  [31:0] if_id_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
+  reg  [31:0] if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
+  reg         id_ex_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [2:0]  id_ex_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg         id_ex_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg         id_ex_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg         id_ex_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg         id_ex_ctrl_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg         id_ex_ctrl_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [2:0]  id_ex_ctrl_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [1:0]  id_ex_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [7:0]  id_ex_ctrl_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [1:0]  id_ex_ctrl_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg         id_ex_ctrl_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [31:0] id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [31:0] id_ex_rs1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [31:0] id_ex_rs2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [31:0] id_ex_imm;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [4:0]  id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [4:0]  id_ex_rs1_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [4:0]  id_ex_rs2_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg  [31:0] id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  reg         ex_mem_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg  [2:0]  ex_mem_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg         ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg         ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg         ex_mem_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg  [1:0]  ex_mem_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg  [31:0] ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg  [31:0] ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg  [4:0]  ex_mem_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg  [31:0] ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg  [31:0] ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+  reg         mem_wb_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg  [2:0]  mem_wb_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg         mem_wb_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg  [1:0]  mem_wb_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg  [31:0] mem_wb_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg  [4:0]  mem_wb_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg  [31:0] mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg  [31:0] mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  reg         takeBranchDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:42
+  reg         takeBranchDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:34
+  reg  [31:0] branchTargetDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:44
+  reg  [31:0] branchTargetDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:36
+  always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+    if (reset) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+      if_id_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :110:44
+      if_id_inst <= 32'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
+      id_ex_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_imm_flag <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_branch <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_branchOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_aluOp <= 8'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_lui <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_ctrl_isSigned <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+      id_ex_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
+      id_ex_rs1 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
+      id_ex_rs2 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
+      id_ex_imm <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
+      id_ex_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+      id_ex_rs1_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+      id_ex_rs2_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+      id_ex_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
+      ex_mem_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+      ex_mem_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+      ex_mem_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+      ex_mem_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+      ex_mem_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+      ex_mem_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+      ex_mem_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
+      ex_mem_rs2Data <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
+      ex_mem_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+      ex_mem_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
+      ex_mem_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
+      mem_wb_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+      mem_wb_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+      mem_wb_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+      mem_wb_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+      mem_wb_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23, :110:44
+      mem_wb_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
+      mem_wb_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23, :110:44
+      mem_wb_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23, :110:44
+      takeBranchDelayed_REG <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:42
+      takeBranchDelayed <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:34
+      branchTargetDelayed_REG <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:44
+      branchTargetDelayed <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:{36,44}
     end
-    else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-      if (_hazard_io_stall) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
+    else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+      if (_hazard_io_stall) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
       end
-      else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-        if_id_pc <= _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:39:24, :65:22
-        if_id_inst <= _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:39:24, :65:22
-        id_ex_pc <= _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :80:22
-        id_ex_rs1 <= _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :80:22
-        id_ex_rs2 <= _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :80:22
-        id_ex_imm <= _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :80:22
-        id_ex_rd <= if_id_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22, :80:22, :152:33
-        id_ex_rs1_addr <= if_id_inst[19:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22, :80:22, :136:37
-        id_ex_rs2_addr <= if_id_inst[24:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22, :80:22, :137:37
+      else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
+        if_id_pc <= _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :66:22
+        if_id_inst <= _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :66:22
+        id_ex_pc <= _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
+        id_ex_rs1 <= _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
+        id_ex_rs2 <= _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
+        id_ex_imm <= _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
+        id_ex_rd <= if_id_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :81:22, :155:33
+        id_ex_rs1_addr <= if_id_inst[19:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :81:22, :139:37
+        id_ex_rs2_addr <= if_id_inst[24:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :81:22, :140:37
       end
-      id_ex_ctrl_regWrite <= ~_hazard_io_stall & _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_memOp <= _hazard_io_stall ? 3'h0 : _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_memRead <= ~_hazard_io_stall & _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_memWrite <= ~_hazard_io_stall & _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_memToReg <= ~_hazard_io_stall & _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_imm_flag <= ~_hazard_io_stall & _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_branch <= ~_hazard_io_stall & _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_branchOp <= _hazard_io_stall ? 3'h0 : _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_jump <= _hazard_io_stall ? 2'h0 : _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_aluOp <= _hazard_io_stall ? 8'h0 : _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_lui <= _hazard_io_stall ? 2'h0 : _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_ctrl_isSigned <= ~_hazard_io_stall & _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :47:26, :80:22, :143:25, :144:16, :147:20
-      id_ex_inst <= _hazard_io_stall ? 32'h0 : if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26, :65:22, :80:22, :109:36, :143:25, :145:16, :155:20
-      ex_mem_ctrl_regWrite <= _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_ctrl_memOp <= _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_ctrl_memRead <= _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_ctrl_memWrite <= _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_ctrl_memToReg <= _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_ctrl_jump <= _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_aluResult <= _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_rs2Data <= _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :92:23
-      ex_mem_rd <= id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :92:23
-      ex_mem_pc <= id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :92:23
-      ex_mem_inst <= id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22, :92:23
-      mem_wb_ctrl_regWrite <= _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :105:23
-      mem_wb_ctrl_memOp <= _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :105:23
-      mem_wb_ctrl_memToReg <= _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :105:23
-      mem_wb_ctrl_jump <= _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :105:23
-      mem_wb_aluResult <= _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :105:23
-      mem_wb_rd <= _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :105:23
-      mem_wb_pc <= ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23, :105:23
-      mem_wb_inst <= ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23, :105:23
-      takeBranchDelayed <= _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :108:34
-      branchTargetDelayed <= _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :109:36
+      id_ex_ctrl_regWrite <= ~_hazard_io_stall & _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_memOp <= _hazard_io_stall ? 3'h0 : _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_memRead <= ~_hazard_io_stall & _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_memWrite <= ~_hazard_io_stall & _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_memToReg <= ~_hazard_io_stall & _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_imm_flag <= ~_hazard_io_stall & _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_branch <= ~_hazard_io_stall & _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_branchOp <= _hazard_io_stall ? 3'h0 : _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_jump <= _hazard_io_stall ? 2'h0 : _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_aluOp <= _hazard_io_stall ? 8'h0 : _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_lui <= _hazard_io_stall ? 2'h0 : _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_ctrl_isSigned <= ~_hazard_io_stall & _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
+      id_ex_inst <= _hazard_io_stall ? 32'h0 : if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26, :66:22, :81:22, :110:44, :146:25, :148:16, :158:20
+      ex_mem_ctrl_regWrite <= _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_ctrl_memOp <= _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_ctrl_memRead <= _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_ctrl_memWrite <= _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_ctrl_memToReg <= _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_ctrl_jump <= _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_aluResult <= _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_rs2Data <= _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
+      ex_mem_rd <= id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :93:23
+      ex_mem_pc <= id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :93:23
+      ex_mem_inst <= id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :93:23
+      mem_wb_ctrl_regWrite <= _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
+      mem_wb_ctrl_memOp <= _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
+      mem_wb_ctrl_memToReg <= _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
+      mem_wb_ctrl_jump <= _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
+      mem_wb_aluResult <= _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
+      mem_wb_rd <= _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
+      mem_wb_pc <= ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :106:23
+      mem_wb_inst <= ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :106:23
+      takeBranchDelayed_REG <= _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :109:42
+      takeBranchDelayed <= takeBranchDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:{34,42}
+      branchTargetDelayed_REG <= _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :110:44
+      branchTargetDelayed <= branchTargetDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:{36,44}
     end
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-    `ifdef FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-      `FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+  `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+      `FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
     `endif // FIRRTL_BEFORE_INITIAL
-    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-      automatic logic [31:0] _RANDOM[0:19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-      `ifdef INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-        `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+      automatic logic [31:0] _RANDOM[0:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+      `ifdef INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+        `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-        for (logic [4:0] i = 5'h0; i < 5'h14; i += 5'h1) begin
-          _RANDOM[i] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-        end	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-        if_id_pc = _RANDOM[5'h0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :65:22
-        if_id_inst = _RANDOM[5'h1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :65:22
-        id_ex_ctrl_regWrite = _RANDOM[5'h2][0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_memOp = _RANDOM[5'h2][3:1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_memRead = _RANDOM[5'h2][4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_memWrite = _RANDOM[5'h2][5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_memToReg = _RANDOM[5'h2][6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_imm_flag = _RANDOM[5'h2][7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_branch = _RANDOM[5'h2][8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_branchOp = _RANDOM[5'h2][11:9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_jump = _RANDOM[5'h2][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_aluOp = _RANDOM[5'h2][21:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_lui = _RANDOM[5'h2][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_ctrl_isSigned = _RANDOM[5'h2][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_pc = {_RANDOM[5'h2][31], _RANDOM[5'h3][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_rs1 = {_RANDOM[5'h3][31], _RANDOM[5'h4][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_rs2 = {_RANDOM[5'h4][31], _RANDOM[5'h5][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_imm = {_RANDOM[5'h5][31], _RANDOM[5'h6][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_rd = {_RANDOM[5'h6][31], _RANDOM[5'h7][3:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_rs1_addr = _RANDOM[5'h7][8:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_rs2_addr = _RANDOM[5'h7][13:9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        id_ex_inst = {_RANDOM[5'h7][31:14], _RANDOM[5'h8][13:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22
-        ex_mem_ctrl_regWrite = _RANDOM[5'h8][14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22, :92:23
-        ex_mem_ctrl_memOp = _RANDOM[5'h8][17:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22, :92:23
-        ex_mem_ctrl_memRead = _RANDOM[5'h8][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22, :92:23
-        ex_mem_ctrl_memWrite = _RANDOM[5'h8][19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22, :92:23
-        ex_mem_ctrl_memToReg = _RANDOM[5'h8][20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22, :92:23
-        ex_mem_ctrl_jump = _RANDOM[5'h8][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :80:22, :92:23
-        ex_mem_aluResult = {_RANDOM[5'h9][31:13], _RANDOM[5'hA][12:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-        ex_mem_rs2Data = {_RANDOM[5'hA][31:13], _RANDOM[5'hB][12:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-        ex_mem_rd = _RANDOM[5'hB][17:13];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-        ex_mem_pc = {_RANDOM[5'hB][31:18], _RANDOM[5'hC][17:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-        ex_mem_inst = {_RANDOM[5'hC][31:18], _RANDOM[5'hD][17:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-        mem_wb_ctrl_regWrite = _RANDOM[5'hD][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23, :105:23
-        mem_wb_ctrl_memOp = _RANDOM[5'hD][21:19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23, :105:23
-        mem_wb_ctrl_memToReg = _RANDOM[5'hD][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23, :105:23
-        mem_wb_ctrl_jump = _RANDOM[5'hD][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23, :105:23
-        mem_wb_aluResult = {_RANDOM[5'hF][31:17], _RANDOM[5'h10][16:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23
-        mem_wb_rd = _RANDOM[5'h10][21:17];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23
-        mem_wb_pc = {_RANDOM[5'h10][31:22], _RANDOM[5'h11][21:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23
-        mem_wb_inst = {_RANDOM[5'h11][31:22], _RANDOM[5'h12][21:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23
-        takeBranchDelayed = _RANDOM[5'h12][22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23, :108:34
-        branchTargetDelayed = {_RANDOM[5'h12][31:23], _RANDOM[5'h13][22:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23, :109:36
+      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+        for (logic [4:0] i = 5'h0; i < 5'h15; i += 5'h1) begin
+          _RANDOM[i] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+        end	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+        if_id_pc = _RANDOM[5'h0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :66:22
+        if_id_inst = _RANDOM[5'h1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :66:22
+        id_ex_ctrl_regWrite = _RANDOM[5'h2][0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_memOp = _RANDOM[5'h2][3:1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_memRead = _RANDOM[5'h2][4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_memWrite = _RANDOM[5'h2][5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_memToReg = _RANDOM[5'h2][6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_imm_flag = _RANDOM[5'h2][7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_branch = _RANDOM[5'h2][8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_branchOp = _RANDOM[5'h2][11:9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_jump = _RANDOM[5'h2][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_aluOp = _RANDOM[5'h2][21:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_lui = _RANDOM[5'h2][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_ctrl_isSigned = _RANDOM[5'h2][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_pc = {_RANDOM[5'h2][31], _RANDOM[5'h3][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_rs1 = {_RANDOM[5'h3][31], _RANDOM[5'h4][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_rs2 = {_RANDOM[5'h4][31], _RANDOM[5'h5][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_imm = {_RANDOM[5'h5][31], _RANDOM[5'h6][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_rd = {_RANDOM[5'h6][31], _RANDOM[5'h7][3:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_rs1_addr = _RANDOM[5'h7][8:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_rs2_addr = _RANDOM[5'h7][13:9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        id_ex_inst = {_RANDOM[5'h7][31:14], _RANDOM[5'h8][13:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
+        ex_mem_ctrl_regWrite = _RANDOM[5'h8][14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
+        ex_mem_ctrl_memOp = _RANDOM[5'h8][17:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
+        ex_mem_ctrl_memRead = _RANDOM[5'h8][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
+        ex_mem_ctrl_memWrite = _RANDOM[5'h8][19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
+        ex_mem_ctrl_memToReg = _RANDOM[5'h8][20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
+        ex_mem_ctrl_jump = _RANDOM[5'h8][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
+        ex_mem_aluResult = {_RANDOM[5'h9][31:13], _RANDOM[5'hA][12:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+        ex_mem_rs2Data = {_RANDOM[5'hA][31:13], _RANDOM[5'hB][12:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+        ex_mem_rd = _RANDOM[5'hB][17:13];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+        ex_mem_pc = {_RANDOM[5'hB][31:18], _RANDOM[5'hC][17:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+        ex_mem_inst = {_RANDOM[5'hC][31:18], _RANDOM[5'hD][17:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+        mem_wb_ctrl_regWrite = _RANDOM[5'hD][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
+        mem_wb_ctrl_memOp = _RANDOM[5'hD][21:19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
+        mem_wb_ctrl_memToReg = _RANDOM[5'hD][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
+        mem_wb_ctrl_jump = _RANDOM[5'hD][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
+        mem_wb_aluResult = {_RANDOM[5'hF][31:17], _RANDOM[5'h10][16:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
+        mem_wb_rd = _RANDOM[5'h10][21:17];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
+        mem_wb_pc = {_RANDOM[5'h10][31:22], _RANDOM[5'h11][21:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
+        mem_wb_inst = {_RANDOM[5'h11][31:22], _RANDOM[5'h12][21:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
+        takeBranchDelayed_REG = _RANDOM[5'h12][22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :109:42
+        takeBranchDelayed = _RANDOM[5'h12][23];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :109:34
+        branchTargetDelayed_REG = {_RANDOM[5'h12][31:24], _RANDOM[5'h13][23:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :110:44
+        branchTargetDelayed = {_RANDOM[5'h13][31:24], _RANDOM[5'h14][23:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :110:{36,44}
       `endif // RANDOMIZE_REG_INIT
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
-      `FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+    `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
+      `FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  FetchStage fetch (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:39:24
+  FetchStage fetch (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
     .clock           (clock),
     .reset           (reset),
-    .io_branchTarget (branchTargetDelayed),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:36
-    .io_takeBranch   (takeBranchDelayed),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:108:34
-    .io_stall        (_hazard_io_stall),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
+    .io_branchTarget (branchTargetDelayed),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:36
+    .io_takeBranch   (takeBranchDelayed),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:34
+    .io_stall        (_hazard_io_stall),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
     .io_pc           (_fetch_io_pc),
     .io_instruction  (_fetch_io_instruction)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:39:24
-  DecodeStage decode (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
+  DecodeStage decode (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
     .clock                      (clock),
     .reset                      (reset),
-    .io_instruction             (if_id_inst),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22
-    .io_pc                      (if_id_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22
-    .io_C                       (_writeback_io_wbData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-    .io_writeEnable             (_writeback_io_wbEnable),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-    .io_writeAddress            (_writeback_io_wbAddr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+    .io_instruction             (if_id_inst),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
+    .io_pc                      (if_id_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
+    .io_C                       (_writeback_io_wbData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+    .io_writeEnable             (_writeback_io_wbEnable),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+    .io_writeAddress            (_writeback_io_wbAddr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
     .io_A                       (_decode_io_A),
     .io_B                       (_decode_io_B),
     .io_immediate               (_decode_io_immediate),
@@ -1179,30 +1187,30 @@ module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src
     .io_controlSignals_aluOp    (_decode_io_controlSignals_aluOp),
     .io_controlSignals_lui      (_decode_io_controlSignals_lui),
     .io_controlSignals_isSigned (_decode_io_controlSignals_isSigned)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  ExecuteStage execute (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+  ExecuteStage execute (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
     .io_A
       (_forwarding_io_forwardA == 2'h2
          ? ex_mem_aluResult
-         : _forwarding_io_forwardA == 2'h1 ? _writeback_io_wbData : id_ex_rs1),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :46:26, :80:22, :92:23, :168:63
+         : _forwarding_io_forwardA == 2'h1 ? _writeback_io_wbData : id_ex_rs1),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :47:26, :81:22, :93:23, :171:63
     .io_B
       (_forwarding_io_forwardB == 2'h2
          ? ex_mem_aluResult
-         : _forwarding_io_forwardB == 2'h1 ? _writeback_io_wbData : id_ex_rs2),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :46:26, :80:22, :92:23, :175:63
-    .io_immediate                  (id_ex_imm),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_pcIn                       (id_ex_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_regWrite    (id_ex_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_memOp       (id_ex_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_memRead     (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_memWrite    (id_ex_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_memToReg    (id_ex_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_imm_flag    (id_ex_ctrl_imm_flag),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_branch      (id_ex_ctrl_branch),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_branchOp    (id_ex_ctrl_branchOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_jump        (id_ex_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_aluOp       (id_ex_ctrl_aluOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_lui         (id_ex_ctrl_lui),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_controlSignals_isSigned    (id_ex_ctrl_isSigned),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
+         : _forwarding_io_forwardB == 2'h1 ? _writeback_io_wbData : id_ex_rs2),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :47:26, :81:22, :93:23, :178:63
+    .io_immediate                  (id_ex_imm),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_pcIn                       (id_ex_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_regWrite    (id_ex_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_memOp       (id_ex_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_memRead     (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_memWrite    (id_ex_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_memToReg    (id_ex_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_imm_flag    (id_ex_ctrl_imm_flag),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_branch      (id_ex_ctrl_branch),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_branchOp    (id_ex_ctrl_branchOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_jump        (id_ex_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_aluOp       (id_ex_ctrl_aluOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_lui         (id_ex_ctrl_lui),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_controlSignals_isSigned    (id_ex_ctrl_isSigned),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
     .io_branchTaken                (_execute_io_branchTaken),
     .io_branchTarget               (_execute_io_branchTarget),
     .io_C                          (_execute_io_C),
@@ -1213,19 +1221,19 @@ module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src
     .io_controlSignalsOut_memToReg (_execute_io_controlSignalsOut_memToReg),
     .io_controlSignalsOut_jump     (_execute_io_controlSignalsOut_jump),
     .io_memWriteData               (_execute_io_memWriteData)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  MemoryStage memory (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  MemoryStage memory (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
     .clock               (clock),
     .reset               (reset),
-    .io_ctrl_regWrite    (ex_mem_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_ctrl_memOp       (ex_mem_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_ctrl_memRead     (ex_mem_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_ctrl_memWrite    (ex_mem_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_ctrl_memToReg    (ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_ctrl_jump        (ex_mem_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_aluResult        (ex_mem_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_rs2Data          (ex_mem_rs2Data),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_rdIn             (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
+    .io_ctrl_regWrite    (ex_mem_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_ctrl_memOp       (ex_mem_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_ctrl_memRead     (ex_mem_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_ctrl_memWrite    (ex_mem_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_ctrl_memToReg    (ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_ctrl_jump        (ex_mem_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_aluResult        (ex_mem_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_rs2Data          (ex_mem_rs2Data),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_rdIn             (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
     .io_memData          (_memory_io_memData),
     .io_aluOut           (_memory_io_aluOut),
     .io_rdOut            (_memory_io_rdOut),
@@ -1233,56 +1241,56 @@ module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src
     .io_ctrlOut_memOp    (_memory_io_ctrlOut_memOp),
     .io_ctrlOut_memToReg (_memory_io_ctrlOut_memToReg),
     .io_ctrlOut_jump     (_memory_io_ctrlOut_jump)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  WritebackStage writeback (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-    .io_ctrl_regWrite (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-    .io_ctrl_memOp    (mem_wb_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-    .io_ctrl_memToReg (mem_wb_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-    .io_ctrl_jump     (mem_wb_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-    .io_memData       (_memory_io_memData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-    .io_aluResult     (mem_wb_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-    .io_rdIn          (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-    .io_pcIn          (mem_wb_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  WritebackStage writeback (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+    .io_ctrl_regWrite (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+    .io_ctrl_memOp    (mem_wb_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+    .io_ctrl_memToReg (mem_wb_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+    .io_ctrl_jump     (mem_wb_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+    .io_memData       (_memory_io_memData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+    .io_aluResult     (mem_wb_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+    .io_rdIn          (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+    .io_pcIn          (mem_wb_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
     .io_wbData        (_writeback_io_wbData),
     .io_wbAddr        (_writeback_io_wbAddr),
     .io_wbEnable      (_writeback_io_wbEnable)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  ForwardUnit forwarding (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:26
-    .io_rs1_ex       (id_ex_rs1_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_rs2_ex       (id_ex_rs2_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_rd_mem       (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23
-    .io_regWrite_mem (ex_mem_ctrl_regWrite & ~ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:92:23, :185:{54,57}
-    .io_rd_wb        (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
-    .io_regWrite_wb  (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:105:23
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  ForwardUnit forwarding (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
+    .io_rs1_ex       (id_ex_rs1_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_rs2_ex       (id_ex_rs2_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_rd_mem       (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_regWrite_mem (ex_mem_ctrl_regWrite & ~ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :188:{54,57}
+    .io_rd_wb        (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+    .io_regWrite_wb  (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
     .io_forwardA     (_forwarding_io_forwardA),
     .io_forwardB     (_forwarding_io_forwardB)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:26
-  HazardUnit hazard (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-    .io_rs1_id     (if_id_inst[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22, :136:37
-    .io_rs2_id     (if_id_inst[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:65:22, :137:37
-    .io_rd_ex      (id_ex_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_memRead_ex (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:80:22
-    .io_stall      (_hazard_io_stall)
   );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-  assign io_result = _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :43:24
-  assign io_memAddress = ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-  assign io_memDataIn = ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-  assign io_memRead = ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-  assign io_memWrite = ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :92:23
-  assign io_memReadData = _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :42:24
-  assign io_nextInst = _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :39:24
-  assign io_exBranchTaken = _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :41:24
-  assign io_exBranchTarget = _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :41:24
-  assign io_ifTakeBranch = takeBranchDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :108:34
-  assign io_ifBranchTarget = branchTargetDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :109:36
-  assign io_currentInst = mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23
-  assign io_wbEnable = _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :43:24
-  assign io_wbAddr = _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :43:24
-  assign io_wbOpcode = mem_wb_inst[6:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23, :234:29
-  assign io_wbFunct3 = mem_wb_inst[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23, :235:29
-  assign io_wbRd = mem_wb_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23, :236:29
-  assign io_wbPC = mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :105:23
-  assign io_fetchPC = _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7, :39:24
+  HazardUnit hazard (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
+    .io_rs1_id     (if_id_inst[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :139:37
+    .io_rs2_id     (if_id_inst[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :140:37
+    .io_rd_ex      (id_ex_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_memRead_ex (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+    .io_stall      (_hazard_io_stall)
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
+  assign io_result = _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
+  assign io_memAddress = ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+  assign io_memDataIn = ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+  assign io_memRead = ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+  assign io_memWrite = ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
+  assign io_memReadData = _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :43:24
+  assign io_nextInst = _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :40:24
+  assign io_exBranchTaken = _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :42:24
+  assign io_exBranchTarget = _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :42:24
+  assign io_ifTakeBranch = takeBranchDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :109:34
+  assign io_ifBranchTarget = branchTargetDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :110:36
+  assign io_currentInst = mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
+  assign io_wbEnable = _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
+  assign io_wbAddr = _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
+  assign io_wbOpcode = mem_wb_inst[6:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :237:29
+  assign io_wbFunct3 = mem_wb_inst[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :238:29
+  assign io_wbRd = mem_wb_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :239:29
+  assign io_wbPC = mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
+  assign io_fetchPC = _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :40:24
 endmodule
 
 
@@ -1299,30 +1307,30 @@ bind mem_16384x32 mem_16384x32_init mem_16384x32_init ();
 // ----- 8< ----- FILE "verification\layers-RiscVPipeline-Verification.sv" ----- 8< -----
 
 // Generated by CIRCT firtool-1.128.0
-`ifndef layers_RiscVPipeline_Verification	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+`ifndef layers_RiscVPipeline_Verification	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
   `define layers_RiscVPipeline_Verification
 `endif // not def layers_RiscVPipeline_Verification
 
 // ----- 8< ----- FILE "verification�sert\layers-RiscVPipeline-Verification-Assert.sv" ----- 8< -----
 
 // Generated by CIRCT firtool-1.128.0
-`ifndef layers_RiscVPipeline_Verification_Assert	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+`ifndef layers_RiscVPipeline_Verification_Assert	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
   `define layers_RiscVPipeline_Verification_Assert
-  `include "layers-RiscVPipeline-Verification.sv"	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+  `include "layers-RiscVPipeline-Verification.sv"	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
 `endif // not def layers_RiscVPipeline_Verification_Assert
 
 // ----- 8< ----- FILE "verification�sume\layers-RiscVPipeline-Verification-Assume.sv" ----- 8< -----
 
 // Generated by CIRCT firtool-1.128.0
-`ifndef layers_RiscVPipeline_Verification_Assume	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+`ifndef layers_RiscVPipeline_Verification_Assume	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
   `define layers_RiscVPipeline_Verification_Assume
-  `include "layers-RiscVPipeline-Verification.sv"	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+  `include "layers-RiscVPipeline-Verification.sv"	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
 `endif // not def layers_RiscVPipeline_Verification_Assume
 
 // ----- 8< ----- FILE "verification�ver\layers-RiscVPipeline-Verification-Cover.sv" ----- 8< -----
 
 // Generated by CIRCT firtool-1.128.0
-`ifndef layers_RiscVPipeline_Verification_Cover	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+`ifndef layers_RiscVPipeline_Verification_Cover	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
   `define layers_RiscVPipeline_Verification_Cover
-  `include "layers-RiscVPipeline-Verification.sv"	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:5:7
+  `include "layers-RiscVPipeline-Verification.sv"	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
 `endif // not def layers_RiscVPipeline_Verification_Cover

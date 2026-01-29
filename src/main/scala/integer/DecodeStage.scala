@@ -2,8 +2,8 @@ package integer
 
 import chisel3._
 import chisel3.util._
-// _root_ disambiguates from package chisel3.util.circt if user imports chisel3.util._
 import _root_.circt.stage.ChiselStage
+import core._
 
 class DecodeStage(conf: CoreConfig) extends Module {
     val io = IO(new Bundle {
@@ -151,6 +151,9 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.jump := 1.U // JAL
         io.controlSignals.regWrite := true.B // Write to register
         io.immediate := imm_j_sext // Sign-extended immediate
+
+
+
       }
       is("b1100111".U) { // JALR
         io.controlSignals.jump := 2.U // JALR

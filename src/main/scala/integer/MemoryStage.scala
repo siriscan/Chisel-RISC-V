@@ -2,6 +2,7 @@ package integer
 
 import chisel3._
 import chisel3.util._
+import core._
 
 class MemoryStage(conf: CoreConfig) extends Module {
   val io = IO(new Bundle {
