@@ -53,6 +53,13 @@ class ControlSignals extends Bundle {
   val lui      = UInt(2.W) // LUI and AUIPC flag, 0: No LUI/AUIPC, 1: LUI, 2: AUIPC
   val isSigned = Bool() // 0: Unsigned operation, 1: Signed operation 
 
+  // Atomic Instructions (LR/SC)
+  val atomicFlag = Bool() // True if instruction is atomic (LR/SC)
+  val amoOp      = UInt(5.W) // AMO Operation (Funct5 for AMO instructions)
+  val rl_flag     = Bool() // Release flag for LR/SC
+  val aq_flag     = Bool() // Acquire flag for LR/SC
+
+
   // CSR Signals (NOT USED YET)
   val csrFlag  = Bool() // True if instruction is CSR type
   val csrRead  = Bool() // CSR Read Enable
