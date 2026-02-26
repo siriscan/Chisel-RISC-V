@@ -115,18 +115,21 @@ module FetchStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\m
   input         io_takeBranch,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
                 io_stall,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
   output [31:0] io_pc,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
-                io_instruction	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+                io_instruction,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+  input         io_predTakenIn,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
+  input  [31:0] io_predTargetIn	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
 );
 
-  reg  [31:0] pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23
-  wire [31:0] nextPc = io_takeBranch ? io_branchTarget : pcReg + 32'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23, :29:{16,55}
+  reg  [31:0] pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:30:23
+  wire [31:0] nextPc =
+    io_takeBranch ? io_branchTarget : io_predTakenIn ? io_predTargetIn : pcReg + 32'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:30:23, :35:23, :36:21, :37:16
   always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
     if (reset)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
-      pcReg <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23
+      pcReg <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:30:23
     else if (io_stall) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
     end
     else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:9:14
-      pcReg <= nextPc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:24:23, :29:16
+      pcReg <= nextPc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:30:23, :37:16
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
     `ifdef FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
@@ -139,7 +142,7 @@ module FetchStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\m
       `endif // INIT_RANDOM_PROLOG_
       `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
         _RANDOM[/*Zero width*/ 1'b0] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
-        pcReg = _RANDOM[/*Zero width*/ 1'b0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7, :24:23
+        pcReg = _RANDOM[/*Zero width*/ 1'b0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7, :30:23
       `endif // RANDOMIZE_REG_INIT
     end // initial
     `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7
@@ -148,10 +151,10 @@ module FetchStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\m
   `endif // ENABLE_INITIAL_REG_
   InstructionMem Pmem (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:27:20
     .clock          (clock),
-    .io_address     (nextPc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:29:16
+    .io_address     (nextPc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:37:16
     .io_instruction (io_instruction)
   );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:27:20
-  assign io_pc = pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7, :24:23
+  assign io_pc = pcReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\FetchStage.scala:8:7, :30:23
 endmodule
 
 module RegisterFile(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RegisterFile.scala:6:7
@@ -424,15 +427,15 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
   output        io_controlSignals_isSigned	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:9:16
 );
 
-  wire [31:0]     imm_sext = {{20{io_instruction[31]}}, io_instruction[31:20]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:46:29, :51:{23,28,36}
-  wire            _GEN = io_instruction[6:0] == 7'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_0 = io_instruction[14:12] == 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:54:32, :68:24
-  wire            _GEN_1 = io_instruction[14:12] == 3'h6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:54:32, :68:24
-  wire            _GEN_2 = io_instruction[14:12] == 3'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:54:32, :68:24
-  wire            _GEN_3 = io_instruction[14:12] == 3'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:54:32, :68:24
-  wire            _GEN_4 = io_instruction[14:12] == 3'h5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:54:32, :68:24
-  wire            _GEN_5 = io_instruction[31:25] == 7'h20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:56:32, :77:32
-  wire            _GEN_6 = io_instruction[14:12] == 3'h2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:54:32, :68:24
+  wire [31:0]     imm_sext = {{20{io_instruction[31]}}, io_instruction[31:20]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:29, :58:{23,28,36}
+  wire            _GEN = io_instruction[6:0] == 7'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_0 = io_instruction[14:12] == 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:61:32, :75:24
+  wire            _GEN_1 = io_instruction[14:12] == 3'h6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:61:32, :75:24
+  wire            _GEN_2 = io_instruction[14:12] == 3'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:61:32, :75:24
+  wire            _GEN_3 = io_instruction[14:12] == 3'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:61:32, :75:24
+  wire            _GEN_4 = io_instruction[14:12] == 3'h5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:61:32, :75:24
+  wire            _GEN_5 = io_instruction[31:25] == 7'h20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:63:32, :84:32
+  wire            _GEN_6 = io_instruction[14:12] == 3'h2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:61:32, :75:24
   wire [7:0][7:0] _GEN_7 =
     {{8'h3},
      {8'h4},
@@ -441,19 +444,19 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
      {8'h9},
      {8'h9},
      {8'h6},
-     {8'h1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:33:29, :56:32, :68:24, :69:50, :70:50, :71:50, :72:50, :73:50, :75:{25,43}, :76:39, :77:{32,50}, :78:39, :83:37, :85:50
-  wire            _GEN_8 = io_instruction[6:0] == 7'h3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            io_controlSignals_memRead_0 = ~_GEN & _GEN_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:38:31, :63:20
-  wire            _GEN_9 = io_instruction[6:0] == 7'h23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_10 = _GEN | _GEN_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:39:32, :63:20
-  wire            _GEN_11 = _GEN_8 | _GEN_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:36:29, :63:20, :95:33, :114:33
-  wire            _GEN_12 = io_instruction[6:0] == 7'h63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_13 = _GEN | _GEN_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:35:32, :36:29, :63:20, :95:33, :114:33
-  wire            _GEN_14 = io_instruction[6:0] == 7'h6F;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_15 = io_instruction[6:0] == 7'h67;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_16 = _GEN_9 | _GEN_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:37:28, :63:20
-  wire            _GEN_17 = io_instruction[6:0] == 7'h33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_18 = io_instruction[31:25] == 7'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:56:32, :172:25
+     {8'h1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:37:29, :63:32, :75:24, :76:50, :77:50, :78:50, :79:50, :80:50, :82:{25,43}, :83:39, :84:{32,50}, :85:39, :90:37, :92:50
+  wire            _GEN_8 = io_instruction[6:0] == 7'h3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            io_controlSignals_memRead_0 = ~_GEN & _GEN_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:42:31, :70:20
+  wire            _GEN_9 = io_instruction[6:0] == 7'h23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_10 = _GEN | _GEN_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:43:32, :70:20
+  wire            _GEN_11 = _GEN_8 | _GEN_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:40:29, :70:20, :102:33, :121:33
+  wire            _GEN_12 = io_instruction[6:0] == 7'h63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_13 = _GEN | _GEN_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:39:32, :40:29, :70:20, :102:33, :121:33
+  wire            _GEN_14 = io_instruction[6:0] == 7'h6F;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_15 = io_instruction[6:0] == 7'h67;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_16 = _GEN_9 | _GEN_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:41:28, :70:20
+  wire            _GEN_17 = io_instruction[6:0] == 7'h33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_18 = io_instruction[31:25] == 7'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:63:32, :179:25
   wire [7:0][7:0] _GEN_19 =
     {{_GEN_18 ? 8'hE : 8'h3},
      {_GEN_18 ? 8'hE : 8'h4},
@@ -462,22 +465,22 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
      {{6'h2, _GEN_18, 1'h1}},
      {_GEN_18 ? 8'hC : 8'h9},
      {_GEN_18 ? 8'hB : 8'h6},
-     {_GEN_18 ? 8'hA : _GEN_5 ? 8'h2 : 8'h1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:33:29, :68:24, :77:32, :169:24, :172:{25,43}, :173:39, :174:50, :175:39, :177:39, :183:43, :185:39, :187:39, :193:43, :194:39, :197:39, :203:43, :204:39, :207:39, :213:43, :215:39, :217:39, :223:43, :224:39, :225:50, :226:39, :228:39, :234:43, :236:39, :238:39, :244:43, :245:39, :247:39
-  wire            _GEN_20 = io_instruction[6:0] == 7'h37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_21 = io_instruction[6:0] == 7'h17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:53:32, :63:20
-  wire            _GEN_22 = _GEN_20 | _GEN_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:30:18, :63:20, :254:22, :261:22
-  wire            _GEN_23 = _GEN_12 | _GEN_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:31:32, :63:20
-  RegisterFile regFile (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:25
+     {_GEN_18 ? 8'hA : _GEN_5 ? 8'h2 : 8'h1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:37:29, :75:24, :84:32, :176:24, :179:{25,43}, :180:39, :181:50, :182:39, :184:39, :190:43, :192:39, :194:39, :200:43, :201:39, :204:39, :210:43, :211:39, :214:39, :220:43, :222:39, :224:39, :230:43, :231:39, :232:50, :233:39, :235:39, :241:43, :243:39, :245:39, :251:43, :252:39, :254:39
+  wire            _GEN_20 = io_instruction[6:0] == 7'h37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_21 = io_instruction[6:0] == 7'h17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:32, :70:20
+  wire            _GEN_22 = _GEN_20 | _GEN_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:34:18, :70:20, :261:22, :268:22
+  wire            _GEN_23 = _GEN_12 | _GEN_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:35:32, :70:20
+  RegisterFile regFile (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:67:25
     .clock           (clock),
     .reset           (reset),
     .io_C            (io_C),
-    .io_readAddressA (io_instruction[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:278:46
-    .io_readAddressB (io_instruction[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:279:46
+    .io_readAddressA (io_instruction[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:285:46
+    .io_readAddressB (io_instruction[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:286:46
     .io_writeEnable  (io_writeEnable),
     .io_writeAddress (io_writeAddress),
     .io_A            (io_A),
     .io_B            (io_B)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:60:25
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:67:25
   assign io_immediate =
     _GEN_10
       ? imm_sext
@@ -497,20 +500,20 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
                      1'h0}
                   : _GEN_15
                       ? imm_sext
-                      : _GEN_17 | ~_GEN_22 ? 32'h0 : {io_instruction[31:12], 12'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :30:18, :39:32, :48:31, :49:24, :51:23, :56:32, :63:20, :67:22, :94:22, :110:36, :112:{29,34,44}, :113:22, :124:35, :125:37, :126:36, :127:35, :129:29, :142:22, :145:35, :146:37, :147:35, :148:38, :150:29, :153:22, :163:22, :254:22, :261:22
+                      : _GEN_17 | ~_GEN_22 ? 32'h0 : {io_instruction[31:12], 12'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :34:18, :43:32, :55:31, :56:24, :58:23, :63:32, :70:20, :74:22, :101:22, :117:36, :119:{29,34,44}, :120:22, :131:35, :132:37, :133:36, :134:35, :136:29, :149:22, :152:35, :153:37, :154:35, :155:38, :157:29, :161:22, :169:22, :261:22, :268:22
   assign io_pcOut = io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7
   assign io_controlSignals_regWrite =
-    _GEN_10 | ~_GEN_16 & (_GEN_14 | _GEN_15 | _GEN_17 | _GEN_20 | _GEN_21);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :37:28, :39:32, :41:32, :63:20, :66:36, :92:36, :152:36, :160:36, :168:36, :253:36
-  assign io_controlSignals_memOp = _GEN | ~_GEN_11 ? 3'h0 : io_instruction[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :36:29, :54:32, :63:20, :95:33, :114:33
-  assign io_controlSignals_memRead = io_controlSignals_memRead_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :38:31, :63:20
-  assign io_controlSignals_memWrite = ~_GEN_10 & _GEN_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :39:32, :63:20
-  assign io_controlSignals_memToReg = io_controlSignals_memRead_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :38:31, :63:20
+    _GEN_10 | ~_GEN_16 & (_GEN_14 | _GEN_15 | _GEN_17 | _GEN_20 | _GEN_21);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :41:28, :43:32, :45:32, :70:20, :73:36, :99:36, :159:36, :166:36, :175:36, :260:36
+  assign io_controlSignals_memOp = _GEN | ~_GEN_11 ? 3'h0 : io_instruction[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :40:29, :61:32, :70:20, :102:33, :121:33
+  assign io_controlSignals_memRead = io_controlSignals_memRead_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :42:31, :70:20
+  assign io_controlSignals_memWrite = ~_GEN_10 & _GEN_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :43:32, :70:20
+  assign io_controlSignals_memToReg = io_controlSignals_memRead_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :42:31, :70:20
   assign io_controlSignals_imm_flag =
-    _GEN_13 | ~_GEN_23 & (_GEN_15 | ~_GEN_17 & (_GEN_20 | _GEN_21));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :31:32, :35:32, :63:20, :65:36, :89:36, :106:36, :161:36, :167:36, :256:36
-  assign io_controlSignals_branch = ~_GEN_13 & _GEN_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :34:30, :35:32, :63:20
-  assign io_controlSignals_branchOp = _GEN_13 | ~_GEN_12 ? 3'h0 : io_instruction[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :35:32, :54:32, :63:20
+    _GEN_13 | ~_GEN_23 & (_GEN_15 | ~_GEN_17 & (_GEN_20 | _GEN_21));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :35:32, :39:32, :70:20, :72:36, :96:36, :113:36, :167:36, :174:36, :263:36
+  assign io_controlSignals_branch = ~_GEN_13 & _GEN_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :38:30, :39:32, :70:20
+  assign io_controlSignals_branchOp = _GEN_13 | ~_GEN_12 ? 3'h0 : io_instruction[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :39:32, :61:32, :70:20
   assign io_controlSignals_jump =
-    _GEN | _GEN_8 | _GEN_16 ? 2'h0 : _GEN_14 ? 2'h1 : {_GEN_15, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :37:28, :63:20, :151:32, :159:32
+    _GEN | _GEN_8 | _GEN_16 ? 2'h0 : _GEN_14 ? 2'h1 : {_GEN_15, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :41:28, :70:20, :158:32, :165:32
   assign io_controlSignals_aluOp =
     _GEN
       ? _GEN_7[io_instruction[14:12]]
@@ -520,11 +523,11 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
               ? 8'h0
               : _GEN_15
                   ? 8'h1
-                  : _GEN_17 ? _GEN_19[io_instruction[14:12]] : {7'h0, _GEN_22};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :30:18, :31:32, :33:29, :36:29, :54:32, :63:20, :68:24, :69:50, :70:50, :71:50, :72:50, :73:50, :75:43, :83:37, :85:50, :93:33, :95:33, :108:33, :114:33, :162:33, :169:24, :172:43, :183:43, :193:43, :203:43, :213:43, :223:43, :234:43, :244:43, :254:22, :255:33, :261:22, :263:33
+                  : _GEN_17 ? _GEN_19[io_instruction[14:12]] : {7'h0, _GEN_22};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :34:18, :35:32, :37:29, :40:29, :61:32, :70:20, :75:24, :76:50, :77:50, :78:50, :79:50, :80:50, :82:43, :90:37, :92:50, :100:33, :102:33, :115:33, :121:33, :168:33, :176:24, :179:43, :190:43, :200:43, :210:43, :220:43, :230:43, :241:43, :251:43, :261:22, :262:33, :268:22, :270:33
   assign io_controlSignals_lui =
     _GEN | _GEN_8 | _GEN_9 | _GEN_12 | _GEN_14 | _GEN_15 | _GEN_17
       ? 2'h0
-      : _GEN_20 ? 2'h1 : {_GEN_21, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :42:27, :63:20, :257:31, :264:31
+      : _GEN_20 ? 2'h1 : {_GEN_21, 1'h0};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :46:27, :70:20, :264:31, :271:31
   assign io_controlSignals_isSigned =
     _GEN
       ? ~(_GEN_0 | (&(io_instruction[14:12])) | _GEN_1 | _GEN_2 | _GEN_3 | _GEN_4)
@@ -538,7 +541,7 @@ module DecodeStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\
                     : _GEN_6
                         ? io_instruction[31:25] != 7'h1
                         : io_instruction[14:12] != 3'h3 & (_GEN_2 | ~_GEN_4 & _GEN_1)
-                          & _GEN_18));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :36:29, :43:32, :54:32, :56:32, :63:20, :68:24, :95:33, :114:33, :132:24, :135:63, :169:24, :172:25, :183:43, :193:{25,43}, :196:42, :213:43, :234:43
+                          & _GEN_18));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\DecodeStage.scala:8:7, :40:29, :47:32, :61:32, :63:32, :70:20, :75:24, :102:33, :121:33, :139:24, :142:63, :176:24, :179:25, :190:43, :200:{25,43}, :203:42, :220:43, :241:43
 endmodule
 
 module ALU(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ALU.scala:49:7
@@ -597,11 +600,13 @@ module ExecuteStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\
   output        io_branchTaken,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
   output [31:0] io_branchTarget,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
                 io_C,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
+                io_pcOut,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
   output        io_controlSignalsOut_regWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
   output [2:0]  io_controlSignalsOut_memOp,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
   output        io_controlSignalsOut_memRead,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
                 io_controlSignalsOut_memWrite,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
                 io_controlSignalsOut_memToReg,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
+                io_controlSignalsOut_branch,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
   output [1:0]  io_controlSignalsOut_jump,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
   output [31:0] io_memWriteData	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:10:14
 );
@@ -609,18 +614,18 @@ module ExecuteStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\
   wire [31:0] alu_io_A =
     io_controlSignals_lui == 2'h1
       ? 32'h0
-      : io_controlSignals_lui == 2'h2 ? io_pcIn : io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:45:{20,29}, :46:16, :48:{27,36}, :49:16, :52:16
-  wire [31:0] alu_io_B = io_controlSignals_imm_flag ? io_immediate : io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:56:20
-  wire        isEqual = alu_io_A == alu_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:45:29, :46:16, :48:36, :56:20, :70:22
+      : io_controlSignals_lui == 2'h2 ? io_pcIn : io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:51:{20,29}, :52:16, :54:{27,36}, :55:16, :58:16
+  wire [31:0] alu_io_B = io_controlSignals_imm_flag ? io_immediate : io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:62:20
+  wire        isEqual = alu_io_A == alu_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:51:29, :52:16, :54:36, :62:20, :76:22
   wire        isLessThan =
     io_controlSignals_isSigned
       ? $signed(alu_io_A) < $signed(alu_io_B)
-      : alu_io_A < alu_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:45:29, :46:16, :48:36, :56:20, :71:{25,64,80}
+      : alu_io_A < alu_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:51:29, :52:16, :54:36, :62:20, :77:{25,64,80}
   wire        isBGE =
     (io_controlSignals_isSigned
        ? $signed(alu_io_A) > $signed(alu_io_B)
-       : alu_io_A > alu_io_B) | isEqual;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:45:29, :46:16, :48:36, :56:20, :70:22, :72:{28,67,83}, :73:31
-  wire        _GEN = (&io_controlSignals_branchOp) & isBGE;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:73:31, :75:36, :89:{28,42}, :90:23
+       : alu_io_A > alu_io_B) | isEqual;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:51:29, :52:16, :54:36, :62:20, :76:22, :78:{28,67,83}, :79:31
+  wire        _GEN = (&io_controlSignals_branchOp) & isBGE;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:79:31, :81:36, :95:{28,42}, :96:23
   wire [7:0]  _GEN_0 =
     {{_GEN},
      {isLessThan},
@@ -629,29 +634,31 @@ module ExecuteStage(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\
      {_GEN},
      {_GEN},
      {alu_io_A != alu_io_B},
-     {isEqual}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:45:29, :46:16, :48:36, :56:20, :70:22, :71:25, :73:31, :75:36, :79:{21,35}, :80:23, :81:{28,42}, :82:{23,26}, :83:{28,42}, :84:23, :85:{28,42}, :86:23, :87:{28,42}, :88:23, :89:42, :90:23
-  wire [31:0] _pcPlusImm_T = io_pcIn + io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:100:29
-  ALU alu (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:33:21
-    .io_A        (alu_io_A),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:45:29, :46:16, :48:36
-    .io_B        (alu_io_B),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:56:20
-    .io_opcode   (io_controlSignals_aluOp[3:0]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:59:19
+     {isEqual}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:51:29, :52:16, :54:36, :62:20, :76:22, :77:25, :79:31, :81:36, :85:{21,35}, :86:23, :87:{28,42}, :88:{23,26}, :89:{28,42}, :90:23, :91:{28,42}, :92:23, :93:{28,42}, :94:23, :95:42, :96:23
+  wire [31:0] _pcPlusImm_T = io_pcIn + io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:107:29
+  ALU alu (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:39:21
+    .io_A        (alu_io_A),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:51:29, :52:16, :54:36
+    .io_B        (alu_io_B),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:62:20
+    .io_opcode   (io_controlSignals_aluOp[3:0]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:65:19
     .io_isSigned (io_controlSignals_isSigned),
     .io_C        (io_C)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:33:21
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:39:21
   assign io_branchTaken =
     |{io_controlSignals_branch & _GEN_0[io_controlSignals_branchOp],
-      io_controlSignals_jump};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7, :78:21, :79:{21,35}, :80:23, :81:{28,42}, :82:23, :83:{28,42}, :84:23, :85:{28,42}, :86:23, :87:{28,42}, :88:23, :89:42, :93:21, :114:{33,51,64}
+      io_controlSignals_jump};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7, :84:21, :85:{21,35}, :86:23, :87:{28,42}, :88:23, :89:{28,42}, :90:23, :91:{28,42}, :92:23, :93:{28,42}, :94:23, :95:42, :99:21, :121:{33,51,64}
   assign io_branchTarget =
     io_controlSignals_jump == 2'h1
       ? _pcPlusImm_T
       : io_controlSignals_jump == 2'h2
           ? alu_io_A + io_immediate & 32'hFFFFFFFE
-          : io_controlSignals_branch ? _pcPlusImm_T : 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7, :45:29, :46:16, :48:36, :100:29, :101:{25,41}, :103:{20,29}, :104:23, :105:{27,36}, :106:23, :107:28, :108:23, :110:23
+          : io_controlSignals_branch ? _pcPlusImm_T : 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7, :51:29, :52:16, :54:36, :107:29, :108:{25,41}, :110:{20,29}, :111:23, :112:{27,36}, :113:23, :114:28, :115:23, :117:23
+  assign io_pcOut = io_pcIn;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
   assign io_controlSignalsOut_regWrite = io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
   assign io_controlSignalsOut_memOp = io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
   assign io_controlSignalsOut_memRead = io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
   assign io_controlSignalsOut_memWrite = io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
   assign io_controlSignalsOut_memToReg = io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
+  assign io_controlSignalsOut_branch = io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
   assign io_controlSignalsOut_jump = io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
   assign io_memWriteData = io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\ExecuteStage.scala:9:7
 endmodule
@@ -880,6 +887,4767 @@ module HazardUnit(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\m
     io_memRead_ex & (io_rd_ex == io_rs1_id | io_rd_ex == io_rs2_id & (|io_rd_ex));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\HazardUnit.scala:5:7, :16:{22,37,52,65,80,92}
 endmodule
 
+module BTB(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+  input  [31:0] io_q_pc,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:13:14
+  output        io_q_hit,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:13:14
+  output [31:0] io_q_target,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:13:14
+  input         io_u_valid,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:13:14
+  input  [31:0] io_u_pc,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:13:14
+                io_u_target	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:13:14
+);
+
+  reg               valids_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_7;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_10;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_15;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_16;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_18;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_19;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_22;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_24;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_25;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_26;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_27;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_28;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_29;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_30;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_31;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_32;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_34;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_35;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_36;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_38;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_39;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_40;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_41;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_42;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_43;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_44;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_45;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_46;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_47;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_48;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_49;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_50;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_51;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_52;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_53;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_54;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_55;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_56;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_57;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_58;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_59;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_60;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_61;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_62;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg               valids_63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+  reg  [23:0]       tags_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_7;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_10;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_15;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_16;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_18;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_19;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_22;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_24;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_25;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_26;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_27;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_28;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_29;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_30;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_31;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_32;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_34;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_35;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_36;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_38;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_39;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_40;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_41;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_42;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_43;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_44;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_45;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_46;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_47;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_48;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_49;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_50;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_51;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_52;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_53;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_54;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_55;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_56;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_57;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_58;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_59;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_60;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_61;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_62;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [23:0]       tags_63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20
+  reg  [31:0]       targets_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_7;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_10;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_15;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_16;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_18;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_19;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_22;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_24;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_25;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_26;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_27;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_28;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_29;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_30;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_31;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_32;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_34;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_35;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_36;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_38;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_39;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_40;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_41;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_42;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_43;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_44;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_45;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_46;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_47;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_48;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_49;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_50;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_51;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_52;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_53;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_54;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_55;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_56;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_57;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_58;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_59;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_60;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_61;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_62;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  reg  [31:0]       targets_63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+  wire [63:0][23:0] _GEN =
+    {{tags_63},
+     {tags_62},
+     {tags_61},
+     {tags_60},
+     {tags_59},
+     {tags_58},
+     {tags_57},
+     {tags_56},
+     {tags_55},
+     {tags_54},
+     {tags_53},
+     {tags_52},
+     {tags_51},
+     {tags_50},
+     {tags_49},
+     {tags_48},
+     {tags_47},
+     {tags_46},
+     {tags_45},
+     {tags_44},
+     {tags_43},
+     {tags_42},
+     {tags_41},
+     {tags_40},
+     {tags_39},
+     {tags_38},
+     {tags_37},
+     {tags_36},
+     {tags_35},
+     {tags_34},
+     {tags_33},
+     {tags_32},
+     {tags_31},
+     {tags_30},
+     {tags_29},
+     {tags_28},
+     {tags_27},
+     {tags_26},
+     {tags_25},
+     {tags_24},
+     {tags_23},
+     {tags_22},
+     {tags_21},
+     {tags_20},
+     {tags_19},
+     {tags_18},
+     {tags_17},
+     {tags_16},
+     {tags_15},
+     {tags_14},
+     {tags_13},
+     {tags_12},
+     {tags_11},
+     {tags_10},
+     {tags_9},
+     {tags_8},
+     {tags_7},
+     {tags_6},
+     {tags_5},
+     {tags_4},
+     {tags_3},
+     {tags_2},
+     {tags_1},
+     {tags_0}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :35:42
+  wire [63:0]       _GEN_0 =
+    {{valids_63},
+     {valids_62},
+     {valids_61},
+     {valids_60},
+     {valids_59},
+     {valids_58},
+     {valids_57},
+     {valids_56},
+     {valids_55},
+     {valids_54},
+     {valids_53},
+     {valids_52},
+     {valids_51},
+     {valids_50},
+     {valids_49},
+     {valids_48},
+     {valids_47},
+     {valids_46},
+     {valids_45},
+     {valids_44},
+     {valids_43},
+     {valids_42},
+     {valids_41},
+     {valids_40},
+     {valids_39},
+     {valids_38},
+     {valids_37},
+     {valids_36},
+     {valids_35},
+     {valids_34},
+     {valids_33},
+     {valids_32},
+     {valids_31},
+     {valids_30},
+     {valids_29},
+     {valids_28},
+     {valids_27},
+     {valids_26},
+     {valids_25},
+     {valids_24},
+     {valids_23},
+     {valids_22},
+     {valids_21},
+     {valids_20},
+     {valids_19},
+     {valids_18},
+     {valids_17},
+     {valids_16},
+     {valids_15},
+     {valids_14},
+     {valids_13},
+     {valids_12},
+     {valids_11},
+     {valids_10},
+     {valids_9},
+     {valids_8},
+     {valids_7},
+     {valids_6},
+     {valids_5},
+     {valids_4},
+     {valids_3},
+     {valids_2},
+     {valids_1},
+     {valids_0}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :35:29
+  wire [63:0][31:0] _GEN_1 =
+    {{targets_63},
+     {targets_62},
+     {targets_61},
+     {targets_60},
+     {targets_59},
+     {targets_58},
+     {targets_57},
+     {targets_56},
+     {targets_55},
+     {targets_54},
+     {targets_53},
+     {targets_52},
+     {targets_51},
+     {targets_50},
+     {targets_49},
+     {targets_48},
+     {targets_47},
+     {targets_46},
+     {targets_45},
+     {targets_44},
+     {targets_43},
+     {targets_42},
+     {targets_41},
+     {targets_40},
+     {targets_39},
+     {targets_38},
+     {targets_37},
+     {targets_36},
+     {targets_35},
+     {targets_34},
+     {targets_33},
+     {targets_32},
+     {targets_31},
+     {targets_30},
+     {targets_29},
+     {targets_28},
+     {targets_27},
+     {targets_26},
+     {targets_25},
+     {targets_24},
+     {targets_23},
+     {targets_22},
+     {targets_21},
+     {targets_20},
+     {targets_19},
+     {targets_18},
+     {targets_17},
+     {targets_16},
+     {targets_15},
+     {targets_14},
+     {targets_13},
+     {targets_12},
+     {targets_11},
+     {targets_10},
+     {targets_9},
+     {targets_8},
+     {targets_7},
+     {targets_6},
+     {targets_5},
+     {targets_4},
+     {targets_3},
+     {targets_2},
+     {targets_1},
+     {targets_0}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20, :36:15
+  always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+    automatic logic _GEN_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_7;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_10;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_15;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_16;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_18;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_19;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_22;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_24;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_25;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_26;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_27;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_28;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_29;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_30;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_31;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_32;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_34;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_35;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_36;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_38;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_39;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_40;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_41;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_42;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_43;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_44;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_45;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_46;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_47;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_48;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_49;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_50;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_51;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_52;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_53;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_54;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_55;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_56;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_57;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_58;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_59;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_60;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_61;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_62;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_64;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    automatic logic _GEN_65;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+    _GEN_2 = io_u_valid & io_u_pc[7:2] == 6'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_3 = io_u_valid & io_u_pc[7:2] == 6'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_4 = io_u_valid & io_u_pc[7:2] == 6'h2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_5 = io_u_valid & io_u_pc[7:2] == 6'h3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_6 = io_u_valid & io_u_pc[7:2] == 6'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_7 = io_u_valid & io_u_pc[7:2] == 6'h5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_8 = io_u_valid & io_u_pc[7:2] == 6'h6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_9 = io_u_valid & io_u_pc[7:2] == 6'h7;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_10 = io_u_valid & io_u_pc[7:2] == 6'h8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_11 = io_u_valid & io_u_pc[7:2] == 6'h9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_12 = io_u_valid & io_u_pc[7:2] == 6'hA;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_13 = io_u_valid & io_u_pc[7:2] == 6'hB;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_14 = io_u_valid & io_u_pc[7:2] == 6'hC;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_15 = io_u_valid & io_u_pc[7:2] == 6'hD;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_16 = io_u_valid & io_u_pc[7:2] == 6'hE;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_17 = io_u_valid & io_u_pc[7:2] == 6'hF;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_18 = io_u_valid & io_u_pc[7:2] == 6'h10;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_19 = io_u_valid & io_u_pc[7:2] == 6'h11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_20 = io_u_valid & io_u_pc[7:2] == 6'h12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_21 = io_u_valid & io_u_pc[7:2] == 6'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_22 = io_u_valid & io_u_pc[7:2] == 6'h14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_23 = io_u_valid & io_u_pc[7:2] == 6'h15;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_24 = io_u_valid & io_u_pc[7:2] == 6'h16;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_25 = io_u_valid & io_u_pc[7:2] == 6'h17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_26 = io_u_valid & io_u_pc[7:2] == 6'h18;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_27 = io_u_valid & io_u_pc[7:2] == 6'h19;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_28 = io_u_valid & io_u_pc[7:2] == 6'h1A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_29 = io_u_valid & io_u_pc[7:2] == 6'h1B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_30 = io_u_valid & io_u_pc[7:2] == 6'h1C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_31 = io_u_valid & io_u_pc[7:2] == 6'h1D;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_32 = io_u_valid & io_u_pc[7:2] == 6'h1E;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_33 = io_u_valid & io_u_pc[7:2] == 6'h1F;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_34 = io_u_valid & io_u_pc[7:2] == 6'h20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_35 = io_u_valid & io_u_pc[7:2] == 6'h21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_36 = io_u_valid & io_u_pc[7:2] == 6'h22;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_37 = io_u_valid & io_u_pc[7:2] == 6'h23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_38 = io_u_valid & io_u_pc[7:2] == 6'h24;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_39 = io_u_valid & io_u_pc[7:2] == 6'h25;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_40 = io_u_valid & io_u_pc[7:2] == 6'h26;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_41 = io_u_valid & io_u_pc[7:2] == 6'h27;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_42 = io_u_valid & io_u_pc[7:2] == 6'h28;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_43 = io_u_valid & io_u_pc[7:2] == 6'h29;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_44 = io_u_valid & io_u_pc[7:2] == 6'h2A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_45 = io_u_valid & io_u_pc[7:2] == 6'h2B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_46 = io_u_valid & io_u_pc[7:2] == 6'h2C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_47 = io_u_valid & io_u_pc[7:2] == 6'h2D;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_48 = io_u_valid & io_u_pc[7:2] == 6'h2E;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_49 = io_u_valid & io_u_pc[7:2] == 6'h2F;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_50 = io_u_valid & io_u_pc[7:2] == 6'h30;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_51 = io_u_valid & io_u_pc[7:2] == 6'h31;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_52 = io_u_valid & io_u_pc[7:2] == 6'h32;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_53 = io_u_valid & io_u_pc[7:2] == 6'h33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_54 = io_u_valid & io_u_pc[7:2] == 6'h34;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_55 = io_u_valid & io_u_pc[7:2] == 6'h35;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_56 = io_u_valid & io_u_pc[7:2] == 6'h36;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_57 = io_u_valid & io_u_pc[7:2] == 6'h37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_58 = io_u_valid & io_u_pc[7:2] == 6'h38;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_59 = io_u_valid & io_u_pc[7:2] == 6'h39;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_60 = io_u_valid & io_u_pc[7:2] == 6'h3A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_61 = io_u_valid & io_u_pc[7:2] == 6'h3B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_62 = io_u_valid & io_u_pc[7:2] == 6'h3C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_63 = io_u_valid & io_u_pc[7:2] == 6'h3D;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_64 = io_u_valid & io_u_pc[7:2] == 6'h3E;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    _GEN_65 = io_u_valid & (&(io_u_pc[7:2]));	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:25:31, :29:20, :39:20, :41:17
+    if (reset) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+      valids_0 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_1 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_2 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_3 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_4 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_5 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_6 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_7 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_8 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_9 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_10 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_11 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_12 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_13 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_14 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_15 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_16 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_17 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_18 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_19 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_20 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_21 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_22 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_23 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_24 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_25 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_26 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_27 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_28 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_29 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_30 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_31 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_32 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_33 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_34 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_35 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_36 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_37 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_38 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_39 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_40 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_41 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_42 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_43 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_44 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_45 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_46 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_47 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_48 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_49 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_50 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_51 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_52 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_53 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_54 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_55 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_56 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_57 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_58 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_59 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_60 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_61 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_62 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+      valids_63 <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24
+    end
+    else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+      valids_0 <= _GEN_2 | valids_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_1 <= _GEN_3 | valids_1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_2 <= _GEN_4 | valids_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_3 <= _GEN_5 | valids_3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_4 <= _GEN_6 | valids_4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_5 <= _GEN_7 | valids_5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_6 <= _GEN_8 | valids_6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_7 <= _GEN_9 | valids_7;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_8 <= _GEN_10 | valids_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_9 <= _GEN_11 | valids_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_10 <= _GEN_12 | valids_10;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_11 <= _GEN_13 | valids_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_12 <= _GEN_14 | valids_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_13 <= _GEN_15 | valids_13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_14 <= _GEN_16 | valids_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_15 <= _GEN_17 | valids_15;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_16 <= _GEN_18 | valids_16;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_17 <= _GEN_19 | valids_17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_18 <= _GEN_20 | valids_18;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_19 <= _GEN_21 | valids_19;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_20 <= _GEN_22 | valids_20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_21 <= _GEN_23 | valids_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_22 <= _GEN_24 | valids_22;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_23 <= _GEN_25 | valids_23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_24 <= _GEN_26 | valids_24;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_25 <= _GEN_27 | valids_25;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_26 <= _GEN_28 | valids_26;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_27 <= _GEN_29 | valids_27;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_28 <= _GEN_30 | valids_28;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_29 <= _GEN_31 | valids_29;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_30 <= _GEN_32 | valids_30;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_31 <= _GEN_33 | valids_31;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_32 <= _GEN_34 | valids_32;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_33 <= _GEN_35 | valids_33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_34 <= _GEN_36 | valids_34;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_35 <= _GEN_37 | valids_35;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_36 <= _GEN_38 | valids_36;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_37 <= _GEN_39 | valids_37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_38 <= _GEN_40 | valids_38;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_39 <= _GEN_41 | valids_39;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_40 <= _GEN_42 | valids_40;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_41 <= _GEN_43 | valids_41;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_42 <= _GEN_44 | valids_42;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_43 <= _GEN_45 | valids_43;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_44 <= _GEN_46 | valids_44;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_45 <= _GEN_47 | valids_45;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_46 <= _GEN_48 | valids_46;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_47 <= _GEN_49 | valids_47;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_48 <= _GEN_50 | valids_48;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_49 <= _GEN_51 | valids_49;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_50 <= _GEN_52 | valids_50;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_51 <= _GEN_53 | valids_51;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_52 <= _GEN_54 | valids_52;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_53 <= _GEN_55 | valids_53;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_54 <= _GEN_56 | valids_54;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_55 <= _GEN_57 | valids_55;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_56 <= _GEN_58 | valids_56;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_57 <= _GEN_59 | valids_57;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_58 <= _GEN_60 | valids_58;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_59 <= _GEN_61 | valids_59;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_60 <= _GEN_62 | valids_60;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_61 <= _GEN_63 | valids_61;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_62 <= _GEN_64 | valids_62;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+      valids_63 <= _GEN_65 | valids_63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:28:24, :29:20, :39:20, :41:17, :43:17
+    end
+    if (_GEN_2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_0 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_0 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_1 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_1 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_2 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_2 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_3 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_3 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_4 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_4 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_5 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_5 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_6 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_6 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_7 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_7 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_10) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_8 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_8 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_11) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_9 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_9 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_12) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_10 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_10 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_13) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_11 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_11 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_14) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_12 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_12 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_15) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_13 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_13 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_16) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_14 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_14 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_17) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_15 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_15 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_18) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_16 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_16 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_19) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_17 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_17 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_20) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_18 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_18 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_21) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_19 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_19 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_22) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_20 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_20 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_23) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_21 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_21 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_24) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_22 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_22 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_25) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_23 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_23 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_26) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_24 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_24 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_27) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_25 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_25 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_28) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_26 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_26 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_29) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_27 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_27 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_30) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_28 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_28 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_31) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_29 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_29 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_32) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_30 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_30 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_33) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_31 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_31 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_34) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_32 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_32 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_35) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_33 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_33 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_36) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_34 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_34 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_37) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_35 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_35 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_38) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_36 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_36 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_39) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_37 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_37 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_40) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_38 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_38 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_41) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_39 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_39 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_42) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_40 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_40 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_43) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_41 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_41 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_44) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_42 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_42 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_45) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_43 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_43 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_46) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_44 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_44 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_47) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_45 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_45 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_48) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_46 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_46 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_49) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_47 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_47 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_50) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_48 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_48 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_51) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_49 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_49 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_52) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_50 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_50 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_53) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_51 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_51 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_54) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_52 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_52 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_55) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_53 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_53 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_56) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_54 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_54 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_57) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_55 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_55 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_58) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_56 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_56 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_59) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_57 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_57 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_60) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_58 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_58 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_61) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_59 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_59 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_62) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_60 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_60 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_63) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_61 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_61 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_64) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_62 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_62 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+    if (_GEN_65) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:29:20, :39:20, :41:17
+      tags_63 <= io_u_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:26:31, :29:20
+      targets_63 <= io_u_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:30:20
+    end
+  end // always @(posedge)
+  `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+      `FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+    `endif // FIRRTL_BEFORE_INITIAL
+    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+      automatic logic [31:0] _RANDOM[0:113];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+      `ifdef INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+        `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+      `endif // INIT_RANDOM_PROLOG_
+      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+        for (logic [6:0] i = 7'h0; i < 7'h72; i += 7'h1) begin
+          _RANDOM[i] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+        end	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+        valids_0 = _RANDOM[7'h0][0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_1 = _RANDOM[7'h0][1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_2 = _RANDOM[7'h0][2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_3 = _RANDOM[7'h0][3];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_4 = _RANDOM[7'h0][4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_5 = _RANDOM[7'h0][5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_6 = _RANDOM[7'h0][6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_7 = _RANDOM[7'h0][7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_8 = _RANDOM[7'h0][8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_9 = _RANDOM[7'h0][9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_10 = _RANDOM[7'h0][10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_11 = _RANDOM[7'h0][11];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_12 = _RANDOM[7'h0][12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_13 = _RANDOM[7'h0][13];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_14 = _RANDOM[7'h0][14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_15 = _RANDOM[7'h0][15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_16 = _RANDOM[7'h0][16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_17 = _RANDOM[7'h0][17];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_18 = _RANDOM[7'h0][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_19 = _RANDOM[7'h0][19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_20 = _RANDOM[7'h0][20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_21 = _RANDOM[7'h0][21];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_22 = _RANDOM[7'h0][22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_23 = _RANDOM[7'h0][23];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_24 = _RANDOM[7'h0][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_25 = _RANDOM[7'h0][25];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_26 = _RANDOM[7'h0][26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_27 = _RANDOM[7'h0][27];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_28 = _RANDOM[7'h0][28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_29 = _RANDOM[7'h0][29];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_30 = _RANDOM[7'h0][30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_31 = _RANDOM[7'h0][31];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_32 = _RANDOM[7'h1][0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_33 = _RANDOM[7'h1][1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_34 = _RANDOM[7'h1][2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_35 = _RANDOM[7'h1][3];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_36 = _RANDOM[7'h1][4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_37 = _RANDOM[7'h1][5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_38 = _RANDOM[7'h1][6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_39 = _RANDOM[7'h1][7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_40 = _RANDOM[7'h1][8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_41 = _RANDOM[7'h1][9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_42 = _RANDOM[7'h1][10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_43 = _RANDOM[7'h1][11];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_44 = _RANDOM[7'h1][12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_45 = _RANDOM[7'h1][13];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_46 = _RANDOM[7'h1][14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_47 = _RANDOM[7'h1][15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_48 = _RANDOM[7'h1][16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_49 = _RANDOM[7'h1][17];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_50 = _RANDOM[7'h1][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_51 = _RANDOM[7'h1][19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_52 = _RANDOM[7'h1][20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_53 = _RANDOM[7'h1][21];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_54 = _RANDOM[7'h1][22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_55 = _RANDOM[7'h1][23];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_56 = _RANDOM[7'h1][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_57 = _RANDOM[7'h1][25];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_58 = _RANDOM[7'h1][26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_59 = _RANDOM[7'h1][27];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_60 = _RANDOM[7'h1][28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_61 = _RANDOM[7'h1][29];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_62 = _RANDOM[7'h1][30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        valids_63 = _RANDOM[7'h1][31];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :28:24
+        tags_0 = _RANDOM[7'h2][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_1 = {_RANDOM[7'h2][31:24], _RANDOM[7'h3][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_2 = {_RANDOM[7'h3][31:16], _RANDOM[7'h4][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_3 = _RANDOM[7'h4][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_4 = _RANDOM[7'h5][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_5 = {_RANDOM[7'h5][31:24], _RANDOM[7'h6][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_6 = {_RANDOM[7'h6][31:16], _RANDOM[7'h7][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_7 = _RANDOM[7'h7][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_8 = _RANDOM[7'h8][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_9 = {_RANDOM[7'h8][31:24], _RANDOM[7'h9][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_10 = {_RANDOM[7'h9][31:16], _RANDOM[7'hA][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_11 = _RANDOM[7'hA][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_12 = _RANDOM[7'hB][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_13 = {_RANDOM[7'hB][31:24], _RANDOM[7'hC][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_14 = {_RANDOM[7'hC][31:16], _RANDOM[7'hD][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_15 = _RANDOM[7'hD][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_16 = _RANDOM[7'hE][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_17 = {_RANDOM[7'hE][31:24], _RANDOM[7'hF][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_18 = {_RANDOM[7'hF][31:16], _RANDOM[7'h10][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_19 = _RANDOM[7'h10][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_20 = _RANDOM[7'h11][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_21 = {_RANDOM[7'h11][31:24], _RANDOM[7'h12][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_22 = {_RANDOM[7'h12][31:16], _RANDOM[7'h13][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_23 = _RANDOM[7'h13][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_24 = _RANDOM[7'h14][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_25 = {_RANDOM[7'h14][31:24], _RANDOM[7'h15][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_26 = {_RANDOM[7'h15][31:16], _RANDOM[7'h16][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_27 = _RANDOM[7'h16][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_28 = _RANDOM[7'h17][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_29 = {_RANDOM[7'h17][31:24], _RANDOM[7'h18][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_30 = {_RANDOM[7'h18][31:16], _RANDOM[7'h19][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_31 = _RANDOM[7'h19][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_32 = _RANDOM[7'h1A][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_33 = {_RANDOM[7'h1A][31:24], _RANDOM[7'h1B][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_34 = {_RANDOM[7'h1B][31:16], _RANDOM[7'h1C][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_35 = _RANDOM[7'h1C][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_36 = _RANDOM[7'h1D][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_37 = {_RANDOM[7'h1D][31:24], _RANDOM[7'h1E][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_38 = {_RANDOM[7'h1E][31:16], _RANDOM[7'h1F][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_39 = _RANDOM[7'h1F][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_40 = _RANDOM[7'h20][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_41 = {_RANDOM[7'h20][31:24], _RANDOM[7'h21][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_42 = {_RANDOM[7'h21][31:16], _RANDOM[7'h22][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_43 = _RANDOM[7'h22][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_44 = _RANDOM[7'h23][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_45 = {_RANDOM[7'h23][31:24], _RANDOM[7'h24][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_46 = {_RANDOM[7'h24][31:16], _RANDOM[7'h25][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_47 = _RANDOM[7'h25][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_48 = _RANDOM[7'h26][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_49 = {_RANDOM[7'h26][31:24], _RANDOM[7'h27][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_50 = {_RANDOM[7'h27][31:16], _RANDOM[7'h28][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_51 = _RANDOM[7'h28][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_52 = _RANDOM[7'h29][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_53 = {_RANDOM[7'h29][31:24], _RANDOM[7'h2A][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_54 = {_RANDOM[7'h2A][31:16], _RANDOM[7'h2B][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_55 = _RANDOM[7'h2B][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_56 = _RANDOM[7'h2C][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_57 = {_RANDOM[7'h2C][31:24], _RANDOM[7'h2D][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_58 = {_RANDOM[7'h2D][31:16], _RANDOM[7'h2E][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_59 = _RANDOM[7'h2E][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_60 = _RANDOM[7'h2F][23:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_61 = {_RANDOM[7'h2F][31:24], _RANDOM[7'h30][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_62 = {_RANDOM[7'h30][31:16], _RANDOM[7'h31][7:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        tags_63 = _RANDOM[7'h31][31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :29:20
+        targets_0 = _RANDOM[7'h32];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_1 = _RANDOM[7'h33];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_2 = _RANDOM[7'h34];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_3 = _RANDOM[7'h35];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_4 = _RANDOM[7'h36];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_5 = _RANDOM[7'h37];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_6 = _RANDOM[7'h38];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_7 = _RANDOM[7'h39];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_8 = _RANDOM[7'h3A];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_9 = _RANDOM[7'h3B];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_10 = _RANDOM[7'h3C];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_11 = _RANDOM[7'h3D];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_12 = _RANDOM[7'h3E];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_13 = _RANDOM[7'h3F];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_14 = _RANDOM[7'h40];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_15 = _RANDOM[7'h41];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_16 = _RANDOM[7'h42];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_17 = _RANDOM[7'h43];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_18 = _RANDOM[7'h44];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_19 = _RANDOM[7'h45];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_20 = _RANDOM[7'h46];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_21 = _RANDOM[7'h47];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_22 = _RANDOM[7'h48];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_23 = _RANDOM[7'h49];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_24 = _RANDOM[7'h4A];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_25 = _RANDOM[7'h4B];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_26 = _RANDOM[7'h4C];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_27 = _RANDOM[7'h4D];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_28 = _RANDOM[7'h4E];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_29 = _RANDOM[7'h4F];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_30 = _RANDOM[7'h50];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_31 = _RANDOM[7'h51];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_32 = _RANDOM[7'h52];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_33 = _RANDOM[7'h53];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_34 = _RANDOM[7'h54];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_35 = _RANDOM[7'h55];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_36 = _RANDOM[7'h56];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_37 = _RANDOM[7'h57];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_38 = _RANDOM[7'h58];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_39 = _RANDOM[7'h59];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_40 = _RANDOM[7'h5A];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_41 = _RANDOM[7'h5B];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_42 = _RANDOM[7'h5C];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_43 = _RANDOM[7'h5D];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_44 = _RANDOM[7'h5E];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_45 = _RANDOM[7'h5F];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_46 = _RANDOM[7'h60];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_47 = _RANDOM[7'h61];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_48 = _RANDOM[7'h62];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_49 = _RANDOM[7'h63];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_50 = _RANDOM[7'h64];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_51 = _RANDOM[7'h65];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_52 = _RANDOM[7'h66];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_53 = _RANDOM[7'h67];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_54 = _RANDOM[7'h68];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_55 = _RANDOM[7'h69];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_56 = _RANDOM[7'h6A];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_57 = _RANDOM[7'h6B];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_58 = _RANDOM[7'h6C];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_59 = _RANDOM[7'h6D];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_60 = _RANDOM[7'h6E];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_61 = _RANDOM[7'h6F];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_62 = _RANDOM[7'h70];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+        targets_63 = _RANDOM[7'h71];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :30:20
+      `endif // RANDOMIZE_REG_INIT
+    end // initial
+    `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+      `FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7
+    `endif // FIRRTL_AFTER_INITIAL
+  `endif // ENABLE_INITIAL_REG_
+  assign io_q_hit = _GEN_0[io_q_pc[7:2]] & _GEN[io_q_pc[7:2]] == io_q_pc[31:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :25:31, :26:31, :35:{29,42}
+  assign io_q_target = _GEN_1[io_q_pc[7:2]];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchTargetBuffer.scala:6:7, :25:31, :36:15
+endmodule
+
+module BHT(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+  input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+                reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+  input  [31:0] io_q_pc,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+  output        io_q_taken,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+  input         io_u_valid,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+  input  [31:0] io_u_pc,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+  input         io_u_taken	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+);
+
+  reg  [1:0]        table_0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_5;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_6;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_7;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_8;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_9;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_10;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_11;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_12;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_14;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_15;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_16;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_17;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_18;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_19;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_20;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_21;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_22;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_23;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_24;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_25;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_26;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_27;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_28;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_29;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_30;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_31;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_32;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_33;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_34;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_35;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_36;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_37;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_38;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_39;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_40;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_41;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_42;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_43;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_44;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_45;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_46;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_47;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_48;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_49;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_50;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_51;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_52;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_53;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_54;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_55;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_56;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_57;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_58;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_59;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_60;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_61;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_62;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_63;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_64;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_65;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_66;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_67;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_68;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_69;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_70;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_71;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_72;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_73;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_74;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_75;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_76;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_77;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_78;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_79;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_80;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_81;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_82;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_83;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_84;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_85;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_86;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_87;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_88;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_89;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_90;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_91;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_92;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_93;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_94;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_95;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_96;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_97;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_98;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_99;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_100;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_101;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_102;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_103;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_104;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_105;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_106;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_107;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_108;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_109;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_110;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_111;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_112;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_113;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_114;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_115;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_116;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_117;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_118;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_119;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_120;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_121;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_122;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_123;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_124;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_125;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_126;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_127;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_128;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_129;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_130;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_131;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_132;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_133;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_134;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_135;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_136;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_137;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_138;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_139;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_140;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_141;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_142;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_143;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_144;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_145;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_146;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_147;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_148;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_149;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_150;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_151;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_152;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_153;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_154;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_155;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_156;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_157;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_158;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_159;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_160;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_161;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_162;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_163;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_164;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_165;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_166;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_167;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_168;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_169;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_170;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_171;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_172;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_173;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_174;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_175;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_176;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_177;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_178;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_179;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_180;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_181;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_182;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_183;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_184;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_185;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_186;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_187;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_188;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_189;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_190;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_191;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_192;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_193;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_194;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_195;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_196;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_197;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_198;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_199;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_200;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_201;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_202;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_203;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_204;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_205;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_206;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_207;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_208;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_209;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_210;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_211;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_212;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_213;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_214;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_215;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_216;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_217;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_218;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_219;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_220;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_221;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_222;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_223;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_224;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_225;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_226;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_227;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_228;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_229;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_230;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_231;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_232;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_233;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_234;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_235;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_236;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_237;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_238;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_239;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_240;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_241;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_242;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_243;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_244;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_245;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_246;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_247;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_248;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_249;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_250;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_251;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_252;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_253;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_254;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  reg  [1:0]        table_255;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+  wire [255:0][1:0] _GEN =
+    {{table_255},
+     {table_254},
+     {table_253},
+     {table_252},
+     {table_251},
+     {table_250},
+     {table_249},
+     {table_248},
+     {table_247},
+     {table_246},
+     {table_245},
+     {table_244},
+     {table_243},
+     {table_242},
+     {table_241},
+     {table_240},
+     {table_239},
+     {table_238},
+     {table_237},
+     {table_236},
+     {table_235},
+     {table_234},
+     {table_233},
+     {table_232},
+     {table_231},
+     {table_230},
+     {table_229},
+     {table_228},
+     {table_227},
+     {table_226},
+     {table_225},
+     {table_224},
+     {table_223},
+     {table_222},
+     {table_221},
+     {table_220},
+     {table_219},
+     {table_218},
+     {table_217},
+     {table_216},
+     {table_215},
+     {table_214},
+     {table_213},
+     {table_212},
+     {table_211},
+     {table_210},
+     {table_209},
+     {table_208},
+     {table_207},
+     {table_206},
+     {table_205},
+     {table_204},
+     {table_203},
+     {table_202},
+     {table_201},
+     {table_200},
+     {table_199},
+     {table_198},
+     {table_197},
+     {table_196},
+     {table_195},
+     {table_194},
+     {table_193},
+     {table_192},
+     {table_191},
+     {table_190},
+     {table_189},
+     {table_188},
+     {table_187},
+     {table_186},
+     {table_185},
+     {table_184},
+     {table_183},
+     {table_182},
+     {table_181},
+     {table_180},
+     {table_179},
+     {table_178},
+     {table_177},
+     {table_176},
+     {table_175},
+     {table_174},
+     {table_173},
+     {table_172},
+     {table_171},
+     {table_170},
+     {table_169},
+     {table_168},
+     {table_167},
+     {table_166},
+     {table_165},
+     {table_164},
+     {table_163},
+     {table_162},
+     {table_161},
+     {table_160},
+     {table_159},
+     {table_158},
+     {table_157},
+     {table_156},
+     {table_155},
+     {table_154},
+     {table_153},
+     {table_152},
+     {table_151},
+     {table_150},
+     {table_149},
+     {table_148},
+     {table_147},
+     {table_146},
+     {table_145},
+     {table_144},
+     {table_143},
+     {table_142},
+     {table_141},
+     {table_140},
+     {table_139},
+     {table_138},
+     {table_137},
+     {table_136},
+     {table_135},
+     {table_134},
+     {table_133},
+     {table_132},
+     {table_131},
+     {table_130},
+     {table_129},
+     {table_128},
+     {table_127},
+     {table_126},
+     {table_125},
+     {table_124},
+     {table_123},
+     {table_122},
+     {table_121},
+     {table_120},
+     {table_119},
+     {table_118},
+     {table_117},
+     {table_116},
+     {table_115},
+     {table_114},
+     {table_113},
+     {table_112},
+     {table_111},
+     {table_110},
+     {table_109},
+     {table_108},
+     {table_107},
+     {table_106},
+     {table_105},
+     {table_104},
+     {table_103},
+     {table_102},
+     {table_101},
+     {table_100},
+     {table_99},
+     {table_98},
+     {table_97},
+     {table_96},
+     {table_95},
+     {table_94},
+     {table_93},
+     {table_92},
+     {table_91},
+     {table_90},
+     {table_89},
+     {table_88},
+     {table_87},
+     {table_86},
+     {table_85},
+     {table_84},
+     {table_83},
+     {table_82},
+     {table_81},
+     {table_80},
+     {table_79},
+     {table_78},
+     {table_77},
+     {table_76},
+     {table_75},
+     {table_74},
+     {table_73},
+     {table_72},
+     {table_71},
+     {table_70},
+     {table_69},
+     {table_68},
+     {table_67},
+     {table_66},
+     {table_65},
+     {table_64},
+     {table_63},
+     {table_62},
+     {table_61},
+     {table_60},
+     {table_59},
+     {table_58},
+     {table_57},
+     {table_56},
+     {table_55},
+     {table_54},
+     {table_53},
+     {table_52},
+     {table_51},
+     {table_50},
+     {table_49},
+     {table_48},
+     {table_47},
+     {table_46},
+     {table_45},
+     {table_44},
+     {table_43},
+     {table_42},
+     {table_41},
+     {table_40},
+     {table_39},
+     {table_38},
+     {table_37},
+     {table_36},
+     {table_35},
+     {table_34},
+     {table_33},
+     {table_32},
+     {table_31},
+     {table_30},
+     {table_29},
+     {table_28},
+     {table_27},
+     {table_26},
+     {table_25},
+     {table_24},
+     {table_23},
+     {table_22},
+     {table_21},
+     {table_20},
+     {table_19},
+     {table_18},
+     {table_17},
+     {table_16},
+     {table_15},
+     {table_14},
+     {table_13},
+     {table_12},
+     {table_11},
+     {table_10},
+     {table_9},
+     {table_8},
+     {table_7},
+     {table_6},
+     {table_5},
+     {table_4},
+     {table_3},
+     {table_2},
+     {table_1},
+     {table_0}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24, :61:16
+  wire [1:0]        _GEN_0 = _GEN[io_q_pc[9:2]];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :61:16
+  always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+    if (reset) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+      table_0 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_1 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_2 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_3 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_4 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_5 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_6 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_7 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_8 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_9 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_10 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_11 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_12 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_13 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_14 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_15 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_16 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_17 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_18 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_19 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_20 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_21 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_22 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_23 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_24 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_25 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_26 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_27 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_28 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_29 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_30 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_31 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_32 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_33 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_34 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_35 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_36 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_37 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_38 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_39 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_40 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_41 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_42 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_43 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_44 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_45 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_46 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_47 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_48 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_49 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_50 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_51 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_52 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_53 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_54 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_55 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_56 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_57 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_58 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_59 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_60 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_61 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_62 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_63 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_64 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_65 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_66 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_67 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_68 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_69 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_70 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_71 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_72 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_73 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_74 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_75 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_76 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_77 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_78 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_79 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_80 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_81 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_82 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_83 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_84 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_85 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_86 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_87 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_88 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_89 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_90 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_91 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_92 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_93 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_94 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_95 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_96 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_97 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_98 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_99 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_100 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_101 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_102 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_103 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_104 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_105 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_106 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_107 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_108 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_109 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_110 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_111 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_112 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_113 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_114 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_115 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_116 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_117 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_118 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_119 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_120 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_121 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_122 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_123 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_124 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_125 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_126 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_127 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_128 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_129 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_130 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_131 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_132 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_133 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_134 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_135 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_136 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_137 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_138 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_139 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_140 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_141 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_142 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_143 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_144 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_145 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_146 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_147 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_148 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_149 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_150 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_151 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_152 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_153 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_154 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_155 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_156 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_157 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_158 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_159 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_160 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_161 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_162 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_163 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_164 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_165 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_166 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_167 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_168 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_169 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_170 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_171 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_172 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_173 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_174 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_175 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_176 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_177 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_178 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_179 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_180 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_181 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_182 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_183 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_184 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_185 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_186 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_187 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_188 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_189 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_190 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_191 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_192 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_193 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_194 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_195 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_196 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_197 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_198 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_199 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_200 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_201 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_202 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_203 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_204 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_205 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_206 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_207 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_208 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_209 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_210 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_211 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_212 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_213 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_214 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_215 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_216 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_217 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_218 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_219 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_220 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_221 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_222 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_223 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_224 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_225 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_226 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_227 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_228 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_229 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_230 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_231 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_232 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_233 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_234 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_235 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_236 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_237 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_238 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_239 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_240 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_241 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_242 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_243 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_244 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_245 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_246 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_247 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_248 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_249 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_250 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_251 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_252 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_253 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_254 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+      table_255 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+    end
+    else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+      automatic logic [1:0]      _GEN_1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29
+      automatic logic [3:0][1:0] _GEN_2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38
+      automatic logic [3:0][1:0] _GEN_3;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38
+      _GEN_1 = _GEN[io_u_pc[9:2]];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :54:33, :61:16
+      _GEN_2 = {{2'h3}, {2'h3}, {2'h2}, {_GEN_1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38
+      _GEN_3 = {{2'h2}, {2'h1}, {2'h0}, {_GEN_1 == 2'h1 | ~(|_GEN_1) ? 2'h0 : _GEN_1}};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :25:23, :26:38, :27:38, :28:38, :29:38
+      if (io_u_valid & io_u_pc[9:2] == 8'h0) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_0 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_0 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_0 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h1) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_1 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_1 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_1 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_2 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_2 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_2 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_3 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_3 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_3 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_4 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_4 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_4 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_5 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_5 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_5 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_6 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_6 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_6 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_7 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_7 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_7 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_8 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_8 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_8 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_9 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_9 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_9 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_10 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_10 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_10 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_11 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_11 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_11 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_12 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_12 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_12 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_13 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_13 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_13 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_14 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_14 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_14 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_15 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_15 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_15 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h10) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_16 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_16 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_16 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h11) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_17 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_17 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_17 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h12) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_18 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_18 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_18 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h13) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_19 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_19 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_19 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h14) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_20 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_20 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_20 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h15) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_21 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_21 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_21 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h16) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_22 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_22 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_22 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h17) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_23 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_23 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_23 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h18) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_24 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_24 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_24 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h19) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_25 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_25 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_25 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h1A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_26 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_26 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_26 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h1B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_27 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_27 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_27 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h1C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_28 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_28 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_28 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h1D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_29 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_29 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_29 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h1E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_30 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_30 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_30 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h1F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_31 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_31 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_31 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h20) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_32 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_32 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_32 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h21) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_33 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_33 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_33 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h22) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_34 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_34 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_34 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h23) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_35 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_35 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_35 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h24) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_36 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_36 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_36 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h25) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_37 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_37 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_37 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h26) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_38 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_38 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_38 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h27) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_39 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_39 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_39 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h28) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_40 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_40 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_40 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h29) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_41 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_41 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_41 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h2A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_42 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_42 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_42 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h2B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_43 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_43 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_43 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h2C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_44 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_44 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_44 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h2D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_45 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_45 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_45 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h2E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_46 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_46 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_46 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h2F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_47 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_47 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_47 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h30) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_48 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_48 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_48 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h31) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_49 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_49 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_49 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h32) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_50 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_50 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_50 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h33) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_51 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_51 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_51 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h34) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_52 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_52 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_52 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h35) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_53 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_53 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_53 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h36) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_54 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_54 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_54 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h37) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_55 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_55 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_55 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h38) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_56 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_56 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_56 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h39) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_57 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_57 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_57 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h3A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_58 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_58 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_58 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h3B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_59 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_59 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_59 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h3C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_60 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_60 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_60 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h3D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_61 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_61 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_61 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h3E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_62 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_62 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_62 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h3F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_63 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_63 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_63 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h40) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_64 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_64 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_64 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h41) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_65 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_65 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_65 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h42) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_66 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_66 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_66 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h43) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_67 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_67 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_67 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h44) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_68 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_68 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_68 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h45) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_69 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_69 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_69 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h46) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_70 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_70 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_70 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h47) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_71 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_71 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_71 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h48) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_72 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_72 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_72 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h49) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_73 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_73 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_73 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h4A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_74 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_74 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_74 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h4B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_75 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_75 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_75 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h4C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_76 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_76 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_76 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h4D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_77 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_77 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_77 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h4E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_78 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_78 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_78 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h4F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_79 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_79 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_79 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h50) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_80 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_80 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_80 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h51) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_81 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_81 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_81 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h52) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_82 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_82 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_82 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h53) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_83 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_83 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_83 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h54) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_84 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_84 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_84 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h55) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_85 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_85 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_85 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h56) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_86 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_86 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_86 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h57) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_87 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_87 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_87 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h58) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_88 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_88 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_88 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h59) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_89 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_89 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_89 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h5A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_90 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_90 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_90 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h5B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_91 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_91 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_91 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h5C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_92 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_92 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_92 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h5D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_93 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_93 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_93 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h5E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_94 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_94 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_94 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h5F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_95 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_95 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_95 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h60) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_96 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_96 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_96 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h61) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_97 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_97 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_97 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h62) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_98 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_98 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_98 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h63) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_99 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_99 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_99 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h64) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_100 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_100 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_100 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h65) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_101 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_101 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_101 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h66) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_102 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_102 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_102 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h67) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_103 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_103 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_103 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h68) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_104 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_104 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_104 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h69) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_105 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_105 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_105 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h6A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_106 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_106 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_106 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h6B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_107 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_107 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_107 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h6C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_108 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_108 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_108 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h6D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_109 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_109 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_109 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h6E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_110 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_110 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_110 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h6F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_111 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_111 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_111 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h70) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_112 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_112 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_112 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h71) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_113 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_113 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_113 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h72) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_114 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_114 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_114 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h73) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_115 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_115 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_115 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h74) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_116 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_116 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_116 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h75) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_117 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_117 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_117 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h76) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_118 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_118 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_118 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h77) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_119 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_119 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_119 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h78) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_120 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_120 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_120 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h79) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_121 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_121 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_121 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h7A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_122 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_122 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_122 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h7B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_123 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_123 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_123 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h7C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_124 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_124 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_124 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h7D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_125 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_125 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_125 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h7E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_126 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_126 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_126 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h7F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_127 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_127 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_127 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h80) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_128 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_128 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_128 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h81) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_129 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_129 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_129 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h82) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_130 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_130 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_130 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h83) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_131 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_131 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_131 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h84) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_132 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_132 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_132 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h85) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_133 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_133 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_133 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h86) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_134 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_134 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_134 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h87) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_135 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_135 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_135 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h88) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_136 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_136 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_136 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h89) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_137 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_137 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_137 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h8A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_138 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_138 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_138 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h8B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_139 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_139 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_139 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h8C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_140 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_140 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_140 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h8D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_141 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_141 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_141 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h8E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_142 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_142 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_142 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h8F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_143 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_143 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_143 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h90) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_144 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_144 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_144 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h91) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_145 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_145 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_145 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h92) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_146 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_146 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_146 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h93) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_147 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_147 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_147 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h94) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_148 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_148 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_148 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h95) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_149 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_149 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_149 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h96) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_150 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_150 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_150 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h97) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_151 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_151 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_151 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h98) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_152 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_152 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_152 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h99) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_153 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_153 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_153 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h9A) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_154 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_154 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_154 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h9B) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_155 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_155 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_155 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h9C) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_156 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_156 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_156 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h9D) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_157 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_157 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_157 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h9E) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_158 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_158 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_158 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'h9F) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_159 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_159 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_159 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA0) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_160 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_160 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_160 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA1) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_161 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_161 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_161 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_162 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_162 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_162 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_163 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_163 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_163 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_164 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_164 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_164 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_165 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_165 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_165 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_166 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_166 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_166 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_167 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_167 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_167 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_168 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_168 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_168 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hA9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_169 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_169 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_169 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hAA) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_170 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_170 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_170 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hAB) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_171 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_171 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_171 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hAC) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_172 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_172 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_172 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hAD) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_173 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_173 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_173 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hAE) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_174 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_174 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_174 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hAF) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_175 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_175 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_175 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB0) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_176 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_176 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_176 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB1) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_177 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_177 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_177 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_178 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_178 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_178 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_179 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_179 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_179 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_180 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_180 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_180 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_181 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_181 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_181 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_182 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_182 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_182 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_183 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_183 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_183 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_184 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_184 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_184 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hB9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_185 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_185 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_185 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hBA) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_186 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_186 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_186 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hBB) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_187 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_187 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_187 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hBC) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_188 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_188 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_188 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hBD) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_189 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_189 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_189 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hBE) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_190 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_190 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_190 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hBF) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_191 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_191 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_191 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC0) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_192 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_192 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_192 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC1) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_193 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_193 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_193 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_194 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_194 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_194 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_195 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_195 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_195 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_196 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_196 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_196 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_197 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_197 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_197 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_198 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_198 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_198 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_199 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_199 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_199 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_200 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_200 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_200 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hC9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_201 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_201 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_201 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hCA) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_202 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_202 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_202 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hCB) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_203 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_203 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_203 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hCC) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_204 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_204 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_204 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hCD) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_205 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_205 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_205 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hCE) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_206 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_206 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_206 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hCF) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_207 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_207 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_207 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD0) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_208 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_208 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_208 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD1) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_209 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_209 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_209 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_210 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_210 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_210 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_211 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_211 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_211 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_212 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_212 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_212 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_213 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_213 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_213 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_214 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_214 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_214 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_215 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_215 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_215 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_216 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_216 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_216 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hD9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_217 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_217 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_217 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hDA) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_218 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_218 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_218 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hDB) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_219 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_219 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_219 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hDC) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_220 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_220 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_220 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hDD) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_221 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_221 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_221 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hDE) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_222 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_222 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_222 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hDF) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_223 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_223 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_223 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE0) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_224 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_224 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_224 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE1) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_225 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_225 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_225 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_226 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_226 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_226 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_227 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_227 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_227 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_228 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_228 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_228 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_229 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_229 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_229 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_230 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_230 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_230 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_231 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_231 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_231 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_232 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_232 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_232 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hE9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_233 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_233 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_233 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hEA) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_234 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_234 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_234 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hEB) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_235 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_235 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_235 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hEC) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_236 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_236 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_236 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hED) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_237 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_237 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_237 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hEE) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_238 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_238 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_238 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hEF) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_239 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_239 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_239 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF0) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_240 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_240 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_240 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF1) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_241 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_241 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_241 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF2) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_242 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_242 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_242 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF3) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_243 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_243 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_243 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF4) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_244 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_244 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_244 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF5) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_245 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_245 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_245 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF6) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_246 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_246 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_246 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF7) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_247 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_247 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_247 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF8) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_248 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_248 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_248 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hF9) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_249 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_249 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_249 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hFA) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_250 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_250 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_250 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hFB) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_251 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_251 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_251 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hFC) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_252 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_252 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_252 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hFD) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_253 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_253 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_253 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & io_u_pc[9:2] == 8'hFE) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_254 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_254 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_254 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+      if (io_u_valid & (&(io_u_pc[9:2]))) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:54:33, :56:24, :64:22, :66:21
+        if (io_u_taken) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          if (|_GEN_1)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23
+            table_255 <= _GEN_2[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :18:23, :20:38, :21:38, :22:38, :56:24
+          else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:18:23
+            table_255 <= 2'h1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:56:24
+        end
+        else	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:42:16
+          table_255 <= _GEN_3[_GEN_1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:16:29, :25:23, :26:38, :27:38, :28:38, :29:38, :56:24
+      end
+    end
+  end // always @(posedge)
+  `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+    `ifdef FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+      `FIRRTL_BEFORE_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+    `endif // FIRRTL_BEFORE_INITIAL
+    initial begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+      automatic logic [31:0] _RANDOM[0:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+      `ifdef INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+        `INIT_RANDOM_PROLOG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+      `endif // INIT_RANDOM_PROLOG_
+      `ifdef RANDOMIZE_REG_INIT	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+        for (logic [4:0] i = 5'h0; i < 5'h10; i += 5'h1) begin
+          _RANDOM[i[3:0]] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+        end	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+        table_0 = _RANDOM[4'h0][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_1 = _RANDOM[4'h0][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_2 = _RANDOM[4'h0][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_3 = _RANDOM[4'h0][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_4 = _RANDOM[4'h0][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_5 = _RANDOM[4'h0][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_6 = _RANDOM[4'h0][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_7 = _RANDOM[4'h0][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_8 = _RANDOM[4'h0][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_9 = _RANDOM[4'h0][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_10 = _RANDOM[4'h0][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_11 = _RANDOM[4'h0][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_12 = _RANDOM[4'h0][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_13 = _RANDOM[4'h0][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_14 = _RANDOM[4'h0][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_15 = _RANDOM[4'h0][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_16 = _RANDOM[4'h1][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_17 = _RANDOM[4'h1][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_18 = _RANDOM[4'h1][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_19 = _RANDOM[4'h1][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_20 = _RANDOM[4'h1][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_21 = _RANDOM[4'h1][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_22 = _RANDOM[4'h1][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_23 = _RANDOM[4'h1][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_24 = _RANDOM[4'h1][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_25 = _RANDOM[4'h1][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_26 = _RANDOM[4'h1][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_27 = _RANDOM[4'h1][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_28 = _RANDOM[4'h1][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_29 = _RANDOM[4'h1][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_30 = _RANDOM[4'h1][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_31 = _RANDOM[4'h1][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_32 = _RANDOM[4'h2][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_33 = _RANDOM[4'h2][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_34 = _RANDOM[4'h2][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_35 = _RANDOM[4'h2][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_36 = _RANDOM[4'h2][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_37 = _RANDOM[4'h2][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_38 = _RANDOM[4'h2][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_39 = _RANDOM[4'h2][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_40 = _RANDOM[4'h2][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_41 = _RANDOM[4'h2][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_42 = _RANDOM[4'h2][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_43 = _RANDOM[4'h2][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_44 = _RANDOM[4'h2][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_45 = _RANDOM[4'h2][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_46 = _RANDOM[4'h2][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_47 = _RANDOM[4'h2][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_48 = _RANDOM[4'h3][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_49 = _RANDOM[4'h3][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_50 = _RANDOM[4'h3][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_51 = _RANDOM[4'h3][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_52 = _RANDOM[4'h3][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_53 = _RANDOM[4'h3][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_54 = _RANDOM[4'h3][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_55 = _RANDOM[4'h3][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_56 = _RANDOM[4'h3][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_57 = _RANDOM[4'h3][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_58 = _RANDOM[4'h3][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_59 = _RANDOM[4'h3][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_60 = _RANDOM[4'h3][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_61 = _RANDOM[4'h3][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_62 = _RANDOM[4'h3][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_63 = _RANDOM[4'h3][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_64 = _RANDOM[4'h4][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_65 = _RANDOM[4'h4][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_66 = _RANDOM[4'h4][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_67 = _RANDOM[4'h4][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_68 = _RANDOM[4'h4][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_69 = _RANDOM[4'h4][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_70 = _RANDOM[4'h4][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_71 = _RANDOM[4'h4][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_72 = _RANDOM[4'h4][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_73 = _RANDOM[4'h4][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_74 = _RANDOM[4'h4][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_75 = _RANDOM[4'h4][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_76 = _RANDOM[4'h4][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_77 = _RANDOM[4'h4][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_78 = _RANDOM[4'h4][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_79 = _RANDOM[4'h4][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_80 = _RANDOM[4'h5][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_81 = _RANDOM[4'h5][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_82 = _RANDOM[4'h5][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_83 = _RANDOM[4'h5][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_84 = _RANDOM[4'h5][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_85 = _RANDOM[4'h5][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_86 = _RANDOM[4'h5][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_87 = _RANDOM[4'h5][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_88 = _RANDOM[4'h5][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_89 = _RANDOM[4'h5][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_90 = _RANDOM[4'h5][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_91 = _RANDOM[4'h5][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_92 = _RANDOM[4'h5][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_93 = _RANDOM[4'h5][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_94 = _RANDOM[4'h5][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_95 = _RANDOM[4'h5][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_96 = _RANDOM[4'h6][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_97 = _RANDOM[4'h6][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_98 = _RANDOM[4'h6][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_99 = _RANDOM[4'h6][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_100 = _RANDOM[4'h6][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_101 = _RANDOM[4'h6][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_102 = _RANDOM[4'h6][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_103 = _RANDOM[4'h6][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_104 = _RANDOM[4'h6][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_105 = _RANDOM[4'h6][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_106 = _RANDOM[4'h6][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_107 = _RANDOM[4'h6][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_108 = _RANDOM[4'h6][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_109 = _RANDOM[4'h6][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_110 = _RANDOM[4'h6][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_111 = _RANDOM[4'h6][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_112 = _RANDOM[4'h7][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_113 = _RANDOM[4'h7][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_114 = _RANDOM[4'h7][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_115 = _RANDOM[4'h7][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_116 = _RANDOM[4'h7][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_117 = _RANDOM[4'h7][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_118 = _RANDOM[4'h7][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_119 = _RANDOM[4'h7][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_120 = _RANDOM[4'h7][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_121 = _RANDOM[4'h7][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_122 = _RANDOM[4'h7][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_123 = _RANDOM[4'h7][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_124 = _RANDOM[4'h7][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_125 = _RANDOM[4'h7][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_126 = _RANDOM[4'h7][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_127 = _RANDOM[4'h7][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_128 = _RANDOM[4'h8][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_129 = _RANDOM[4'h8][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_130 = _RANDOM[4'h8][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_131 = _RANDOM[4'h8][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_132 = _RANDOM[4'h8][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_133 = _RANDOM[4'h8][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_134 = _RANDOM[4'h8][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_135 = _RANDOM[4'h8][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_136 = _RANDOM[4'h8][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_137 = _RANDOM[4'h8][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_138 = _RANDOM[4'h8][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_139 = _RANDOM[4'h8][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_140 = _RANDOM[4'h8][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_141 = _RANDOM[4'h8][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_142 = _RANDOM[4'h8][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_143 = _RANDOM[4'h8][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_144 = _RANDOM[4'h9][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_145 = _RANDOM[4'h9][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_146 = _RANDOM[4'h9][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_147 = _RANDOM[4'h9][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_148 = _RANDOM[4'h9][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_149 = _RANDOM[4'h9][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_150 = _RANDOM[4'h9][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_151 = _RANDOM[4'h9][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_152 = _RANDOM[4'h9][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_153 = _RANDOM[4'h9][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_154 = _RANDOM[4'h9][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_155 = _RANDOM[4'h9][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_156 = _RANDOM[4'h9][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_157 = _RANDOM[4'h9][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_158 = _RANDOM[4'h9][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_159 = _RANDOM[4'h9][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_160 = _RANDOM[4'hA][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_161 = _RANDOM[4'hA][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_162 = _RANDOM[4'hA][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_163 = _RANDOM[4'hA][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_164 = _RANDOM[4'hA][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_165 = _RANDOM[4'hA][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_166 = _RANDOM[4'hA][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_167 = _RANDOM[4'hA][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_168 = _RANDOM[4'hA][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_169 = _RANDOM[4'hA][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_170 = _RANDOM[4'hA][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_171 = _RANDOM[4'hA][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_172 = _RANDOM[4'hA][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_173 = _RANDOM[4'hA][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_174 = _RANDOM[4'hA][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_175 = _RANDOM[4'hA][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_176 = _RANDOM[4'hB][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_177 = _RANDOM[4'hB][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_178 = _RANDOM[4'hB][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_179 = _RANDOM[4'hB][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_180 = _RANDOM[4'hB][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_181 = _RANDOM[4'hB][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_182 = _RANDOM[4'hB][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_183 = _RANDOM[4'hB][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_184 = _RANDOM[4'hB][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_185 = _RANDOM[4'hB][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_186 = _RANDOM[4'hB][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_187 = _RANDOM[4'hB][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_188 = _RANDOM[4'hB][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_189 = _RANDOM[4'hB][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_190 = _RANDOM[4'hB][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_191 = _RANDOM[4'hB][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_192 = _RANDOM[4'hC][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_193 = _RANDOM[4'hC][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_194 = _RANDOM[4'hC][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_195 = _RANDOM[4'hC][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_196 = _RANDOM[4'hC][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_197 = _RANDOM[4'hC][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_198 = _RANDOM[4'hC][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_199 = _RANDOM[4'hC][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_200 = _RANDOM[4'hC][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_201 = _RANDOM[4'hC][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_202 = _RANDOM[4'hC][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_203 = _RANDOM[4'hC][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_204 = _RANDOM[4'hC][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_205 = _RANDOM[4'hC][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_206 = _RANDOM[4'hC][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_207 = _RANDOM[4'hC][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_208 = _RANDOM[4'hD][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_209 = _RANDOM[4'hD][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_210 = _RANDOM[4'hD][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_211 = _RANDOM[4'hD][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_212 = _RANDOM[4'hD][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_213 = _RANDOM[4'hD][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_214 = _RANDOM[4'hD][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_215 = _RANDOM[4'hD][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_216 = _RANDOM[4'hD][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_217 = _RANDOM[4'hD][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_218 = _RANDOM[4'hD][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_219 = _RANDOM[4'hD][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_220 = _RANDOM[4'hD][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_221 = _RANDOM[4'hD][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_222 = _RANDOM[4'hD][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_223 = _RANDOM[4'hD][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_224 = _RANDOM[4'hE][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_225 = _RANDOM[4'hE][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_226 = _RANDOM[4'hE][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_227 = _RANDOM[4'hE][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_228 = _RANDOM[4'hE][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_229 = _RANDOM[4'hE][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_230 = _RANDOM[4'hE][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_231 = _RANDOM[4'hE][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_232 = _RANDOM[4'hE][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_233 = _RANDOM[4'hE][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_234 = _RANDOM[4'hE][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_235 = _RANDOM[4'hE][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_236 = _RANDOM[4'hE][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_237 = _RANDOM[4'hE][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_238 = _RANDOM[4'hE][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_239 = _RANDOM[4'hE][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_240 = _RANDOM[4'hF][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_241 = _RANDOM[4'hF][3:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_242 = _RANDOM[4'hF][5:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_243 = _RANDOM[4'hF][7:6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_244 = _RANDOM[4'hF][9:8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_245 = _RANDOM[4'hF][11:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_246 = _RANDOM[4'hF][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_247 = _RANDOM[4'hF][15:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_248 = _RANDOM[4'hF][17:16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_249 = _RANDOM[4'hF][19:18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_250 = _RANDOM[4'hF][21:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_251 = _RANDOM[4'hF][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_252 = _RANDOM[4'hF][25:24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_253 = _RANDOM[4'hF][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_254 = _RANDOM[4'hF][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+        table_255 = _RANDOM[4'hF][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7, :56:24
+      `endif // RANDOMIZE_REG_INIT
+    end // initial
+    `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+      `FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:37:7
+    `endif // FIRRTL_AFTER_INITIAL
+  `endif // ENABLE_INITIAL_REG_
+  assign io_q_taken = _GEN_0 == 2'h2 | (&_GEN_0);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\core\\BranchPredictor.scala:13:{8,28,34}, :37:7, :61:16
+endmodule
+
 module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
   input         clock,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
                 reset,	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
@@ -904,190 +5672,214 @@ module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src
                 io_fetchPC	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:7:14
 );
 
-  wire        _hazard_io_stall;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
-  wire [1:0]  _forwarding_io_forwardA;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-  wire [1:0]  _forwarding_io_forwardB;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-  wire [31:0] _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
-  wire [4:0]  _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
-  wire        _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
-  wire [31:0] _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire [31:0] _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire [4:0]  _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire        _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire [2:0]  _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire        _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire [1:0]  _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  wire        _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [31:0] _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [31:0] _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire        _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [2:0]  _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire        _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire        _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire        _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [1:0]  _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [31:0] _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  wire [31:0] _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [2:0]  _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [2:0]  _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [1:0]  _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [7:0]  _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [1:0]  _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire        _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  wire [31:0] _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  wire [31:0] _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  reg  [31:0] if_id_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
-  reg  [31:0] if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
-  reg         id_ex_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [2:0]  id_ex_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg         id_ex_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg         id_ex_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg         id_ex_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg         id_ex_ctrl_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg         id_ex_ctrl_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [2:0]  id_ex_ctrl_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [1:0]  id_ex_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [7:0]  id_ex_ctrl_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [1:0]  id_ex_ctrl_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg         id_ex_ctrl_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [31:0] id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [31:0] id_ex_rs1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [31:0] id_ex_rs2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [31:0] id_ex_imm;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [4:0]  id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [4:0]  id_ex_rs1_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [4:0]  id_ex_rs2_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg  [31:0] id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-  reg         ex_mem_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg  [2:0]  ex_mem_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg         ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg         ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg         ex_mem_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg  [1:0]  ex_mem_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg  [31:0] ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg  [31:0] ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg  [4:0]  ex_mem_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg  [31:0] ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg  [31:0] ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-  reg         mem_wb_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg  [2:0]  mem_wb_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg         mem_wb_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg  [1:0]  mem_wb_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg  [31:0] mem_wb_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg  [4:0]  mem_wb_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg  [31:0] mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg  [31:0] mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-  reg         takeBranchDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:42
-  reg         takeBranchDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:34
-  reg  [31:0] branchTargetDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:44
-  reg  [31:0] branchTargetDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:36
+  wire        _bht_io_q_taken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:54:19
+  wire        _btb_io_q_hit;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:53:19
+  wire [31:0] _btb_io_q_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:53:19
+  wire        _hazard_io_stall;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26
+  wire [1:0]  _forwarding_io_forwardA;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:49:26
+  wire [1:0]  _forwarding_io_forwardB;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:49:26
+  wire [31:0] _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
+  wire [4:0]  _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
+  wire        _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
+  wire [31:0] _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  wire [31:0] _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  wire [4:0]  _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  wire        _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  wire [2:0]  _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  wire        _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  wire [1:0]  _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  wire        _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [31:0] _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [31:0] _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [31:0] _execute_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire        _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [2:0]  _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire        _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire        _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire        _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire        _execute_io_controlSignalsOut_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [1:0]  _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [31:0] _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  wire [31:0] _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [31:0] _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [31:0] _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [31:0] _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [2:0]  _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [2:0]  _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [1:0]  _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [7:0]  _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [1:0]  _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire        _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  wire [31:0] _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire [31:0] _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  wire        predTaken = _btb_io_q_hit & _bht_io_q_taken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:53:19, :54:19, :63:27
+  reg  [31:0] if_id_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+  reg  [31:0] if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+  reg         if_id_predTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+  reg  [31:0] if_id_predTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+  reg         id_ex_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [2:0]  id_ex_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         id_ex_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         id_ex_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         id_ex_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         id_ex_ctrl_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         id_ex_ctrl_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [2:0]  id_ex_ctrl_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [1:0]  id_ex_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [7:0]  id_ex_ctrl_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [1:0]  id_ex_ctrl_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         id_ex_ctrl_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [31:0] id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [31:0] id_ex_rs1;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [31:0] id_ex_rs2;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [31:0] id_ex_imm;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [4:0]  id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [4:0]  id_ex_rs1_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [4:0]  id_ex_rs2_addr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         id_ex_predTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [31:0] id_ex_predTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg  [31:0] id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+  reg         ex_mem_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg  [2:0]  ex_mem_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg         ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg         ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg         ex_mem_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg  [1:0]  ex_mem_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg  [31:0] ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg  [31:0] ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg  [4:0]  ex_mem_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg  [31:0] ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg  [31:0] ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+  reg         mem_wb_ctrl_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  reg  [2:0]  mem_wb_ctrl_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  reg         mem_wb_ctrl_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  reg  [1:0]  mem_wb_ctrl_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  reg  [31:0] mem_wb_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  reg  [4:0]  mem_wb_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  reg  [31:0] mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  reg  [31:0] mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+  wire        _jumpMispredict_T_1 = id_ex_predTarget != _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :104:22, :148:52
+  wire        redirect =
+    id_ex_ctrl_branch
+    & (id_ex_predTaken != _execute_io_branchTaken | _execute_io_branchTaken
+       & id_ex_predTaken & _jumpMispredict_T_1) | (|id_ex_ctrl_jump)
+    & (~id_ex_predTaken | _jumpMispredict_T_1);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :104:22, :141:34, :146:14, :147:{20,37}, :148:{20,35,52}, :154:12, :155:{7,20}, :158:35
+  wire [31:0] fetch_io_branchTarget =
+    _execute_io_branchTaken ? _execute_io_branchTarget : id_ex_pc + 32'h4;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :104:22, :164:{31,68}
+  wire        actualBranchTaken =
+    _execute_io_controlSignalsOut_branch & _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :191:42
   always @(posedge clock) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
     if (reset) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
-      if_id_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :110:44
-      if_id_inst <= 32'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
-      id_ex_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_imm_flag <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_branch <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_branchOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_aluOp <= 8'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_lui <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_ctrl_isSigned <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-      id_ex_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
-      id_ex_rs1 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
-      id_ex_rs2 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
-      id_ex_imm <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
-      id_ex_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-      id_ex_rs1_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-      id_ex_rs2_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-      id_ex_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :110:44
-      ex_mem_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-      ex_mem_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-      ex_mem_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-      ex_mem_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-      ex_mem_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-      ex_mem_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-      ex_mem_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
-      ex_mem_rs2Data <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
-      ex_mem_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-      ex_mem_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
-      ex_mem_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :110:44
-      mem_wb_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-      mem_wb_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-      mem_wb_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-      mem_wb_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-      mem_wb_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23, :110:44
-      mem_wb_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
-      mem_wb_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23, :110:44
-      mem_wb_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23, :110:44
-      takeBranchDelayed_REG <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:42
-      takeBranchDelayed <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:34
-      branchTargetDelayed_REG <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:44
-      branchTargetDelayed <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:{36,44}
+      if_id_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+      if_id_inst <= 32'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+      if_id_predTaken <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+      if_id_predTarget <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+      id_ex_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_imm_flag <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_branch <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_branchOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_aluOp <= 8'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_lui <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_ctrl_isSigned <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_rs1 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_rs2 <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_imm <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+      id_ex_rs1_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+      id_ex_rs2_addr <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+      id_ex_predTaken <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_predTarget <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      id_ex_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+      ex_mem_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_ctrl_memRead <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_ctrl_memWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_rs2Data <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+      ex_mem_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      ex_mem_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+      mem_wb_ctrl_regWrite <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+      mem_wb_ctrl_memOp <= 3'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+      mem_wb_ctrl_memToReg <= 1'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+      mem_wb_ctrl_jump <= 2'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+      mem_wb_aluResult <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+      mem_wb_rd <= 5'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
+      mem_wb_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+      mem_wb_inst <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
     end
     else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
-      if (_hazard_io_stall) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
+      automatic logic _GEN = _hazard_io_stall | redirect;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26, :158:35, :220:24
+      if (redirect) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:158:35
+        if_id_pc <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+        if_id_inst <= 32'h13;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+        if_id_predTarget <= 32'h0;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
       end
-      else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
-        if_id_pc <= _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :66:22
-        if_id_inst <= _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24, :66:22
-        id_ex_pc <= _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
-        id_ex_rs1 <= _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
-        id_ex_rs2 <= _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
-        id_ex_imm <= _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :81:22
-        id_ex_rd <= if_id_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :81:22, :155:33
-        id_ex_rs1_addr <= if_id_inst[19:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :81:22, :139:37
-        id_ex_rs2_addr <= if_id_inst[24:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :81:22, :140:37
+      else if (_hazard_io_stall) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26
       end
-      id_ex_ctrl_regWrite <= ~_hazard_io_stall & _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_memOp <= _hazard_io_stall ? 3'h0 : _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_memRead <= ~_hazard_io_stall & _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_memWrite <= ~_hazard_io_stall & _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_memToReg <= ~_hazard_io_stall & _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_imm_flag <= ~_hazard_io_stall & _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_branch <= ~_hazard_io_stall & _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_branchOp <= _hazard_io_stall ? 3'h0 : _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_jump <= _hazard_io_stall ? 2'h0 : _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_aluOp <= _hazard_io_stall ? 8'h0 : _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_lui <= _hazard_io_stall ? 2'h0 : _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_ctrl_isSigned <= ~_hazard_io_stall & _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24, :48:26, :81:22, :146:25, :147:16, :150:20
-      id_ex_inst <= _hazard_io_stall ? 32'h0 : if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26, :66:22, :81:22, :110:44, :146:25, :148:16, :158:20
-      ex_mem_ctrl_regWrite <= _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_ctrl_memOp <= _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_ctrl_memRead <= _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_ctrl_memWrite <= _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_ctrl_memToReg <= _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_ctrl_jump <= _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_aluResult <= _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_rs2Data <= _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :93:23
-      ex_mem_rd <= id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :93:23
-      ex_mem_pc <= id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :93:23
-      ex_mem_inst <= id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22, :93:23
-      mem_wb_ctrl_regWrite <= _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
-      mem_wb_ctrl_memOp <= _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
-      mem_wb_ctrl_memToReg <= _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
-      mem_wb_ctrl_jump <= _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
-      mem_wb_aluResult <= _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
-      mem_wb_rd <= _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :106:23
-      mem_wb_pc <= ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :106:23
-      mem_wb_inst <= ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :106:23
-      takeBranchDelayed_REG <= _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :109:42
-      takeBranchDelayed <= takeBranchDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:{34,42}
-      branchTargetDelayed_REG <= _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :110:44
-      branchTargetDelayed <= branchTargetDelayed_REG;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:{36,44}
+      else begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26
+        if_id_pc <= _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :87:22
+        if_id_inst <= _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24, :87:22
+        if_id_predTarget <= _btb_io_q_target;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:53:19, :87:22
+      end
+      if_id_predTaken <= ~redirect & (_hazard_io_stall ? if_id_predTaken : predTaken);	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26, :63:27, :87:22, :158:35, :173:15, :176:21, :178:33, :181:21
+      id_ex_ctrl_regWrite <= ~_GEN & _decode_io_controlSignals_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_memOp <= _GEN ? 3'h0 : _decode_io_controlSignals_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_memRead <= ~_GEN & _decode_io_controlSignals_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_memWrite <= ~_GEN & _decode_io_controlSignals_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_memToReg <= ~_GEN & _decode_io_controlSignals_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_imm_flag <= ~_GEN & _decode_io_controlSignals_imm_flag;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_branch <= ~_GEN & _decode_io_controlSignals_branch;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_branchOp <= _GEN ? 3'h0 : _decode_io_controlSignals_branchOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_jump <= _GEN ? 2'h0 : _decode_io_controlSignals_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_aluOp <= _GEN ? 8'h0 : _decode_io_controlSignals_aluOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_lui <= _GEN ? 2'h0 : _decode_io_controlSignals_lui;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      id_ex_ctrl_isSigned <= ~_GEN & _decode_io_controlSignals_isSigned;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22, :220:{24,34}, :221:16, :226:20
+      if (~_GEN) begin	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:220:{24,34}, :221:16, :226:20
+        id_ex_pc <= _decode_io_pcOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22
+        id_ex_rs1 <= _decode_io_A;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22
+        id_ex_rs2 <= _decode_io_B;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22
+        id_ex_imm <= _decode_io_immediate;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24, :104:22
+        id_ex_rd <= if_id_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :104:22, :231:33
+        id_ex_rs1_addr <= if_id_inst[19:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :104:22, :213:37
+        id_ex_rs2_addr <= if_id_inst[24:20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :104:22, :214:37
+      end
+      id_ex_predTaken <= ~_GEN & if_id_predTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :104:22, :220:{24,34}, :221:16, :223:21, :226:20, :234:22
+      id_ex_predTarget <= _GEN ? 32'h0 : if_id_predTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :104:22, :220:{24,34}, :224:22, :235:22
+      id_ex_inst <= _GEN ? 32'h0 : if_id_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :104:22, :220:{24,34}, :222:16, :236:20
+      ex_mem_ctrl_regWrite <= _execute_io_controlSignalsOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_ctrl_memOp <= _execute_io_controlSignalsOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_ctrl_memRead <= _execute_io_controlSignalsOut_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_ctrl_memWrite <= _execute_io_controlSignalsOut_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_ctrl_memToReg <= _execute_io_controlSignalsOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_ctrl_jump <= _execute_io_controlSignalsOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_aluResult <= _execute_io_C;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_rs2Data <= _execute_io_memWriteData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :116:23
+      ex_mem_rd <= id_ex_rd;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22, :116:23
+      ex_mem_pc <= id_ex_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22, :116:23
+      ex_mem_inst <= id_ex_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22, :116:23
+      mem_wb_ctrl_regWrite <= _memory_io_ctrlOut_regWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24, :129:23
+      mem_wb_ctrl_memOp <= _memory_io_ctrlOut_memOp;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24, :129:23
+      mem_wb_ctrl_memToReg <= _memory_io_ctrlOut_memToReg;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24, :129:23
+      mem_wb_ctrl_jump <= _memory_io_ctrlOut_jump;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24, :129:23
+      mem_wb_aluResult <= _memory_io_aluOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24, :129:23
+      mem_wb_rd <= _memory_io_rdOut;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24, :129:23
+      mem_wb_pc <= ex_mem_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23, :129:23
+      mem_wb_inst <= ex_mem_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23, :129:23
     end
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
@@ -1103,74 +5895,76 @@ module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src
         for (logic [4:0] i = 5'h0; i < 5'h15; i += 5'h1) begin
           _RANDOM[i] = `RANDOM;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
         end	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
-        if_id_pc = _RANDOM[5'h0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :66:22
-        if_id_inst = _RANDOM[5'h1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :66:22
-        id_ex_ctrl_regWrite = _RANDOM[5'h2][0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_memOp = _RANDOM[5'h2][3:1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_memRead = _RANDOM[5'h2][4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_memWrite = _RANDOM[5'h2][5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_memToReg = _RANDOM[5'h2][6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_imm_flag = _RANDOM[5'h2][7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_branch = _RANDOM[5'h2][8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_branchOp = _RANDOM[5'h2][11:9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_jump = _RANDOM[5'h2][13:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_aluOp = _RANDOM[5'h2][21:14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_lui = _RANDOM[5'h2][23:22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_ctrl_isSigned = _RANDOM[5'h2][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_pc = {_RANDOM[5'h2][31], _RANDOM[5'h3][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_rs1 = {_RANDOM[5'h3][31], _RANDOM[5'h4][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_rs2 = {_RANDOM[5'h4][31], _RANDOM[5'h5][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_imm = {_RANDOM[5'h5][31], _RANDOM[5'h6][30:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_rd = {_RANDOM[5'h6][31], _RANDOM[5'h7][3:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_rs1_addr = _RANDOM[5'h7][8:4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_rs2_addr = _RANDOM[5'h7][13:9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        id_ex_inst = {_RANDOM[5'h7][31:14], _RANDOM[5'h8][13:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22
-        ex_mem_ctrl_regWrite = _RANDOM[5'h8][14];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
-        ex_mem_ctrl_memOp = _RANDOM[5'h8][17:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
-        ex_mem_ctrl_memRead = _RANDOM[5'h8][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
-        ex_mem_ctrl_memWrite = _RANDOM[5'h8][19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
-        ex_mem_ctrl_memToReg = _RANDOM[5'h8][20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
-        ex_mem_ctrl_jump = _RANDOM[5'h8][27:26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :81:22, :93:23
-        ex_mem_aluResult = {_RANDOM[5'h9][31:13], _RANDOM[5'hA][12:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-        ex_mem_rs2Data = {_RANDOM[5'hA][31:13], _RANDOM[5'hB][12:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-        ex_mem_rd = _RANDOM[5'hB][17:13];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-        ex_mem_pc = {_RANDOM[5'hB][31:18], _RANDOM[5'hC][17:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-        ex_mem_inst = {_RANDOM[5'hC][31:18], _RANDOM[5'hD][17:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-        mem_wb_ctrl_regWrite = _RANDOM[5'hD][18];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
-        mem_wb_ctrl_memOp = _RANDOM[5'hD][21:19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
-        mem_wb_ctrl_memToReg = _RANDOM[5'hD][24];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
-        mem_wb_ctrl_jump = _RANDOM[5'hD][31:30];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23, :106:23
-        mem_wb_aluResult = {_RANDOM[5'hF][31:17], _RANDOM[5'h10][16:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
-        mem_wb_rd = _RANDOM[5'h10][21:17];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
-        mem_wb_pc = {_RANDOM[5'h10][31:22], _RANDOM[5'h11][21:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
-        mem_wb_inst = {_RANDOM[5'h11][31:22], _RANDOM[5'h12][21:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
-        takeBranchDelayed_REG = _RANDOM[5'h12][22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :109:42
-        takeBranchDelayed = _RANDOM[5'h12][23];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :109:34
-        branchTargetDelayed_REG = {_RANDOM[5'h12][31:24], _RANDOM[5'h13][23:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :110:44
-        branchTargetDelayed = {_RANDOM[5'h13][31:24], _RANDOM[5'h14][23:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :110:{36,44}
+        if_id_pc = _RANDOM[5'h0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22
+        if_id_inst = _RANDOM[5'h1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22
+        if_id_predTaken = _RANDOM[5'h2][0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22
+        if_id_predTarget = {_RANDOM[5'h2][31:1], _RANDOM[5'h3][0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22
+        id_ex_ctrl_regWrite = _RANDOM[5'h3][1];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_memOp = _RANDOM[5'h3][4:2];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_memRead = _RANDOM[5'h3][5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_memWrite = _RANDOM[5'h3][6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_memToReg = _RANDOM[5'h3][7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_imm_flag = _RANDOM[5'h3][8];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_branch = _RANDOM[5'h3][9];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_branchOp = _RANDOM[5'h3][12:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_jump = _RANDOM[5'h3][14:13];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_aluOp = _RANDOM[5'h3][22:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_lui = _RANDOM[5'h3][24:23];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_ctrl_isSigned = _RANDOM[5'h3][25];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :87:22, :104:22
+        id_ex_pc = _RANDOM[5'h4];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_rs1 = _RANDOM[5'h5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_rs2 = _RANDOM[5'h6];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_imm = _RANDOM[5'h7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_rd = _RANDOM[5'h8][4:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_rs1_addr = _RANDOM[5'h8][9:5];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_rs2_addr = _RANDOM[5'h8][14:10];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_predTaken = _RANDOM[5'h8][15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_predTarget = {_RANDOM[5'h8][31:16], _RANDOM[5'h9][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        id_ex_inst = {_RANDOM[5'h9][31:16], _RANDOM[5'hA][15:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22
+        ex_mem_ctrl_regWrite = _RANDOM[5'hA][16];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22, :116:23
+        ex_mem_ctrl_memOp = _RANDOM[5'hA][19:17];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22, :116:23
+        ex_mem_ctrl_memRead = _RANDOM[5'hA][20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22, :116:23
+        ex_mem_ctrl_memWrite = _RANDOM[5'hA][21];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22, :116:23
+        ex_mem_ctrl_memToReg = _RANDOM[5'hA][22];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22, :116:23
+        ex_mem_ctrl_jump = _RANDOM[5'hA][29:28];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :104:22, :116:23
+        ex_mem_aluResult = {_RANDOM[5'hB][31:15], _RANDOM[5'hC][14:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+        ex_mem_rs2Data = {_RANDOM[5'hC][31:15], _RANDOM[5'hD][14:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+        ex_mem_rd = _RANDOM[5'hD][19:15];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+        ex_mem_pc = {_RANDOM[5'hD][31:20], _RANDOM[5'hE][19:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+        ex_mem_inst = {_RANDOM[5'hE][31:20], _RANDOM[5'hF][19:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+        mem_wb_ctrl_regWrite = _RANDOM[5'hF][20];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23, :129:23
+        mem_wb_ctrl_memOp = _RANDOM[5'hF][23:21];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23, :129:23
+        mem_wb_ctrl_memToReg = _RANDOM[5'hF][26];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23, :129:23
+        mem_wb_ctrl_jump = _RANDOM[5'h10][1:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
+        mem_wb_aluResult = {_RANDOM[5'h11][31:19], _RANDOM[5'h12][18:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
+        mem_wb_rd = _RANDOM[5'h12][23:19];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
+        mem_wb_pc = {_RANDOM[5'h12][31:24], _RANDOM[5'h13][23:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
+        mem_wb_inst = {_RANDOM[5'h13][31:24], _RANDOM[5'h14][23:0]};	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
       `endif // RANDOMIZE_REG_INIT
     end // initial
     `ifdef FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
       `FIRRTL_AFTER_INITIAL	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  FetchStage fetch (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
+  FetchStage fetch (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
     .clock           (clock),
     .reset           (reset),
-    .io_branchTarget (branchTargetDelayed),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:110:36
-    .io_takeBranch   (takeBranchDelayed),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:109:34
-    .io_stall        (_hazard_io_stall),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
+    .io_branchTarget (fetch_io_branchTarget),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:164:31
+    .io_takeBranch   (redirect),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:158:35
+    .io_stall        (_hazard_io_stall),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26
     .io_pc           (_fetch_io_pc),
-    .io_instruction  (_fetch_io_instruction)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:40:24
-  DecodeStage decode (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
+    .io_instruction  (_fetch_io_instruction),
+    .io_predTakenIn  (predTaken),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:63:27
+    .io_predTargetIn (_btb_io_q_target)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:53:19
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  DecodeStage decode (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
     .clock                      (clock),
     .reset                      (reset),
-    .io_instruction             (if_id_inst),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
-    .io_pc                      (if_id_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22
-    .io_C                       (_writeback_io_wbData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
-    .io_writeEnable             (_writeback_io_wbEnable),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
-    .io_writeAddress            (_writeback_io_wbAddr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+    .io_instruction             (if_id_inst),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+    .io_pc                      (if_id_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22
+    .io_C                       (_writeback_io_wbData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
+    .io_writeEnable             (_writeback_io_wbEnable),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
+    .io_writeAddress            (_writeback_io_wbAddr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
     .io_A                       (_decode_io_A),
     .io_B                       (_decode_io_B),
     .io_immediate               (_decode_io_immediate),
@@ -1187,53 +5981,55 @@ module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src
     .io_controlSignals_aluOp    (_decode_io_controlSignals_aluOp),
     .io_controlSignals_lui      (_decode_io_controlSignals_lui),
     .io_controlSignals_isSigned (_decode_io_controlSignals_isSigned)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:41:24
-  ExecuteStage execute (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  ExecuteStage execute (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
     .io_A
       (_forwarding_io_forwardA == 2'h2
          ? ex_mem_aluResult
-         : _forwarding_io_forwardA == 2'h1 ? _writeback_io_wbData : id_ex_rs1),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :47:26, :81:22, :93:23, :171:63
+         : _forwarding_io_forwardA == 2'h1 ? _writeback_io_wbData : id_ex_rs1),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24, :49:26, :104:22, :116:23, :252:63
     .io_B
       (_forwarding_io_forwardB == 2'h2
          ? ex_mem_aluResult
-         : _forwarding_io_forwardB == 2'h1 ? _writeback_io_wbData : id_ex_rs2),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :47:26, :81:22, :93:23, :178:63
-    .io_immediate                  (id_ex_imm),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_pcIn                       (id_ex_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_regWrite    (id_ex_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_memOp       (id_ex_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_memRead     (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_memWrite    (id_ex_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_memToReg    (id_ex_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_imm_flag    (id_ex_ctrl_imm_flag),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_branch      (id_ex_ctrl_branch),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_branchOp    (id_ex_ctrl_branchOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_jump        (id_ex_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_aluOp       (id_ex_ctrl_aluOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_lui         (id_ex_ctrl_lui),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_controlSignals_isSigned    (id_ex_ctrl_isSigned),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+         : _forwarding_io_forwardB == 2'h1 ? _writeback_io_wbData : id_ex_rs2),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24, :49:26, :104:22, :116:23, :259:63
+    .io_immediate                  (id_ex_imm),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_pcIn                       (id_ex_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_regWrite    (id_ex_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_memOp       (id_ex_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_memRead     (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_memWrite    (id_ex_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_memToReg    (id_ex_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_imm_flag    (id_ex_ctrl_imm_flag),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_branch      (id_ex_ctrl_branch),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_branchOp    (id_ex_ctrl_branchOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_jump        (id_ex_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_aluOp       (id_ex_ctrl_aluOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_lui         (id_ex_ctrl_lui),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_controlSignals_isSigned    (id_ex_ctrl_isSigned),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
     .io_branchTaken                (_execute_io_branchTaken),
     .io_branchTarget               (_execute_io_branchTarget),
     .io_C                          (_execute_io_C),
+    .io_pcOut                      (_execute_io_pcOut),
     .io_controlSignalsOut_regWrite (_execute_io_controlSignalsOut_regWrite),
     .io_controlSignalsOut_memOp    (_execute_io_controlSignalsOut_memOp),
     .io_controlSignalsOut_memRead  (_execute_io_controlSignalsOut_memRead),
     .io_controlSignalsOut_memWrite (_execute_io_controlSignalsOut_memWrite),
     .io_controlSignalsOut_memToReg (_execute_io_controlSignalsOut_memToReg),
+    .io_controlSignalsOut_branch   (_execute_io_controlSignalsOut_branch),
     .io_controlSignalsOut_jump     (_execute_io_controlSignalsOut_jump),
     .io_memWriteData               (_execute_io_memWriteData)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
-  MemoryStage memory (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  MemoryStage memory (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
     .clock               (clock),
     .reset               (reset),
-    .io_ctrl_regWrite    (ex_mem_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_ctrl_memOp       (ex_mem_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_ctrl_memRead     (ex_mem_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_ctrl_memWrite    (ex_mem_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_ctrl_memToReg    (ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_ctrl_jump        (ex_mem_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_aluResult        (ex_mem_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_rs2Data          (ex_mem_rs2Data),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_rdIn             (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
+    .io_ctrl_regWrite    (ex_mem_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_ctrl_memOp       (ex_mem_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_ctrl_memRead     (ex_mem_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_ctrl_memWrite    (ex_mem_ctrl_memWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_ctrl_memToReg    (ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_ctrl_jump        (ex_mem_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_aluResult        (ex_mem_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_rs2Data          (ex_mem_rs2Data),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_rdIn             (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
     .io_memData          (_memory_io_memData),
     .io_aluOut           (_memory_io_aluOut),
     .io_rdOut            (_memory_io_rdOut),
@@ -1241,56 +6037,75 @@ module RiscVPipeline(	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src
     .io_ctrlOut_memOp    (_memory_io_ctrlOut_memOp),
     .io_ctrlOut_memToReg (_memory_io_ctrlOut_memToReg),
     .io_ctrlOut_jump     (_memory_io_ctrlOut_jump)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-  WritebackStage writeback (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
-    .io_ctrl_regWrite (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-    .io_ctrl_memOp    (mem_wb_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-    .io_ctrl_memToReg (mem_wb_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-    .io_ctrl_jump     (mem_wb_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-    .io_memData       (_memory_io_memData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:43:24
-    .io_aluResult     (mem_wb_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-    .io_rdIn          (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-    .io_pcIn          (mem_wb_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+  WritebackStage writeback (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
+    .io_ctrl_regWrite (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+    .io_ctrl_memOp    (mem_wb_ctrl_memOp),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+    .io_ctrl_memToReg (mem_wb_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+    .io_ctrl_jump     (mem_wb_ctrl_jump),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+    .io_memData       (_memory_io_memData),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:45:24
+    .io_aluResult     (mem_wb_aluResult),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+    .io_rdIn          (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+    .io_pcIn          (mem_wb_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
     .io_wbData        (_writeback_io_wbData),
     .io_wbAddr        (_writeback_io_wbAddr),
     .io_wbEnable      (_writeback_io_wbEnable)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
-  ForwardUnit forwarding (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-    .io_rs1_ex       (id_ex_rs1_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_rs2_ex       (id_ex_rs2_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_rd_mem       (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23
-    .io_regWrite_mem (ex_mem_ctrl_regWrite & ~ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:93:23, :188:{54,57}
-    .io_rd_wb        (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
-    .io_regWrite_wb  (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:106:23
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:46:24
+  ForwardUnit forwarding (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:49:26
+    .io_rs1_ex       (id_ex_rs1_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_rs2_ex       (id_ex_rs2_addr),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_rd_mem       (ex_mem_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23
+    .io_regWrite_mem (ex_mem_ctrl_regWrite & ~ex_mem_ctrl_memToReg),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:116:23, :269:{54,57}
+    .io_rd_wb        (mem_wb_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
+    .io_regWrite_wb  (mem_wb_ctrl_regWrite),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:129:23
     .io_forwardA     (_forwarding_io_forwardA),
     .io_forwardB     (_forwarding_io_forwardB)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:47:26
-  HazardUnit hazard (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
-    .io_rs1_id     (if_id_inst[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :139:37
-    .io_rs2_id     (if_id_inst[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:66:22, :140:37
-    .io_rd_ex      (id_ex_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
-    .io_memRead_ex (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:81:22
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:49:26
+  HazardUnit hazard (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26
+    .io_rs1_id     (if_id_inst[19:15]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :213:37
+    .io_rs2_id     (if_id_inst[24:20]),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:87:22, :214:37
+    .io_rd_ex      (id_ex_rd),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
+    .io_memRead_ex (id_ex_ctrl_memRead),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:104:22
     .io_stall      (_hazard_io_stall)
-  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:48:26
-  assign io_result = _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
-  assign io_memAddress = ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-  assign io_memDataIn = ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-  assign io_memRead = ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-  assign io_memWrite = ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :93:23
-  assign io_memReadData = _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :43:24
-  assign io_nextInst = _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :40:24
-  assign io_exBranchTaken = _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :42:24
-  assign io_exBranchTarget = _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :42:24
-  assign io_ifTakeBranch = takeBranchDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :109:34
-  assign io_ifBranchTarget = branchTargetDelayed;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :110:36
-  assign io_currentInst = mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
-  assign io_wbEnable = _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
-  assign io_wbAddr = _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
-  assign io_wbOpcode = mem_wb_inst[6:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :237:29
-  assign io_wbFunct3 = mem_wb_inst[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :238:29
-  assign io_wbRd = mem_wb_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23, :239:29
-  assign io_wbPC = mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :106:23
-  assign io_fetchPC = _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :40:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:50:26
+  BTB btb (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:53:19
+    .clock       (clock),
+    .reset       (reset),
+    .io_q_pc     (_fetch_io_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+    .io_q_hit    (_btb_io_q_hit),
+    .io_q_target (_btb_io_q_target),
+    .io_u_valid  (_execute_io_controlSignalsOut_jump == 2'h2 | actualBranchTaken),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24, :190:{40,49}, :191:42
+    .io_u_pc     (_execute_io_pcOut),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+    .io_u_target (_execute_io_branchTarget)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:53:19
+  BHT bht (	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:54:19
+    .clock      (clock),
+    .reset      (reset),
+    .io_q_pc    (_fetch_io_pc),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:42:24
+    .io_q_taken (_bht_io_q_taken),
+    .io_u_valid (_execute_io_controlSignalsOut_branch),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+    .io_u_pc    (_execute_io_pcOut),	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:44:24
+    .io_u_taken (actualBranchTaken)	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:191:42
+  );	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:54:19
+  assign io_result = _writeback_io_wbData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :46:24
+  assign io_memAddress = ex_mem_aluResult;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+  assign io_memDataIn = ex_mem_rs2Data;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+  assign io_memRead = ex_mem_ctrl_memRead;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+  assign io_memWrite = ex_mem_ctrl_memWrite;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :116:23
+  assign io_memReadData = _memory_io_memData;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :45:24
+  assign io_nextInst = _fetch_io_instruction;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :42:24
+  assign io_exBranchTaken = _execute_io_branchTaken;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
+  assign io_exBranchTarget = _execute_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :44:24
+  assign io_ifTakeBranch = redirect;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :158:35
+  assign io_ifBranchTarget = fetch_io_branchTarget;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :164:31
+  assign io_currentInst = mem_wb_inst;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
+  assign io_wbEnable = _writeback_io_wbEnable;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :46:24
+  assign io_wbAddr = _writeback_io_wbAddr;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :46:24
+  assign io_wbOpcode = mem_wb_inst[6:0];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23, :318:29
+  assign io_wbFunct3 = mem_wb_inst[14:12];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23, :319:29
+  assign io_wbRd = mem_wb_inst[11:7];	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23, :320:29
+  assign io_wbPC = mem_wb_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :129:23
+  assign io_fetchPC = _fetch_io_pc;	// C:\\Users\\irisc\\Documents\\CHISEL\\Chisel-RISC-V\\src\\main\\scala\\integer\\RiscVPipeline.scala:6:7, :42:24
 endmodule
 
 

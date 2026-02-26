@@ -10,7 +10,9 @@ final case class CoreConfig(
   xlen: Int, // Register and Data Width (Default: 32)
   startPC: BigInt, // Starting Program Counter Value
   imemSize: Int, // Instruction Memory Size in Bytes
-  imemFile: String // Instruction Memory Initialization File Path (Must be ASCII Hex)
+  imemFile: String, // Instruction Memory Initialization File Path (Must be ASCII Hex)
+  BTB_entries: Int,
+  BHT_entries: Int
 )
 
 // Add later
@@ -23,8 +25,9 @@ final case class MemConfig(
 final case class FloatingPointConfig(
   flen: Int, // Floating Point Register Length in Bits
   numRegs: Int, // Number of Floating Point Registers
-  isBF16: Boolean // Support for bfloat16 (true/false)
-
+  isBF16: Boolean, // Support for bfloat16 (true/false)
+  mantissaBits: Int, // Number of Mantissa Bits
+  exponentBits: Int // Number of Exponent Bits
 )
 
 // Configuration for Vector Extension

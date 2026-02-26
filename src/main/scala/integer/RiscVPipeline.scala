@@ -33,8 +33,10 @@ class RiscVPipeline extends Module {
 
   })
 
-  val conf = CoreConfig(xlen = 32, startPC = 0, imemFile  = "src/main/resources/pmem.hex", imemSize = 16384) 
+  val conf = CoreConfig(xlen = 32, startPC = 0, imemFile  = "src/main/resources/pmem.hex", 
+  imemSize = 16384, BTB_entries = 64, BHT_entries = 256) 
   // 32-bit, start at address 0x00000000, instruction memory initialized from pmem.hex, 16KB IMEM
+  // 64 [6 MSB of PC] entries in Branch Target Buffer, 256 entries [8 bits of PC] in Branch History Table 
 
   // Instantiate Pipeline Stages
   val fetch    = Module(new FetchStage(conf))
@@ -47,6 +49,21 @@ class RiscVPipeline extends Module {
   val forwarding = Module(new ForwardUnit(conf.xlen))
   val hazard     = Module(new HazardUnit)
 
+  // Instantiate BTB and BHT
+  val btb = Module(new BTB(conf))
+  val bht = Module(new BHT(conf))
+
+  btb.io.q_pc := fetch.io.pc
+  bht.io.q_pc := fetch.io.pc
+
+  val btbHit    = btb.io.q_hit
+  val btbTarget = btb.io.q_target
+  val bhtTaken  = bht.io.q_taken
+
+  val predTaken  = btbHit && bhtTaken
+  val predTarget = btbTarget
+
+
   // Pipeline Registers
 
   // 1. IF/ID Register
@@ -54,6 +71,8 @@ class RiscVPipeline extends Module {
   class IF_ID_Bundle extends Bundle {
     val pc   = UInt(conf.xlen.W)
     val inst = UInt(32.W) // Fetched instruction
+    val predTaken  = Bool() // Prediction taken
+    val predTarget = UInt(conf.xlen.W) // Prediction target 
   }
   // Initialize to NOP (0x13 is ADDI x0, x0, 0)
   // Create a default Wire with the correct reset values
@@ -61,6 +80,8 @@ class RiscVPipeline extends Module {
   val init_if_id = Wire(new IF_ID_Bundle)
   init_if_id.pc   := 0.U
   init_if_id.inst := "h00000013".U(32.W)
+  init_if_id.predTaken := false.B
+  init_if_id.predTarget := 0.U
 
   // Use this wire for the register initialization
   val if_id = RegInit(init_if_id)
@@ -75,6 +96,8 @@ class RiscVPipeline extends Module {
     val rd   = UInt(5.W)
     val rs1_addr = UInt(5.W) // Needed for Forwarding
     val rs2_addr = UInt(5.W) // Needed for Forwarding
+    val predTaken  = Bool()
+    val predTarget = UInt(conf.xlen.W)
 
     val inst = UInt(32.W) // For debugging (Can see instruction in Execute Stage)
   }
@@ -106,25 +129,76 @@ class RiscVPipeline extends Module {
   val mem_wb = RegInit(0.U.asTypeOf(new MEM_WB_Bundle))
 
   //Branch Handling
-  val takeBranchDelayed = RegNext(RegNext(execute.io.branchTaken, false.B), false.B) // Delay branch taken signal by 2 cycles
-  val branchTargetDelayed = RegNext(RegNext(execute.io.branchTarget, 0.U), 0.U) // Delay branch target by 2 cycles  
-  
-  // Note: Might add branch predictors later. For now, simple 2-cycle delay.
+  // --- Branch/JAL/JALR mispredict detection ---
+  // What EX resolved for the current instruction in EX stage
+  val actualTaken  = execute.io.branchTaken
+  val actualTarget = execute.io.branchTarget
 
+  val predTakenEX  = id_ex.predTaken
+  val predTargetEX = id_ex.predTarget
+
+  val isBranch = id_ex.ctrl.branch
+  val isJump   = id_ex.ctrl.jump =/= 0.U
+  val isJalr   = id_ex.ctrl.jump === 2.U
+
+  // For branches, only care about target mismatch if taken was predicted taken and actually taken.
+  val branchMispredict =
+    isBranch && (
+      (predTakenEX =/= actualTaken) ||
+      (actualTaken && predTakenEX && (predTargetEX =/= actualTarget))
+    )
+
+  // For jumps, we treat them as always-taken.
+  // If you didn't predict taken or predicted wrong target, redirect.
+  val jumpMispredict =
+    isJump && (
+      !predTakenEX || (predTargetEX =/= actualTarget)
+    )
+
+  val redirect = branchMispredict || jumpMispredict
+  val flush    = redirect // On redirect, we need to flush the instructions in IF/ID and ID/EX (turn into NOPs)
 
   // Connections Between Stages
   // Fetch Stage Connections 
-  fetch.io.takeBranch := takeBranchDelayed
-  fetch.io.branchTarget := branchTargetDelayed
+  fetch.io.takeBranch := redirect
+  fetch.io.branchTarget := Mux(actualTaken, actualTarget, id_ex.pc + 4.U)  
+
   fetch.io.stall    := hazard.io.stall
 
+  fetch.io.predTakenIn  := predTaken
+  fetch.io.predTargetIn := predTarget
+
   // IF/ID Pipeline Update
-  // Only update if not stalled. 
-  when(!hazard.io.stall) {
-    if_id.inst := fetch.io.instruction
-    if_id.pc   := fetch.io.pc
+  // Only update if not stalled. On flush, inject NOP instruction
+  when(flush) { // On branch taken, flush the IF/ID register (Delay by 1 cycle)
+    if_id.pc   := 0.U // Inject PC = 0 on flush
+    if_id.inst := "h00000013".U(32.W) // Inject NOP on flush
+    if_id.predTaken := false.B
+    if_id.predTarget := 0.U
+  } .elsewhen(!hazard.io.stall) {
+    if_id.inst := fetch.io.instruction // Update instruction
+    if_id.pc   := fetch.io.pc      // Update PC
+    if_id.predTaken := predTaken
+    if_id.predTarget := predTarget
   }
   // If stalled, keep current value (implicit in registers)
+
+  // --- Branch Prediction Connections ---
+  // Update BTB on JALR and taken branches (target)
+
+  val updateBTB =
+    (execute.io.controlSignalsOut.jump === 2.U) || // JALR
+    (execute.io.controlSignalsOut.branch && execute.io.branchTaken) // taken branch
+  btb.io.u_valid  := updateBTB
+  btb.io.u_pc     := execute.io.pcOut
+  btb.io.u_target := execute.io.branchTarget
+
+// Update BHT on conditional branches (direction)
+  bht.io.u_valid  := execute.io.controlSignalsOut.branch
+  bht.io.u_pc     := execute.io.pcOut
+  val actualBranchTaken = execute.io.controlSignalsOut.branch && execute.io.branchTaken
+  bht.io.u_taken  := actualBranchTaken // Only update as taken if it's a branch and actually taken
+
 
   // --- DECODE STAGE ---
   decode.io.instruction := if_id.inst
@@ -142,10 +216,12 @@ class RiscVPipeline extends Module {
   hazard.io.memRead_ex := id_ex.ctrl.memRead
 
   // ID/EX Pipeline Update
-  // If stalled or branching, inject a bubble
-  when(hazard.io.stall) {
+  // If stalled or flushing, inject a bubble
+  when(hazard.io.stall || flush) {
     id_ex.ctrl := 0.U.asTypeOf(new ControlSignals) // Bubble (All control signals zero)
-    id_ex.inst := 0.U // Can see bubble
+    id_ex.inst := 0.U // Can see bubble (Debugging)
+    id_ex.predTaken := false.B
+    id_ex.predTarget := 0.U
   } .otherwise {
     id_ex.ctrl     := decode.io.controlSignals 
     id_ex.pc       := decode.io.pcOut
@@ -155,6 +231,8 @@ class RiscVPipeline extends Module {
     id_ex.rd       := if_id.inst(11, 7)
     id_ex.rs1_addr := if_id.inst(19, 15)
     id_ex.rs2_addr := if_id.inst(24, 20)
+    id_ex.predTaken  := if_id.predTaken
+    id_ex.predTarget := if_id.predTarget
     id_ex.inst     := if_id.inst // For debugging
   }
 
@@ -163,7 +241,10 @@ class RiscVPipeline extends Module {
   execute.io.controlSignals := id_ex.ctrl
   execute.io.pcIn    := id_ex.pc
   execute.io.immediate := id_ex.imm
+  execute.io.predTaken := id_ex.predTaken
+  execute.io.predTarget := id_ex.predTarget
   
+
   // Forwarding Connections (Muxing the inputs A and B)
   // Instead of connecting rs1 directly, we use the forwarding decision
 

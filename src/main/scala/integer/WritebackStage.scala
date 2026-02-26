@@ -54,18 +54,18 @@ class WritebackStage(conf: CoreConfig) extends Module {
   }
 
   // Select between ALU result and Memory load data
-  outputData := Mux(io.ctrl.memToReg, loadData, io.aluResult)
+  outputData := Mux(io.ctrl.memToReg, loadData, io.aluResult) // If memToReg is true, loadData; else ALU result
 
   // Jump and Link Handling
-  val linkData = Wire(UInt(conf.xlen.W))
+  val linkData = Wire(UInt(conf.xlen.W)) // Data for JAL/JALR
   when (io.ctrl.jump =/= 0.U) { // JAL or JALR
     linkData := io.pcIn + 4.U // Return address is PC + 4
   } .otherwise {
-    linkData := io.pcIn // Default
+    linkData := io.pcIn // Default 
   }
 
   // Select writeback source
-  io.wbData := Mux(io.ctrl.jump =/= 0.U, linkData, outputData)
+  io.wbData := Mux(io.ctrl.jump =/= 0.U, linkData, outputData) // If JAL or JALR, write linkData; else outputData
   io.wbAddr   := io.rdIn
   io.wbEnable := io.ctrl.regWrite
 }

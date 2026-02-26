@@ -24,6 +24,10 @@ class DecodeStage(conf: CoreConfig) extends Module {
     val pcOut = Output(UInt(conf.xlen.W)) // Pass PC to Execute Stage
     val controlSignals = Output(new ControlSignals)
 
+    // Outputs to Fetch Stage for Branch/Jump Prediction
+    val predictedTarget = Output(UInt(conf.xlen.W))
+    val takeBranch = Output(Bool()) 
+
   })
     // Default values
     io.controlSignals := 0.U.asTypeOf(new ControlSignals)
@@ -41,6 +45,9 @@ class DecodeStage(conf: CoreConfig) extends Module {
     io.controlSignals.regWrite := false.B  // Default no register write
     io.controlSignals.lui := 0.U // Default no LUI/AUIPC
     io.controlSignals.isSigned := false.B // Default unsigned operations
+
+    io.predictedTarget := 0.U
+    io.takeBranch := false.B
 
 
     val imm = io.instruction(31, 20) // I-type immediate
@@ -146,13 +153,12 @@ class DecodeStage(conf: CoreConfig) extends Module {
         val imm10_1 = io.instruction(30, 21)
         val imm11 = io.instruction(20)
         val imm19_12 = io.instruction(19, 12)
-        val imm_j = Cat(imm20, imm19_12, imm11, imm10_1, 0.U(1.W))
-        val imm_j_sext = Cat(Fill(11, imm_j(20)), imm_j)
+        val imm_j = Cat(imm20, imm19_12, imm11, imm10_1, 0.U(1.W)) // J-type immediate
+        val imm_j_sext = Cat(Fill(11, imm20), imm_j) // Sign-extended immediate
         io.controlSignals.jump := 1.U // JAL
         io.controlSignals.regWrite := true.B // Write to register
+
         io.immediate := imm_j_sext // Sign-extended immediate
-
-
 
       }
       is("b1100111".U) { // JALR
@@ -161,6 +167,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.imm_flag := true.B // Use immediate
         io.controlSignals.aluOp := 1.U // ADD for address calculation
         io.immediate := imm_sext // Sign-extended immediate
+        
 
       }
       is("b0110011".U) { // R-type Instructions (ALU + Multiply and Divide)

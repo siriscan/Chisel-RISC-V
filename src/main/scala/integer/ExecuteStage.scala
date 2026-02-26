@@ -26,7 +26,13 @@ class ExecuteStage(config : CoreConfig) extends Module {
     val controlSignalsOut = Output(new ControlSignals) // Pass control signals to Memory Stage
     val memWriteData = Output(UInt(32.W)) // Data (rs2) to write to memory for store instructions
 
-    
+    // Prediction update outputs to Fetch Stage
+    // (not needed in Execute Stage, but passed through)
+
+    // Inputs for branch prediction from Decode Stage
+    val predTaken  = Input(Bool())
+    val predTarget = Input(UInt(config.xlen.W))
+
   })
 
     // ALU Module
@@ -96,9 +102,10 @@ class ExecuteStage(config : CoreConfig) extends Module {
     // Jumps
     val jumpType = io.controlSignals.jump // 0: No jump, 1: JAL, 2: JALR
 
+
     // Calculate Branch Target
-    val pcPlusImm = io.pcIn + io.immediate // PC + immediate for branches and JAL
-    val jalrTarget = (a + io.immediate) & (~1.U(32.W)) // JALR target address (rs1 + imm) with LSB zeroed
+    val pcPlusImm =  (io.pcIn + io.immediate) & (~3.U(32.W)) // Branch target address (PC + imm) with last 2 bits zeroed for word alignment
+    val jalrTarget = (a + io.immediate) & (~3.U(32.W)) // JALR target address (rs1 + imm) with last 2 bits zeroed for word alignment
 
     when (jumpType === 1.U) { // JAL
       io.branchTarget := pcPlusImm
@@ -113,11 +120,17 @@ class ExecuteStage(config : CoreConfig) extends Module {
     // Final Branch Taken Signal
     io.branchTaken := (isBranch && isBranchTaken) || (jumpType =/= 0.U) // Taken if branch condition met or if jump instruction
 
+    val jalrMispredict = WireDefault(false.B)
+    // JALR Mispredict Detection
+    jalrMispredict := !io.predTaken || (io.predTarget =/= jalrTarget)
+
+
+
     // Pass to Memory Stage
     io.pcOut := io.pcIn
     io.controlSignalsOut := io.controlSignals
 
     // Data forwarding to Memory Stage for store instructions
     io.memWriteData := io.B
-  
-}
+
+  }

@@ -18,24 +18,28 @@ class FetchStage(conf: CoreConfig) extends Module {
     // Outputs to Decode Stage
     val pc   = Output(UInt(conf.xlen.W)) // Current PC value
     val instruction = Output(UInt(32.W)) // RISC-V instructions are always 32-bit
+
+    // Inputs from Branch Predictor (for prediction)
+    val predTakenIn  = Input(Bool()) // Predicted taken/not taken
+    val predTargetIn = Input(UInt(conf.xlen.W)) // Predicted target PC
   })
+  
+  val Pmem = Module(new InstructionMem(conf.imemSize, conf.imemFile)) // 16KB Instruction Memory from imemFile (pmem.hex)
 
   // Program Counter (PC) Register
   val pcReg  = RegInit(conf.startPC.U(conf.xlen.W))
   val nextPc = Wire(UInt(conf.xlen.W))
 
-  val Pmem = Module(new InstructionMem(conf.imemSize, conf.imemFile)) // 16KB Instruction Memory from imemFile (pmem.hex)
 
-  nextPc := Mux(io.takeBranch, io.branchTarget, pcReg + 4.U) // Default is PC + 4, unless branching
+  // priority: real redirect (mispredict fix) > BTB prediction > sequential
+  val seqNext = pcReg + 4.U
+  val specNext = Mux(io.predTakenIn, io.predTargetIn, seqNext)
+  nextPc := Mux(io.takeBranch, io.branchTarget, specNext)
 
-  pcReg := Mux(io.stall, pcReg, nextPc) // Hold PC if stall is true ; else update PC to nextPc
+  pcReg := Mux(io.stall, pcReg, nextPc)
 
-  // SyncReadMem has 1 cycle latency. We send nextPc. NOW...
-  Pmem.io.address := nextPc
-
-  // ...and the instruction for nextPc arrives in the NEXT cycle, matching the value of pcReg in that cycle.
-  io.pc   := pcReg
+  // keep your imem timing model
+  Pmem.io.address := nextPc // 1 cycle latency
+  io.pc := pcReg 
   io.instruction := Pmem.io.instruction
-
-  // Early Jumping Support
 }
