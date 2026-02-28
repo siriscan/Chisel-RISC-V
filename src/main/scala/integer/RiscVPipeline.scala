@@ -30,6 +30,8 @@ class RiscVPipeline extends Module {
     val wbPC    = Output(UInt(32.W))  // Debug: PC of instruction in Writeback Stage
     val fetchPC = Output(UInt(32.W))  // Debug: PC in Fetch Stage
 
+    val predTakenDbg  = Output(Bool()) // Debug: Branch prediction taken for instruction in Fetch Stage
+    val predTargetDbg = Output(UInt(32.W)) // Debug: Predicted target from BTB/BHT for the instruction in Fetch Stage
 
   })
 
@@ -83,7 +85,7 @@ class RiscVPipeline extends Module {
   init_if_id.predTaken := false.B
   init_if_id.predTarget := 0.U
 
-  
+
   // Use this wire for the register initialization
   val if_id = RegInit(init_if_id)
 
@@ -134,6 +136,7 @@ class RiscVPipeline extends Module {
   // What EX resolved for the current instruction in EX stage
   val actualTaken  = execute.io.branchTaken
   val actualTarget = execute.io.branchTarget
+  val redirectPC = Mux(actualTaken, actualTarget, id_ex.pc + 4.U)
 
   val predTakenEX  = id_ex.predTaken
   val predTargetEX = id_ex.predTarget
@@ -162,7 +165,7 @@ class RiscVPipeline extends Module {
   // Connections Between Stages
   // Fetch Stage Connections 
   fetch.io.takeBranch := redirect // If we need to redirect, we take the branch/jump target from EX stage
-  fetch.io.branchTarget := Mux(actualTaken, actualTarget, id_ex.pc + 4.U) // If branch is taken, go to actual target. If not taken, go to next sequential instruction (PC + 4)
+  fetch.io.branchTarget := redirectPC // If branch is taken, go to actual target. If not taken, go to next sequential instruction (PC + 4)
 
   val pipeline_stall = hazard.io.stall || memory.io.stall // If hazard unit or atomic unit detects a stall, we need to stall the fetch stage (hold PC)
   fetch.io.stall := pipeline_stall
@@ -307,13 +310,50 @@ class RiscVPipeline extends Module {
   writeback.io.rdIn      := mem_wb.rd // Destination Register
   writeback.io.pcIn      := mem_wb.pc // PC for JAL/JALR
 
+  // Track the MEM-stage request (same cycle as ctrl/addr/data are presented)
+  val memReqValid = memory.io.ctrl.memRead || memory.io.ctrl.memWrite
+  val memReqIsRead  = memory.io.ctrl.memRead
+  val memReqIsWrite = memory.io.ctrl.memWrite
+
+  val memReqAddr   = memory.io.aluResult
+  val memReqWData  = memory.io.rs2Data
+  val memReqInst   = ex_mem.inst
+  val memReqPC     = ex_mem.pc
+
+  // Latch the MEM request for debug
+  val dbgMemAddr   = RegInit(0.U(32.W))
+  val dbgMemWData  = RegInit(0.U(32.W))
+  val dbgMemIsRead = RegInit(false.B)
+  val dbgMemIsWrite= RegInit(false.B)
+  val dbgMemInst   = RegInit(0.U(32.W))
+  val dbgMemPC     = RegInit(0.U(32.W))
+
+  when(!pipeline_stall) {
+    dbgMemAddr    := memReqAddr
+    dbgMemWData   := memReqWData
+    dbgMemIsRead  := memReqIsRead
+    dbgMemIsWrite := memReqIsWrite
+    dbgMemInst    := memReqInst
+    dbgMemPC      := memReqPC
+  }
+
+  // Because SyncReadMem returns data 1 cycle after read-enable,
+  // latch read-data with a one-cycle delayed read flag.
+  val dbgReadPending = RegNext(memReqIsRead && !pipeline_stall, init=false.B)
+  val dbgMemRData    = RegInit(0.U(32.W))
+  when(dbgReadPending) {
+    dbgMemRData := memory.io.memData
+  }
+
+
+
   // Debug Output (For Verilog Monitoring)
   io.result := writeback.io.wbData
-  io.memAddress := memory.io.aluResult
-  io.memDataIn  := memory.io.rs2Data
-  io.memReadData := memory.io.memData
-  io.memRead := memory.io.ctrl.memRead
-  io.memWrite := memory.io.ctrl.memWrite
+  io.memAddress  := dbgMemAddr
+  io.memDataIn   := dbgMemWData
+  io.memRead     := dbgMemIsRead
+  io.memWrite    := dbgMemIsWrite
+  io.memReadData := dbgMemRData
 
   io.currentInst := mem_wb.inst
 
@@ -328,9 +368,12 @@ class RiscVPipeline extends Module {
 
   io.exBranchTaken  := execute.io.branchTaken
   io.exBranchTarget := execute.io.branchTarget
-  io.ifTakeBranch   := fetch.io.takeBranch
-  io.ifBranchTarget := fetch.io.branchTarget
+  io.ifTakeBranch   := redirect
+  io.ifBranchTarget := redirectPC
 
   io.wbPC    := mem_wb.pc
   io.fetchPC := fetch.io.pc
+
+  io.predTakenDbg  := predTaken
+  io.predTargetDbg := predTarget
 }

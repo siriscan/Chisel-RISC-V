@@ -5921,7 +5921,9 @@ module RiscVPipeline(
   output [2:0]  io_wbFunct3,
   output [4:0]  io_wbRd,
   output [31:0] io_wbPC,
-                io_fetchPC
+                io_fetchPC,
+  output        io_predTakenDbg,
+  output [31:0] io_predTargetDbg
 );
 
   wire        _bht_io_q_taken;
@@ -6033,17 +6035,23 @@ module RiscVPipeline(
   reg  [4:0]  mem_wb_rd;
   reg  [31:0] mem_wb_pc;
   reg  [31:0] mem_wb_inst;
+  wire [31:0] redirectPC =
+    _execute_io_branchTaken ? _execute_io_branchTarget : id_ex_pc + 32'h4;
   wire        _jumpMispredict_T_1 = id_ex_predTarget != _execute_io_branchTarget;
   wire        redirect =
     id_ex_ctrl_branch
     & (id_ex_predTaken != _execute_io_branchTaken | _execute_io_branchTaken
        & id_ex_predTaken & _jumpMispredict_T_1) | (|id_ex_ctrl_jump)
     & (~id_ex_predTaken | _jumpMispredict_T_1);
-  wire [31:0] fetch_io_branchTarget =
-    _execute_io_branchTaken ? _execute_io_branchTarget : id_ex_pc + 32'h4;
   wire        fetch_io_stall = _hazard_io_stall | _memory_io_stall;
   wire        actualBranchTaken =
     _execute_io_controlSignalsOut_branch & _execute_io_branchTaken;
+  reg  [31:0] dbgMemAddr;
+  reg  [31:0] dbgMemWData;
+  reg         dbgMemIsRead;
+  reg         dbgMemIsWrite;
+  reg         dbgReadPending;
+  reg  [31:0] dbgMemRData;
   always @(posedge clock) begin
     if (reset) begin
       if_id_pc <= 32'h0;
@@ -6099,6 +6107,12 @@ module RiscVPipeline(
       mem_wb_rd <= 5'h0;
       mem_wb_pc <= 32'h0;
       mem_wb_inst <= 32'h0;
+      dbgMemAddr <= 32'h0;
+      dbgMemWData <= 32'h0;
+      dbgMemIsRead <= 1'h0;
+      dbgMemIsWrite <= 1'h0;
+      dbgReadPending <= 1'h0;
+      dbgMemRData <= 32'h0;
     end
     else begin
       automatic logic _GEN = fetch_io_stall | redirect;
@@ -6164,6 +6178,15 @@ module RiscVPipeline(
       mem_wb_rd <= _memory_io_rdOut;
       mem_wb_pc <= ex_mem_pc;
       mem_wb_inst <= ex_mem_inst;
+      if (~fetch_io_stall) begin
+        dbgMemAddr <= ex_mem_aluResult;
+        dbgMemWData <= ex_mem_rs2Data;
+        dbgMemIsRead <= ex_mem_ctrl_memRead;
+        dbgMemIsWrite <= ex_mem_ctrl_memWrite;
+      end
+      dbgReadPending <= ex_mem_ctrl_memRead & ~fetch_io_stall;
+      if (dbgReadPending)
+        dbgMemRData <= _memory_io_memData;
     end
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_
@@ -6171,12 +6194,12 @@ module RiscVPipeline(
       `FIRRTL_BEFORE_INITIAL
     `endif // FIRRTL_BEFORE_INITIAL
     initial begin
-      automatic logic [31:0] _RANDOM[0:21];
+      automatic logic [31:0] _RANDOM[0:26];
       `ifdef INIT_RANDOM_PROLOG_
         `INIT_RANDOM_PROLOG_
       `endif // INIT_RANDOM_PROLOG_
       `ifdef RANDOMIZE_REG_INIT
-        for (logic [4:0] i = 5'h0; i < 5'h16; i += 5'h1) begin
+        for (logic [4:0] i = 5'h0; i < 5'h1B; i += 5'h1) begin
           _RANDOM[i] = `RANDOM;
         end
         if_id_pc = _RANDOM[5'h0];
@@ -6232,6 +6255,12 @@ module RiscVPipeline(
         mem_wb_rd = _RANDOM[5'h13][21:17];
         mem_wb_pc = {_RANDOM[5'h13][31:22], _RANDOM[5'h14][21:0]};
         mem_wb_inst = {_RANDOM[5'h14][31:22], _RANDOM[5'h15][21:0]};
+        dbgMemAddr = {_RANDOM[5'h15][31:22], _RANDOM[5'h16][21:0]};
+        dbgMemWData = {_RANDOM[5'h16][31:22], _RANDOM[5'h17][21:0]};
+        dbgMemIsRead = _RANDOM[5'h17][22];
+        dbgMemIsWrite = _RANDOM[5'h17][23];
+        dbgReadPending = _RANDOM[5'h19][24];
+        dbgMemRData = {_RANDOM[5'h19][31:25], _RANDOM[5'h1A][24:0]};
       `endif // RANDOMIZE_REG_INIT
     end // initial
     `ifdef FIRRTL_AFTER_INITIAL
@@ -6241,7 +6270,7 @@ module RiscVPipeline(
   FetchStage fetch (
     .clock           (clock),
     .reset           (reset),
-    .io_branchTarget (fetch_io_branchTarget),
+    .io_branchTarget (redirectPC),
     .io_takeBranch   (redirect),
     .io_stall        (fetch_io_stall),
     .io_pc           (_fetch_io_pc),
@@ -6397,16 +6426,16 @@ module RiscVPipeline(
     .io_u_taken (actualBranchTaken)
   );
   assign io_result = _writeback_io_wbData;
-  assign io_memAddress = ex_mem_aluResult;
-  assign io_memDataIn = ex_mem_rs2Data;
-  assign io_memRead = ex_mem_ctrl_memRead;
-  assign io_memWrite = ex_mem_ctrl_memWrite;
-  assign io_memReadData = _memory_io_memData;
+  assign io_memAddress = dbgMemAddr;
+  assign io_memDataIn = dbgMemWData;
+  assign io_memRead = dbgMemIsRead;
+  assign io_memWrite = dbgMemIsWrite;
+  assign io_memReadData = dbgMemRData;
   assign io_nextInst = _fetch_io_instruction;
   assign io_exBranchTaken = _execute_io_branchTaken;
   assign io_exBranchTarget = _execute_io_branchTarget;
   assign io_ifTakeBranch = redirect;
-  assign io_ifBranchTarget = fetch_io_branchTarget;
+  assign io_ifBranchTarget = redirectPC;
   assign io_currentInst = mem_wb_inst;
   assign io_wbEnable = _writeback_io_wbEnable;
   assign io_wbAddr = _writeback_io_wbAddr;
@@ -6415,6 +6444,8 @@ module RiscVPipeline(
   assign io_wbRd = mem_wb_inst[11:7];
   assign io_wbPC = mem_wb_pc;
   assign io_fetchPC = _fetch_io_pc;
+  assign io_predTakenDbg = predTaken;
+  assign io_predTargetDbg = _btb_io_q_target;
 endmodule
 
 
