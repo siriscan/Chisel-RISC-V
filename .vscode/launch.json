@@ -1,6 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [
+
     {
       "type": "scala",
       "request": "launch",
@@ -65,7 +66,7 @@
       "type": "scala",
       "request": "launch",
       "name": "SVGen",
-      "mainClass": "integer.SVGen",
+      "mainClass": "core.SVGen",
       "buildTarget": "file:/C:/Users/irisc/Documents/CHISEL/Chisel-RISC-V/?id=root",
       "args": [],
       "jvmOptions": [],

@@ -26,8 +26,9 @@ class ExecuteStage(config : CoreConfig) extends Module {
     val controlSignalsOut = Output(new ControlSignals) // Pass control signals to Memory Stage
     val memWriteData = Output(UInt(32.W)) // Data (rs2) to write to memory for store instructions
 
-    // Prediction update outputs to Fetch Stage
-    // (not needed in Execute Stage, but passed through)
+    // Outputs for Atomic Unit
+
+
 
     // Inputs for branch prediction from Decode Stage
     val predTaken  = Input(Bool())
@@ -119,11 +120,6 @@ class ExecuteStage(config : CoreConfig) extends Module {
 
     // Final Branch Taken Signal
     io.branchTaken := (isBranch && isBranchTaken) || (jumpType =/= 0.U) // Taken if branch condition met or if jump instruction
-
-    val jalrMispredict = WireDefault(false.B)
-    // JALR Mispredict Detection
-    jalrMispredict := !io.predTaken || (io.predTarget =/= jalrTarget)
-
 
 
     // Pass to Memory Stage

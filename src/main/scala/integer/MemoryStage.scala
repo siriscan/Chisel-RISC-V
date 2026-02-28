@@ -17,18 +17,27 @@ class MemoryStage(conf: CoreConfig) extends Module {
     val aluOut    = Output(UInt(conf.xlen.W))   // Pass-through ALU result
     val rdOut     = Output(UInt(5.W))           // Pass-through Destination Register
     val ctrlOut   = Output(new ControlSignals)  // Pass-through Control Signals
+
+    val stall      = Output(Bool())              // Stall signal for Load-Use hazard
   })
 
   // Data Memory
   val dmem = Module(new DataMem(16384)) // 16KB Data Memory
+  val atomic = Module(new AtomicUnit(conf)) // Atomic Unit for AMO/LR/SC instructions
 
   val addrLSB = io.aluResult(1, 0) // byte offset within the 32-bit word
   val byteShift = addrLSB << 3     // 0, 8, 16, 24
 
-  // Default connections
-  dmem.io.addr     := io.aluResult
-  dmem.io.memRead  := io.ctrl.memRead
-  dmem.io.memWrite := io.ctrl.memWrite
+  // Atomic Unit Connections
+  atomic.io.atomic  := io.ctrl.atomic
+  atomic.io.memAddress   := io.aluResult
+  atomic.io.rs2Data    := io.rs2Data
+  atomic.io.rd     := io.rdIn
+  atomic.io.atomicOp := io.ctrl.amoOp
+  atomic.io.isLR   := io.ctrl.isLR
+  atomic.io.isSC   := io.ctrl.isSC
+  atomic.io.memDataIn := dmem.io.rdData
+  
 
   // Default: no write lanes enabled
   val mask = Wire(Vec(4, Bool()))
@@ -37,6 +46,15 @@ class MemoryStage(conf: CoreConfig) extends Module {
   // Default: unshifted data (good for SW)
   val storeData = Wire(UInt(conf.xlen.W)) // Data to write to memory 
   storeData := io.rs2Data
+
+  val normAddr   = io.aluResult
+  val normRead   = io.ctrl.memRead
+  val normWrite  = io.ctrl.memWrite
+  val normMask   = mask
+  val normWrData = storeData
+
+
+
 
   // Only relevant on stores
   when(io.ctrl.memWrite) {
@@ -72,12 +90,37 @@ class MemoryStage(conf: CoreConfig) extends Module {
     }
   }
 
-  dmem.io.mask   := mask 
-  dmem.io.wrData := storeData 
+  // Connect to Data Memory
+  val useAtomic = atomic.io.stall || io.ctrl.atomic
+  dmem.io.addr     := Mux(useAtomic, atomic.io.memAddressOut,   normAddr)
+  dmem.io.memRead  := Mux(useAtomic, atomic.io.memReadEnable,   normRead)
+  dmem.io.memWrite := Mux(useAtomic, atomic.io.memWriteEnable,  normWrite)
+  dmem.io.mask     := Mux(useAtomic, atomic.io.memMask,   normMask)
+  dmem.io.wrData   := Mux(useAtomic, atomic.io.memWriteDataOut, normWrData)
+
+  // Switch outputs to Writeback Stage between normal memory access and atomic unit
+
+  val outAlu  = Mux(io.ctrl.atomic, atomic.io.resultOut, io.aluResult)
+  val outRd   = Mux(io.ctrl.atomic, atomic.io.rdOut,        io.rdIn)
+  val outCtrl = Wire(new ControlSignals)
+  outCtrl := io.ctrl // Default to passing through control signals
+
+  when(io.ctrl.atomic) {
+    outCtrl.regWrite := true.B
+    outCtrl.memToReg := false.B
+    outCtrl.memRead  := false.B
+    outCtrl.memWrite := false.B
+  }
+
 
   // Outputs to WB
   io.memData := dmem.io.rdData // Read data from memory or 0 if not reading
-  io.aluOut  := io.aluResult // Pass-through ALU result to WB
-  io.rdOut   := io.rdIn // Pass-through Destination Register
-  io.ctrlOut := io.ctrl // Pass-through Control Signals
+  io.aluOut  := outAlu // Pass-through ALU result to WB
+  io.rdOut   := outRd // Pass-through Destination Register
+  io.ctrlOut := outCtrl // Pass-through Control Signals
+  io.stall   := atomic.io.stall // Stall if atomic unit is performing an operation
+  
+
+
+
 }

@@ -54,10 +54,12 @@ class ControlSignals extends Bundle {
   val isSigned = Bool() // 0: Unsigned operation, 1: Signed operation 
 
   // Atomic Instructions (LR/SC)
-  val atomicFlag = Bool() // True if instruction is atomic (LR/SC)
-  val amoOp      = UInt(5.W) // AMO Operation (Funct5 for AMO instructions)
+  val atomic      = Bool() // True if instruction is atomic (LR/SC)
+  val amoOp       = UInt(5.W) // AMO Operation (Funct5 for AMO instructions)
   val rl_flag     = Bool() // Release flag for LR/SC
   val aq_flag     = Bool() // Acquire flag for LR/SC
+  val isLR        = Bool() // True if instruction is LR
+  val isSC        = Bool() // True if instruction is SC
 
 
   // CSR Signals (NOT USED YET)

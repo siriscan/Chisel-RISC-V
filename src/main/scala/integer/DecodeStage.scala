@@ -22,11 +22,7 @@ class DecodeStage(conf: CoreConfig) extends Module {
     val B = Output(UInt(32.W)) // Read Data 2
     val immediate = Output(UInt(32.W)) // Immediate Value
     val pcOut = Output(UInt(conf.xlen.W)) // Pass PC to Execute Stage
-    val controlSignals = Output(new ControlSignals)
-
-    // Outputs to Fetch Stage for Branch/Jump Prediction
-    val predictedTarget = Output(UInt(conf.xlen.W))
-    val takeBranch = Output(Bool()) 
+    val controlSignals = Output(new ControlSignals) 
 
   })
     // Default values
@@ -46,10 +42,15 @@ class DecodeStage(conf: CoreConfig) extends Module {
     io.controlSignals.lui := 0.U // Default no LUI/AUIPC
     io.controlSignals.isSigned := false.B // Default unsigned operations
 
-    io.predictedTarget := 0.U
-    io.takeBranch := false.B
+    // Defalt atomic control signals
+    io.controlSignals.atomic := false.B // Default not atomic
+    io.controlSignals.amoOp := 0.U // Default AMO operation
+    io.controlSignals.rl_flag := false.B // Default no release flag
+    io.controlSignals.aq_flag := false.B // Default no acquire flag
+    io.controlSignals.isLR := false.B // Default not LR
+    io.controlSignals.isSC := false.B // Default not SC
 
-
+    // Extract fields from instruction
     val imm = io.instruction(31, 20) // I-type immediate
 
     val imm_u = io.instruction(31, 12) // U-type immediate
@@ -57,10 +58,10 @@ class DecodeStage(conf: CoreConfig) extends Module {
 
     val imm_sext = Cat(Fill(20, imm(11)), imm) // sign-extend immediate
 
-    val opcode = io.instruction(6, 0)
-    val funct3 = io.instruction(14, 12)
+    val opcode = io.instruction(6, 0) // opcode is always bits [6:0]
+    val funct3 = io.instruction(14, 12) // funct3 is bits [14:12]
     
-    val funct7 = io.instruction(31, 25)
+    val funct7 = io.instruction(31, 25) // funct7 is bits [31:25], used for R-type and some I-type instructions
 
 
 
@@ -271,6 +272,34 @@ class DecodeStage(conf: CoreConfig) extends Module {
         io.controlSignals.lui := 2.U
       }
 
+      is("b0101111".U) { // AMO Instructions
+        when(funct3 === "b010".U) { // Check for AMO.W which is the only AMO in the base spec
+          io.controlSignals.atomic := true.B // This is an atomic instruction
+          io.controlSignals.regWrite := true.B // AMO writes back to register
+          io.controlSignals.amoOp := io.instruction(31, 27) // Funct5 for AMO operation
+          io.controlSignals.rl_flag := io.instruction(25) // RL bit
+          io.controlSignals.aq_flag := io.instruction(26) // AQ bit
+          io.controlSignals.memOp := io.instruction(14, 12) // Pass funct3 for memory operations (e.g., AMO.W uses funct3 = 010)
+          io.controlSignals.memRead := false.B // AMO does not use normal memory read
+          io.controlSignals.memWrite := false.B // AMO does not use normal memory write
+          io.controlSignals.aluOp := 1.U // ADD for address calculation
+          io.controlSignals.imm_flag := true.B // Use immediate for address calculation
+          io.immediate := 0.U // AMO uses rs1 as base address with no immediate offset
+
+          when(io.instruction(31, 27) === "b00010".U) { // LR.W
+            io.controlSignals.isSigned := false.B // LR is unsigned for address calculation
+            io.controlSignals.isLR := true.B // This is an LR instruction
+          } .elsewhen(io.instruction(31, 27) === "b00011".U) { // SC.W
+            io.controlSignals.isSigned := false.B // SC is unsigned for address calculation
+            io.controlSignals.isSC := true.B // This is an SC instruction
+          }
+        } .otherwise {
+          // Unsupported AMO type (e.g., half-word or byte AMOs which are not in the base spec)
+          // For simplicity, we can treat them as NOPs or handle them as needed
+          io.controlSignals.aluOp := 0.U // NOP
+        }
+      }
+    
 
       
     }

@@ -79,10 +79,11 @@ class RiscVPipeline extends Module {
 
   val init_if_id = Wire(new IF_ID_Bundle)
   init_if_id.pc   := 0.U
-  init_if_id.inst := "h00000013".U(32.W)
+  init_if_id.inst := "h00000013".U(32.W) // NOP
   init_if_id.predTaken := false.B
   init_if_id.predTarget := 0.U
 
+  
   // Use this wire for the register initialization
   val if_id = RegInit(init_if_id)
 
@@ -160,11 +161,11 @@ class RiscVPipeline extends Module {
 
   // Connections Between Stages
   // Fetch Stage Connections 
-  fetch.io.takeBranch := redirect
-  fetch.io.branchTarget := Mux(actualTaken, actualTarget, id_ex.pc + 4.U)  
+  fetch.io.takeBranch := redirect // If we need to redirect, we take the branch/jump target from EX stage
+  fetch.io.branchTarget := Mux(actualTaken, actualTarget, id_ex.pc + 4.U) // If branch is taken, go to actual target. If not taken, go to next sequential instruction (PC + 4)
 
-  fetch.io.stall    := hazard.io.stall
-
+  val pipeline_stall = hazard.io.stall || memory.io.stall // If hazard unit or atomic unit detects a stall, we need to stall the fetch stage (hold PC)
+  fetch.io.stall := pipeline_stall
   fetch.io.predTakenIn  := predTaken
   fetch.io.predTargetIn := predTarget
 
@@ -175,7 +176,7 @@ class RiscVPipeline extends Module {
     if_id.inst := "h00000013".U(32.W) // Inject NOP on flush
     if_id.predTaken := false.B
     if_id.predTarget := 0.U
-  } .elsewhen(!hazard.io.stall) {
+  } .elsewhen(!pipeline_stall) {
     if_id.inst := fetch.io.instruction // Update instruction
     if_id.pc   := fetch.io.pc      // Update PC
     if_id.predTaken := predTaken
@@ -183,7 +184,7 @@ class RiscVPipeline extends Module {
   }
   // If stalled, keep current value (implicit in registers)
 
-  // --- Branch Prediction Connections ---
+  // --- BRANCH PREDICTION UPDATE ---
   // Update BTB on JALR and taken branches (target)
 
   val updateBTB =
@@ -193,7 +194,7 @@ class RiscVPipeline extends Module {
   btb.io.u_pc     := execute.io.pcOut
   btb.io.u_target := execute.io.branchTarget
 
-// Update BHT on conditional branches (direction)
+  // Update BHT on conditional branches (direction)
   bht.io.u_valid  := execute.io.controlSignalsOut.branch
   bht.io.u_pc     := execute.io.pcOut
   val actualBranchTaken = execute.io.controlSignalsOut.branch && execute.io.branchTaken
@@ -217,7 +218,7 @@ class RiscVPipeline extends Module {
 
   // ID/EX Pipeline Update
   // If stalled or flushing, inject a bubble
-  when(hazard.io.stall || flush) {
+  when(pipeline_stall || flush) {
     id_ex.ctrl := 0.U.asTypeOf(new ControlSignals) // Bubble (All control signals zero)
     id_ex.inst := 0.U // Can see bubble (Debugging)
     id_ex.predTaken := false.B
@@ -271,12 +272,18 @@ class RiscVPipeline extends Module {
   forwarding.io.regWrite_wb  := mem_wb.ctrl.regWrite
 
   // EX/MEM Pipeline Update
-  ex_mem.ctrl      := execute.io.controlSignalsOut
-  ex_mem.aluResult := execute.io.C // Connect ALU result to EX/MEM register
-  ex_mem.rs2Data   := execute.io.memWriteData // Passed through Execute for Store
-  ex_mem.rd        := id_ex.rd
-  ex_mem.pc        := id_ex.pc
-  ex_mem.inst      := id_ex.inst // For debugging
+  // If flush or stall, inject bubble
+  when(pipeline_stall || flush) {
+    ex_mem.ctrl := 0.U.asTypeOf(new ControlSignals) // Bubble
+    ex_mem.inst := 0.U // For debugging (Can see bubble in Memory Stage)
+  } .otherwise { // If not stalled, update normally. If stalled, hold current value.
+    ex_mem.ctrl      := execute.io.controlSignalsOut
+    ex_mem.aluResult := execute.io.C // Connect ALU result to EX/MEM register
+    ex_mem.rs2Data   := execute.io.memWriteData // Passed through Execute for Store
+    ex_mem.rd        := id_ex.rd
+    ex_mem.pc        := id_ex.pc
+    ex_mem.inst      := id_ex.inst // For debugging
+  }
 
   // Memory Stage Connections
   memory.io.ctrl      := ex_mem.ctrl

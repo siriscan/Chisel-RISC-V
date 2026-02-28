@@ -6,8 +6,10 @@ import circt.stage.ChiselStage
 import integer.RiscVPipeline
 
 object SVGen extends App {
-  Files.delete(Paths.get("generated/RiscVPipeline.sv"))
+  // Remove existing file if it exists
+  Files.deleteIfExists(Paths.get("generated", "RiscVPipeline.sv"))
 
+  // Generate SystemVerilog file
   val sv = ChiselStage.emitSystemVerilog(new RiscVPipeline)
   println("Generating SystemVerilog file 'RiscVPipeline.sv' in generated/ directory.... ")
   Files.createDirectories(Paths.get("generated"))

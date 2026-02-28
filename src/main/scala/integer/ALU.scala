@@ -61,6 +61,10 @@ class ALU(width : Int) extends Module {
 
 
 switch(io.opcode) {
+    is(ALUConsts_Interger.nop) {
+      io.C := 0.U
+    }
+
     is(ALUConsts_Interger.add) {
       io.C := io.A + B
     }
@@ -84,8 +88,7 @@ switch(io.opcode) {
     }
     is(ALUConsts_Interger.sra) {
       io.C := (io.A.asSInt >> B(4,0)).asUInt
-    }
-    
+    } 
 
 
     is(ALUConsts_Interger.slt) {
