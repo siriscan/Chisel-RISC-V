@@ -10,7 +10,7 @@ object SVGen extends App {
   Files.deleteIfExists(Paths.get("generated", "RiscVPipeline.sv"))
 
   // Generate SystemVerilog file
-  val sv = ChiselStage.emitSystemVerilog(new RiscVPipeline)
+  val sv = ChiselStage.emitSystemVerilog(new RiscVPipeline, firtoolOpts = Array("-strip-debug-info", "-O=release"))
   println("Generating SystemVerilog file 'RiscVPipeline.sv' in generated/ directory.... ")
   Files.createDirectories(Paths.get("generated"))
   Files.write(Paths.get("generated/RiscVPipeline.sv"), sv.getBytes)
